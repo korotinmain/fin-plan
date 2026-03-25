@@ -84,6 +84,24 @@
           </div>
 
           <div class="goal-editor__field">
+            <label class="goal-editor__label" for="alreadyPaidAmount">
+              {{ 'goal.alreadyPaid' | t }}
+              <span class="goal-editor__currency-tag">USD</span>
+            </label>
+            <input
+              id="alreadyPaidAmount"
+              class="goal-editor__input"
+              formControlName="alreadyPaidAmount"
+              type="number"
+              placeholder="40000"
+              min="0"
+              step="100"
+              autocomplete="off"
+            />
+            <p class="goal-editor__hint">{{ 'goal.alreadyPaidHint' | t }}</p>
+          </div>
+
+          <div class="goal-editor__field">
             <label class="goal-editor__label" for="savedAmount">
               {{ 'goal.savedAmount' | t }}
               <span class="goal-editor__currency-tag">USD</span>
@@ -92,7 +110,7 @@
               id="savedAmount"
               class="goal-editor__input goal-editor__input--readonly"
               type="text"
-              [value]="savedAmountUsd() | currency: 'USD' : 'symbol' : '1.0-2'"
+              [value]="currentSavingsUsd() | currency: 'USD' : 'symbol' : '1.0-2'"
               readonly
             />
             <p class="goal-editor__hint">{{ 'goal.savedAmountHint' | t }}</p>
@@ -173,9 +191,15 @@
                 </span>
               </div>
               <div class="goal-hero__metric goal-hero__metric--saved">
+                <span class="goal-hero__metric-label">{{ 'goal.alreadyPaid' | t }}</span>
+                <span class="goal-hero__metric-value">
+                  {{ alreadyPaidAmount() | currency: 'USD' : 'symbol' : '1.0-2' }}
+                </span>
+              </div>
+              <div class="goal-hero__metric goal-hero__metric--saved">
                 <span class="goal-hero__metric-label">{{ 'goal.alreadySaved' | t }}</span>
                 <span class="goal-hero__metric-value">
-                  {{ savedAmountUsd() | currency: 'USD' : 'symbol' : '1.0-2' }}
+                  {{ currentSavingsUsd() | currency: 'USD' : 'symbol' : '1.0-2' }}
                 </span>
               </div>
               <div class="goal-hero__metric goal-hero__metric--remaining">

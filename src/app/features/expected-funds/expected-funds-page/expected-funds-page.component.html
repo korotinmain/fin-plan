@@ -7,6 +7,14 @@
     </div>
 
     <button class="expected-funds-page__cta" type="button" (click)="openCreateDialog()">
+      <svg class="expected-funds-page__cta-icon" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+        <path
+          d="M8 2.25v11.5M2.25 8h11.5"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"
+        />
+      </svg>
       {{ 'expectedFunds.addCta' | t }}
     </button>
   </header>
@@ -51,30 +59,41 @@
           <p class="expected-funds-table__subtitle">{{ 'expectedFunds.registrySubtitle' | t }}</p>
         </div>
 
-        <label class="expected-funds-table__search">
-          <span class="expected-funds-table__search-icon" aria-hidden="true">⌕</span>
-          <input
-            class="expected-funds-table__search-input"
-            type="search"
-            [value]="searchTerm()"
-            [placeholder]="'expectedFunds.searchPlaceholder' | t"
-            #searchInput
-            (input)="setSearchTerm(searchInput.value)"
-          />
-        </label>
-      </div>
-
-      <div class="expected-funds-table__grid expected-funds-table__grid--head" aria-hidden="true">
-        <span>{{ 'expectedFunds.colSource' | t }}</span>
-        <span>{{ 'expectedFunds.colOriginal' | t }}</span>
-        <span>{{ 'expectedFunds.colUsdValue' | t }}</span>
-        <span>{{ 'expectedFunds.colEta' | t }}</span>
-        <span>{{ 'expectedFunds.colStatus' | t }}</span>
+        @if (!hasEntries()) {
+          <button
+            class="expected-funds-table__empty-cta"
+            type="button"
+            (click)="openCreateDialog()"
+          >
+            <svg
+              class="expected-funds-page__cta-icon"
+              viewBox="0 0 16 16"
+              fill="none"
+              aria-hidden="true"
+            >
+              <path
+                d="M8 2.25v11.5M2.25 8h11.5"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+              />
+            </svg>
+            {{ 'expectedFunds.addCta' | t }}
+          </button>
+        }
       </div>
 
       @if (hasEntries()) {
+        <div class="expected-funds-table__grid expected-funds-table__grid--head" aria-hidden="true">
+          <span>{{ 'expectedFunds.colSource' | t }}</span>
+          <span>{{ 'expectedFunds.colOriginal' | t }}</span>
+          <span>{{ 'expectedFunds.colUsdValue' | t }}</span>
+          <span>{{ 'expectedFunds.colEta' | t }}</span>
+          <span>{{ 'expectedFunds.colStatus' | t }}</span>
+        </div>
+
         <div class="expected-funds-table__rows">
-          @for (entry of filteredEntries(); track entry.id) {
+          @for (entry of entries(); track entry.id) {
             <div class="expected-funds-table__grid expected-funds-table__row">
               <div class="expected-funds-table__source">
                 <strong>{{ entry.source }}</strong>
@@ -99,18 +118,35 @@
         </div>
       } @else {
         <div class="expected-funds-empty">
+          <div class="expected-funds-empty__orb" aria-hidden="true"></div>
           <p class="expected-funds-empty__title">{{ 'expectedFunds.emptyTitle' | t }}</p>
           <p class="expected-funds-empty__subtitle">{{ 'expectedFunds.emptySubtitle' | t }}</p>
+          <button class="expected-funds-empty__cta" type="button" (click)="openCreateDialog()">
+            <svg
+              class="expected-funds-page__cta-icon"
+              viewBox="0 0 16 16"
+              fill="none"
+              aria-hidden="true"
+            >
+              <path
+                d="M8 2.25v11.5M2.25 8h11.5"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+              />
+            </svg>
+            {{ 'expectedFunds.addCta' | t }}
+          </button>
         </div>
       }
     </section>
   </app-card>
 
   @if (isDialogOpen()) {
-    <div class="expected-funds-dialog">
+    <div class="expected-funds-dialog" role="dialog" aria-modal="true">
       <div class="expected-funds-dialog__backdrop" (click)="closeDialog()"></div>
 
-      <app-card class="expected-funds-dialog__panel">
+      <div class="expected-funds-dialog__panel">
         <form class="expected-funds-editor" [formGroup]="form" (ngSubmit)="saveEntry()">
           <div class="expected-funds-editor__head">
             <div>
@@ -128,6 +164,7 @@
               <input
                 formControlName="source"
                 type="text"
+                [class.expected-funds-editor__control--invalid]="fieldInvalid('source')"
                 [placeholder]="'expectedFunds.form.sourcePlaceholder' | t"
               />
             </label>
@@ -142,37 +179,60 @@
           </div>
 
           <div class="expected-funds-editor__grid expected-funds-editor__grid--three">
-            <label class="expected-funds-editor__field">
+            <div class="expected-funds-editor__field">
               <span>{{ 'expectedFunds.form.currencyLabel' | t }}</span>
-              <select formControlName="originalCurrency">
-                @for (currency of currencies; track currency) {
-                  <option [value]="currency">{{ currency }}</option>
-                }
-              </select>
-            </label>
+              <mat-form-field
+                appearance="outline"
+                subscriptSizing="dynamic"
+                class="premium-select-field"
+                [class.premium-select-field--invalid]="fieldInvalid('originalCurrency')"
+              >
+                <mat-select formControlName="originalCurrency" panelClass="premium-select-panel">
+                  @for (currency of currencies; track currency) {
+                    <mat-option [value]="currency">{{ currency }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+            </div>
             <label class="expected-funds-editor__field">
               <span>{{ 'expectedFunds.form.amountLabel' | t }}</span>
-              <input formControlName="originalAmount" type="number" min="1" step="1" />
+              <input
+                formControlName="originalAmount"
+                type="number"
+                min="1"
+                step="1"
+                [class.expected-funds-editor__control--invalid]="fieldInvalid('originalAmount')"
+              />
             </label>
             <label class="expected-funds-editor__field">
               <span>{{ 'expectedFunds.form.etaLabel' | t }}</span>
               <input
                 formControlName="eta"
                 type="text"
+                [class.expected-funds-editor__control--invalid]="fieldInvalid('eta')"
                 [placeholder]="'expectedFunds.form.etaPlaceholder' | t"
               />
             </label>
           </div>
 
           <div class="expected-funds-editor__grid">
-            <label class="expected-funds-editor__field">
+            <div class="expected-funds-editor__field">
               <span>{{ 'expectedFunds.form.statusLabel' | t }}</span>
-              <select formControlName="status">
-                @for (status of statuses; track status) {
-                  <option [value]="status">{{ 'expectedFunds.form.status.' + status | t }}</option>
-                }
-              </select>
-            </label>
+              <mat-form-field
+                appearance="outline"
+                subscriptSizing="dynamic"
+                class="premium-select-field"
+                [class.premium-select-field--invalid]="fieldInvalid('status')"
+              >
+                <mat-select formControlName="status" panelClass="premium-select-panel">
+                  @for (status of statuses; track status) {
+                    <mat-option [value]="status">{{
+                      'expectedFunds.form.status.' + status | t
+                    }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+            </div>
           </div>
 
           @if (saveError()) {
@@ -196,7 +256,7 @@
             </button>
           </div>
         </form>
-      </app-card>
+      </div>
     </div>
   }
 </div>

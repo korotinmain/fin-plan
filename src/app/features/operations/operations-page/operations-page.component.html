@@ -8,63 +8,50 @@
       </div>
 
       <button class="operations-page__cta" type="button" (click)="openDialog()">
+        <svg class="operations-page__cta-icon" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <path
+            d="M8 2.25v11.5M2.25 8h11.5"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+          />
+        </svg>
         {{ 'operations.recordExchange' | t }}
       </button>
     </header>
 
     <div class="operations-layout">
       <app-card>
-        <section class="impact-card">
-          <div class="panel-head">
-            <h2 class="panel-head__title">{{ 'operations.impactTitle' | t }}</h2>
-            <p class="panel-head__subtitle">{{ 'operations.impactSubtitle' | t }}</p>
-          </div>
-
-          <div class="impact-card__metrics">
-            <article class="metric-tile">
-              <span class="metric-tile__label">{{ 'operations.cumulativeFxLoss' | t }}</span>
-              <strong class="metric-tile__value"
-                >${{ cumulativeFxLossUsd() | number: '1.0-0' }}</strong
-              >
-              <span class="metric-tile__note">{{ 'operations.cumulativeFxLossHint' | t }}</span>
-            </article>
-
-            <article class="metric-tile metric-tile--loss">
-              <span class="metric-tile__label">{{ 'operations.largestRecentLoss' | t }}</span>
-              <strong class="metric-tile__value">
-                @if (largestRecentLoss(); as recentLoss) {
-                  ${{ recentLoss.fxLossUsd | number: '1.0-0' }}
-                } @else {
-                  $0
-                }
-              </strong>
-              <span class="metric-tile__note">
-                {{ largestRecentLossNote() }}
-              </span>
-            </article>
-          </div>
-
-          <div class="impact-card__chart-shell">
-            <canvas
-              baseChart
-              [data]="fxLossChartData()"
-              [options]="fxLossChartOptions"
-              [type]="'line'"
-            ></canvas>
-          </div>
-        </section>
-      </app-card>
-
-      <app-card>
         <section class="activity-card-shell">
           <div class="panel-head">
-            <h2 class="panel-head__title">{{ 'operations.activityTitle' | t }}</h2>
-            <p class="panel-head__subtitle">{{ 'operations.activitySubtitle' | t }}</p>
+            <div>
+              <h2 class="panel-head__title">{{ 'operations.activityTitle' | t }}</h2>
+              <p class="panel-head__subtitle">{{ 'operations.activitySubtitle' | t }}</p>
+            </div>
+
+            <div class="activity-filter">
+              <span class="activity-filter__label">{{ 'operations.filterLabel' | t }}</span>
+              <mat-form-field
+                appearance="outline"
+                subscriptSizing="dynamic"
+                class="premium-select-field activity-filter__field"
+              >
+                <mat-select
+                  [value]="selectedMonth()"
+                  panelClass="premium-select-panel"
+                  (valueChange)="setSelectedMonth($event)"
+                >
+                  @for (option of monthOptions(); track option.value) {
+                    <mat-option [value]="option.value">{{ option.label }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+            </div>
           </div>
 
-          @if (activityEntries().length > 0) {
+          @if (filteredActivityEntries().length > 0) {
             <div class="activity-list">
-              @for (entry of activityEntries(); track entry.id) {
+              @for (entry of filteredActivityEntries(); track entry.id) {
                 <article class="activity-item">
                   <div class="activity-item__top">
                     <div>
@@ -102,6 +89,11 @@
                   <p class="activity-item__footnote">{{ entry.footnote }}</p>
                 </article>
               }
+            </div>
+          } @else if (hasAnyActivityEntries()) {
+            <div class="activity-empty">
+              <p class="activity-empty__title">{{ 'operations.filterEmptyTitle' | t }}</p>
+              <p class="activity-empty__subtitle">{{ 'operations.filterEmptySubtitle' | t }}</p>
             </div>
           } @else {
             <div class="activity-empty">
@@ -176,23 +168,35 @@
 
         @if (formState().type !== 'income') {
           <div class="operations-form__grid operations-form__grid--two">
-            <label class="field">
+            <div class="field">
               <span class="field__label">{{ 'operations.fromSourceLabel' | t }}</span>
-              <select class="field__control" formControlName="fromSource">
-                @for (source of sourceMeta; track source.id) {
-                  <option [value]="source.id">{{ source.label }}</option>
-                }
-              </select>
-            </label>
+              <mat-form-field
+                appearance="outline"
+                subscriptSizing="dynamic"
+                class="premium-select-field"
+              >
+                <mat-select formControlName="fromSource" panelClass="premium-select-panel">
+                  @for (source of sourceMeta; track source.id) {
+                    <mat-option [value]="source.id">{{ source.label }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+            </div>
 
-            <label class="field">
+            <div class="field">
               <span class="field__label">{{ 'operations.toSourceLabel' | t }}</span>
-              <select class="field__control" formControlName="toSource">
-                @for (source of toSourceOptions(); track source.id) {
-                  <option [value]="source.id">{{ source.label }}</option>
-                }
-              </select>
-            </label>
+              <mat-form-field
+                appearance="outline"
+                subscriptSizing="dynamic"
+                class="premium-select-field"
+              >
+                <mat-select formControlName="toSource" panelClass="premium-select-panel">
+                  @for (source of toSourceOptions(); track source.id) {
+                    <mat-option [value]="source.id">{{ source.label }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+            </div>
           </div>
         } @else {
           <div class="operations-form__grid operations-form__grid--two">
@@ -206,14 +210,20 @@
               />
             </label>
 
-            <label class="field">
+            <div class="field">
               <span class="field__label">{{ 'operations.toSourceLabel' | t }}</span>
-              <select class="field__control" formControlName="toSource">
-                @for (source of toSourceOptions(); track source.id) {
-                  <option [value]="source.id">{{ source.label }}</option>
-                }
-              </select>
-            </label>
+              <mat-form-field
+                appearance="outline"
+                subscriptSizing="dynamic"
+                class="premium-select-field"
+              >
+                <mat-select formControlName="toSource" panelClass="premium-select-panel">
+                  @for (source of toSourceOptions(); track source.id) {
+                    <mat-option [value]="source.id">{{ source.label }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+            </div>
           </div>
         }
 

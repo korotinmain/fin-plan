@@ -6,10 +6,13 @@ import { ChartData, ChartOptions } from 'chart.js';
 import { CardComponent } from '../../../shared/ui/card/card.component';
 import { SkeletonComponent } from '../../../shared/ui/skeleton/skeleton.component';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
+import { EMPTY_SOURCE_BALANCE } from '../../../core/models/source.model';
 import { I18nService } from '../../../core/services/i18n.service';
 import { CurrencyFacade } from '../../currency/currency.facade';
 import { calcProgressPercent, calcRemaining } from '../goal.helpers';
 import { GoalFacade } from '../goal.facade';
+import { SourceFacade } from '../../sources/source.facade';
+import { calcTotalSavingsUsd } from '../../sources/source.helpers';
 import { getChartTheme } from '../../../shared/helpers/chart-theme';
 
 type GoalMilestone = {
@@ -38,14 +41,21 @@ type GoalMilestone = {
 export class GoalPageComponent {
   private readonly facade = inject(GoalFacade);
   private readonly currencyFacade = inject(CurrencyFacade);
+  private readonly sourceFacade = inject(SourceFacade);
   private readonly fb = inject(NonNullableFormBuilder);
   private readonly i18n = inject(I18nService);
   private readonly theme = getChartTheme();
 
-  protected readonly isLoading = this.facade.isLoading;
+  protected readonly isLoading = computed(
+    () =>
+      this.facade.isLoading() || this.currencyFacade.isLoading() || this.sourceFacade.isLoading(),
+  );
   protected readonly hasGoal = this.facade.hasGoal;
   protected readonly targetAmount = this.facade.targetAmount;
-  protected readonly totals = this.currencyFacade.totals;
+  protected readonly alreadyPaidAmount = this.facade.alreadyPaidAmount;
+  protected readonly sourceBalances = computed(
+    () => this.sourceFacade.balances() ?? EMPTY_SOURCE_BALANCE,
+  );
 
   protected readonly isEditing = signal(false);
   protected readonly isSaving = signal(false);
@@ -54,33 +64,38 @@ export class GoalPageComponent {
 
   protected readonly form = this.fb.group({
     targetAmount: [0, [Validators.required, Validators.min(1)]],
+    alreadyPaidAmount: [0, [Validators.required, Validators.min(0)]],
   });
 
   protected readonly targetAmountUsd = computed(() => this.targetAmount());
-
-  protected readonly savedAmountUsd = computed(() => this.totals().totalUsd);
+  protected readonly currentSavingsUsd = computed(() =>
+    calcTotalSavingsUsd(this.sourceBalances(), this.currencyFacade.rates().usdToUah),
+  );
+  protected readonly totalContributedUsd = computed(
+    () => this.currentSavingsUsd() + this.alreadyPaidAmount(),
+  );
 
   protected readonly remainingAmountUsd = computed(() =>
-    calcRemaining(this.targetAmountUsd(), this.savedAmountUsd()),
+    calcRemaining(this.targetAmountUsd(), this.totalContributedUsd()),
   );
 
   protected readonly progressPercent = computed(() =>
-    calcProgressPercent(this.targetAmountUsd(), this.savedAmountUsd()),
+    calcProgressPercent(this.targetAmountUsd(), this.totalContributedUsd()),
   );
 
   protected readonly monthlyPaceUsd = computed(() => {
     const target = this.targetAmountUsd();
-    const saved = this.savedAmountUsd();
+    const currentSavings = this.currentSavingsUsd();
 
     if (target <= 0) {
       return 0;
     }
 
-    if (saved <= 0) {
+    if (currentSavings <= 0) {
       return Math.max(target / 24, 1);
     }
 
-    return Math.max(saved / 6, target / 30);
+    return Math.max(currentSavings / 6, target / 30);
   });
 
   protected readonly estimatedMonths = computed(() => {
@@ -106,7 +121,7 @@ export class GoalPageComponent {
   });
 
   protected readonly growthSeries = computed(() => {
-    const saved = this.savedAmountUsd();
+    const saved = this.totalContributedUsd();
 
     if (saved <= 0) {
       return [0, 0, 0, 0, 0, 0];
@@ -189,7 +204,10 @@ export class GoalPageComponent {
   });
 
   protected startEditing(): void {
-    this.form.patchValue({ targetAmount: Math.round(this.targetAmountUsd()) });
+    this.form.patchValue({
+      targetAmount: Math.round(this.targetAmountUsd()),
+      alreadyPaidAmount: Math.round(this.alreadyPaidAmount()),
+    });
     this.isEditing.set(true);
     this.saveError.set(null);
   }
@@ -205,8 +223,8 @@ export class GoalPageComponent {
     this.isSaving.set(true);
     this.saveError.set(null);
 
-    const { targetAmount } = this.form.getRawValue();
-    this.facade.save(targetAmount).subscribe({
+    const { targetAmount, alreadyPaidAmount } = this.form.getRawValue();
+    this.facade.save(targetAmount, alreadyPaidAmount).subscribe({
       next: () => {
         this.isSaving.set(false);
         this.isEditing.set(false);

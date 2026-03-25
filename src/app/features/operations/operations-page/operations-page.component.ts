@@ -9,8 +9,8 @@ import {
 import { DecimalPipe } from '@angular/common';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NonNullableFormBuilder, ReactiveFormsModule } from '@angular/forms';
-import { ChartData, ChartOptions } from 'chart.js';
-import { BaseChartDirective } from 'ng2-charts';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
 import { map, startWith, take } from 'rxjs';
 import { CardComponent } from '../../../shared/ui/card/card.component';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
@@ -25,7 +25,6 @@ import { I18nService } from '../../../core/services/i18n.service';
 import { OperationFacade } from '../operation.facade';
 import { SourceFacade } from '../../sources/source.facade';
 import { sourceCurrencyFor, sourceLabelFor } from '../operation.helpers';
-import { getChartTheme } from '../../../shared/helpers/chart-theme';
 import { ExpectedFundsFacade } from '../../expected-funds/expected-funds.facade';
 
 type OperationFormValue = {
@@ -44,6 +43,7 @@ type ActivityEntry = {
   title: string;
   subtitle: string;
   dateLabel: string;
+  monthKey: string | null;
   fromLabel: string;
   toLabel: string;
   effectLabel: string;
@@ -52,9 +52,21 @@ type ActivityEntry = {
   sortKey: number;
 };
 
+type ActivityMonthOption = {
+  value: string;
+  label: string;
+};
+
 @Component({
   selector: 'app-operations-page',
-  imports: [ReactiveFormsModule, DecimalPipe, BaseChartDirective, CardComponent, TranslatePipe],
+  imports: [
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatSelectModule,
+    DecimalPipe,
+    CardComponent,
+    TranslatePipe,
+  ],
   templateUrl: './operations-page.component.html',
   styleUrl: './operations-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -66,7 +78,6 @@ export class OperationsPageComponent {
   private readonly expectedFundsFacade = inject(ExpectedFundsFacade);
   private readonly i18n = inject(I18nService);
   private readonly fb = inject(NonNullableFormBuilder);
-  private readonly theme = getChartTheme();
 
   protected readonly sourceMeta = SOURCE_META;
   protected readonly operationTypes: OperationType[] = ['exchange', 'income', 'transfer'];
@@ -74,6 +85,7 @@ export class OperationsPageComponent {
   protected readonly isDialogOpen = signal(false);
   protected readonly isSaving = signal(false);
   protected readonly saveError = signal<string | null>(null);
+  protected readonly selectedMonth = signal('all');
 
   protected readonly form = this.fb.group({
     type: ['exchange' as OperationType],
@@ -129,124 +141,6 @@ export class OperationsPageComponent {
     });
   });
 
-  protected readonly cumulativeFxLossUsd = computed(() =>
-    this.operations()
-      .filter((entry) => entry.type === 'exchange')
-      .reduce((sum, entry) => sum + entry.fxLossUsd, 0),
-  );
-
-  protected readonly largestRecentLoss = computed(() => {
-    const candidates = this.operations().filter((entry) => entry.type === 'exchange');
-
-    if (candidates.length === 0) {
-      return null;
-    }
-
-    return [...candidates].sort((left, right) => right.fxLossUsd - left.fxLossUsd)[0] ?? null;
-  });
-
-  protected readonly largestRecentLossNote = computed(() => {
-    const recentLoss = this.largestRecentLoss();
-
-    if (recentLoss === null || recentLoss.fromSource === null || recentLoss.toSource === null) {
-      return this.i18n.translate('operations.noLossesTracked');
-    }
-
-    return `${sourceLabelFor(recentLoss.fromSource)} → ${sourceLabelFor(recentLoss.toSource)}`;
-  });
-
-  protected readonly monthlyFxLoss = computed(() => {
-    const formatter = new Intl.DateTimeFormat(this.localeCode(), { month: 'short' });
-    const buckets = Array.from({ length: 5 }, (_, index) => {
-      const bucketDate = new Date();
-      bucketDate.setDate(1);
-      bucketDate.setMonth(bucketDate.getMonth() - (4 - index));
-
-      return {
-        key: `${bucketDate.getFullYear()}-${String(bucketDate.getMonth() + 1).padStart(2, '0')}`,
-        label: formatter.format(bucketDate),
-        value: 0,
-      };
-    });
-
-    const bucketMap = new Map(buckets.map((bucket) => [bucket.key, bucket]));
-
-    this.operations().forEach((entry) => {
-      if (entry.type !== 'exchange' || entry.fxLossUsd <= 0) {
-        return;
-      }
-
-      const key = entry.occurredAt.slice(0, 7);
-      const bucket = bucketMap.get(key);
-
-      if (bucket !== undefined) {
-        bucket.value = Math.round((bucket.value + entry.fxLossUsd) * 100) / 100;
-      }
-    });
-
-    return buckets;
-  });
-
-  protected readonly fxLossChartData = computed<ChartData<'line'>>(() => ({
-    labels: this.monthlyFxLoss().map((item) => item.label),
-    datasets: [
-      {
-        data: this.monthlyFxLoss().map((item) => item.value),
-        borderColor: this.theme.violet,
-        backgroundColor: this.theme.violetFill,
-        pointBackgroundColor: this.theme.violet,
-        pointBorderColor: this.theme.surface,
-        pointBorderWidth: 2,
-        pointRadius: 4,
-        pointHoverRadius: 4,
-        borderWidth: 2,
-        tension: 0.4,
-        fill: true,
-      },
-    ],
-  }));
-
-  protected readonly fxLossChartOptions: ChartOptions<'line'> = {
-    responsive: true,
-    maintainAspectRatio: false,
-    animation: false,
-    plugins: {
-      legend: { display: false },
-      tooltip: {
-        enabled: true,
-        backgroundColor: this.theme.surface,
-        borderColor: this.theme.border,
-        borderWidth: 1,
-        titleColor: this.theme.textPrimary,
-        bodyColor: this.theme.textPrimary,
-        displayColors: false,
-        callbacks: {
-          label: (context) =>
-            this.i18n.translate('operations.chartTooltip', {
-              value: Number(context.parsed.y).toFixed(0),
-            }),
-        },
-      },
-    },
-    scales: {
-      x: {
-        border: { display: false },
-        grid: { display: false },
-        ticks: { color: this.theme.textSecondary, font: { size: 11 } },
-      },
-      y: {
-        beginAtZero: true,
-        border: { display: false },
-        grid: { color: this.theme.chartGrid },
-        ticks: {
-          color: this.theme.textSecondary,
-          font: { size: 11 },
-          callback: (value) => `$${value}`,
-        },
-      },
-    },
-  };
-
   protected readonly activityEntries = computed(() => {
     const entries = this.operations().map((entry) => this.mapOperationToActivity(entry));
     const expectedFundEntries = this.expectedFundsFacade.confirmedEntries().map((entry, index) => ({
@@ -254,6 +148,7 @@ export class OperationsPageComponent {
       title: this.i18n.translate('operations.activity.expectedFundTitle'),
       subtitle: entry.source,
       dateLabel: entry.eta,
+      monthKey: null,
       fromLabel: '—',
       toLabel: this.i18n.translate('operations.activity.expectedFundsDestination'),
       effectLabel: `+${new Intl.NumberFormat(this.localeCode(), { maximumFractionDigits: 0 }).format(entry.usdValue)} USD`,
@@ -262,10 +157,48 @@ export class OperationsPageComponent {
       sortKey: -index - 1,
     }));
 
-    return [...entries, ...expectedFundEntries]
-      .sort((left, right) => right.sortKey - left.sortKey)
-      .slice(0, 6);
+    return [...entries, ...expectedFundEntries].sort((left, right) => right.sortKey - left.sortKey);
   });
+
+  protected readonly monthOptions = computed<ActivityMonthOption[]>(() => {
+    const formatter = new Intl.DateTimeFormat(this.localeCode(), {
+      month: 'long',
+      year: 'numeric',
+    });
+    const seen = new Set<string>();
+    const dynamicOptions = this.activityEntries()
+      .filter((entry) => entry.monthKey !== null)
+      .reduce<ActivityMonthOption[]>((options, entry) => {
+        if (entry.monthKey === null || seen.has(entry.monthKey)) {
+          return options;
+        }
+
+        seen.add(entry.monthKey);
+        options.push({
+          value: entry.monthKey,
+          label: formatter.format(new Date(`${entry.monthKey}-01T00:00:00`)),
+        });
+
+        return options;
+      }, []);
+
+    return [
+      { value: 'all', label: this.i18n.translate('operations.filterAllMonths') },
+      ...dynamicOptions,
+    ];
+  });
+
+  protected readonly filteredActivityEntries = computed(() => {
+    const selectedMonth = this.selectedMonth();
+
+    if (selectedMonth === 'all') {
+      return this.activityEntries();
+    }
+
+    return this.activityEntries().filter((entry) => entry.monthKey === selectedMonth);
+  });
+
+  protected readonly hasAnyActivityEntries = computed(() => this.activityEntries().length > 0);
 
   protected readonly selectedExchangeRate = computed(() => {
     const state = this.formState();
@@ -357,6 +290,10 @@ export class OperationsPageComponent {
     return entry.effectVariant;
   }
 
+  protected setSelectedMonth(value: string): void {
+    this.selectedMonth.set(value);
+  }
+
   private buildDraft(): OperationDraft {
     const state = this.formState();
 
@@ -403,6 +340,7 @@ export class OperationsPageComponent {
         subtitle:
           entry.counterparty ?? this.i18n.translate('operations.activity.defaultIncomeSubtitle'),
         dateLabel: this.formatDateLabel(entry.occurredAt),
+        monthKey: entry.occurredAt.slice(0, 7),
         fromLabel: '—',
         toLabel: sourceLabelFor(entry.toSource),
         effectLabel: `+${formatter.format(entry.toAmount)} ${sourceCurrencyFor(entry.toSource)}`,
@@ -426,6 +364,7 @@ export class OperationsPageComponent {
         title: this.i18n.translate('operations.activity.transferTitle'),
         subtitle: sourceLabelFor(entry.fromSource),
         dateLabel: this.formatDateLabel(entry.occurredAt),
+        monthKey: entry.occurredAt.slice(0, 7),
         fromLabel: `${formatter.format(entry.fromAmount)} ${sourceCurrencyFor(entry.fromSource)}`,
         toLabel: sourceLabelFor(entry.toSource),
         effectLabel: this.i18n.translate('operations.activity.zeroLoss'),
@@ -450,6 +389,7 @@ export class OperationsPageComponent {
         title: this.i18n.translate('operations.activity.exchangeTitle'),
         subtitle: sourceLabelFor(entry.fromSource),
         dateLabel: this.formatDateLabel(entry.occurredAt),
+        monthKey: entry.occurredAt.slice(0, 7),
         fromLabel: `${formatter.format(entry.fromAmount)} ${sourceCurrencyFor(entry.fromSource)}`,
         toLabel: `${formatter.format(entry.toAmount)} ${sourceCurrencyFor(entry.toSource)} • ${sourceLabelFor(entry.toSource)}`,
         effectLabel:
@@ -473,6 +413,7 @@ export class OperationsPageComponent {
       title: this.i18n.translate('operations.activity.exchangeTitle'),
       subtitle: '',
       dateLabel: this.formatDateLabel(entry.occurredAt),
+      monthKey: entry.occurredAt.slice(0, 7),
       fromLabel: '—',
       toLabel: '—',
       effectLabel: '—',

@@ -1,6 +1,8 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { CurrencyPipe } from '@angular/common';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
 import { take } from 'rxjs';
 import { CardComponent } from '../../../shared/ui/card/card.component';
 import { BadgeComponent } from '../../../shared/ui/badge/badge.component';
@@ -22,7 +24,15 @@ import { ExpectedFundsFacade } from '../expected-funds.facade';
 
 @Component({
   selector: 'app-expected-funds-page',
-  imports: [ReactiveFormsModule, CurrencyPipe, CardComponent, BadgeComponent, TranslatePipe],
+  imports: [
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatSelectModule,
+    CurrencyPipe,
+    CardComponent,
+    BadgeComponent,
+    TranslatePipe,
+  ],
   templateUrl: './expected-funds-page.component.html',
   styleUrl: './expected-funds-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -35,11 +45,11 @@ export class ExpectedFundsPageComponent {
   private readonly i18n = inject(I18nService);
   private readonly fb = inject(NonNullableFormBuilder);
 
-  protected readonly searchTerm = signal('');
   protected readonly isDialogOpen = signal(false);
   protected readonly isSaving = signal(false);
   protected readonly saveError = signal<string | null>(null);
   protected readonly editingId = signal<string | null>(null);
+  protected readonly submitAttempted = signal(false);
   protected readonly currencies: ExpectedFundCurrency[] = ['USD', 'EUR', 'UAH'];
   protected readonly statuses: ExpectedFundStatus[] = ['confirmed', 'planned'];
   protected readonly sourceBalances = computed(
@@ -50,7 +60,7 @@ export class ExpectedFundsPageComponent {
 
   protected readonly form = this.fb.group({
     source: ['', [Validators.required]],
-    description: ['', [Validators.required]],
+    description: [''],
     originalCurrency: ['USD' as ExpectedFundCurrency, [Validators.required]],
     originalAmount: [0, [Validators.required, Validators.min(1)]],
     eta: ['', [Validators.required]],
@@ -74,20 +84,6 @@ export class ExpectedFundsPageComponent {
     return Math.round((this.expectedTotalUsd() / gapAfterOwnSavings) * 100);
   });
 
-  protected readonly filteredEntries = computed(() => {
-    const query = this.searchTerm().trim().toLowerCase();
-    if (query === '') {
-      return this.entries();
-    }
-
-    return this.entries().filter((entry) =>
-      [entry.source, entry.description, entry.eta, entry.originalCurrency, entry.status]
-        .join(' ')
-        .toLowerCase()
-        .includes(query),
-    );
-  });
-
   protected readonly dialogTitle = computed(() =>
     this.editingId() === null
       ? this.i18n.translate('expectedFunds.dialogAddTitle')
@@ -96,12 +92,9 @@ export class ExpectedFundsPageComponent {
 
   protected readonly hasEntries = computed(() => this.entries().length > 0);
 
-  protected setSearchTerm(value: string): void {
-    this.searchTerm.set(value);
-  }
-
   protected openCreateDialog(): void {
     this.editingId.set(null);
+    this.submitAttempted.set(false);
     this.form.reset({
       source: '',
       description: '',
@@ -116,6 +109,7 @@ export class ExpectedFundsPageComponent {
 
   protected openEditDialog(entry: ExpectedFundEntry): void {
     this.editingId.set(entry.id);
+    this.submitAttempted.set(false);
     this.form.setValue({
       source: entry.source,
       description: entry.description,
@@ -132,10 +126,14 @@ export class ExpectedFundsPageComponent {
     this.isDialogOpen.set(false);
     this.isSaving.set(false);
     this.saveError.set(null);
+    this.submitAttempted.set(false);
   }
 
   protected saveEntry(): void {
-    if (this.form.invalid) {
+    this.submitAttempted.set(true);
+
+    if (!this.isFormSubmittable()) {
+      this.form.markAllAsTouched();
       this.saveError.set(this.i18n.translate('expectedFunds.errors.invalidForm'));
       return;
     }
@@ -144,12 +142,13 @@ export class ExpectedFundsPageComponent {
     this.saveError.set(null);
 
     const value = this.form.getRawValue();
+    const originalAmount = value.originalAmount;
     const payload: Omit<ExpectedFundRecord, 'id'> & { id?: string } = {
       id: this.editingId() ?? undefined,
       source: value.source.trim(),
       description: value.description.trim(),
       originalCurrency: value.originalCurrency,
-      originalAmount: value.originalAmount,
+      originalAmount,
       eta: value.eta.trim(),
       status: value.status,
     };
@@ -196,6 +195,27 @@ export class ExpectedFundsPageComponent {
       entry.status === 'confirmed'
         ? 'expectedFunds.statusConfirmed'
         : 'expectedFunds.statusPlanned',
+    );
+  }
+
+  protected fieldInvalid(name: keyof typeof this.form.controls): boolean {
+    const control = this.form.controls[name];
+    return control.invalid && (control.touched || this.submitAttempted());
+  }
+
+  private isFormSubmittable(): boolean {
+    const value = this.form.getRawValue();
+    const source = value.source.trim();
+    const eta = value.eta.trim();
+    const originalAmount = value.originalAmount;
+
+    return (
+      source !== '' &&
+      eta !== '' &&
+      Number.isFinite(originalAmount) &&
+      originalAmount > 0 &&
+      this.form.controls.originalCurrency.valid &&
+      this.form.controls.status.valid
     );
   }
 }

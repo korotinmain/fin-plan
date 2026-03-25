@@ -17,7 +17,7 @@
       >
         <svg class="shell__nav-icon" viewBox="0 0 16 16" fill="none" aria-hidden="true">
           <path
-            d="M3 12.5V7.2L8 3.5l5 3.7v5.3"
+            d="M3 12.5h10M4.5 10l3-3 2.2 2.2L13 5.5"
             stroke="currentColor"
             stroke-width="1.4"
             stroke-linecap="round"
@@ -61,7 +61,7 @@
 
       <a
         class="shell__nav-item"
-        routerLink="/exchange-ops"
+        routerLink="/activities"
         routerLinkActive="shell__nav-item--active"
       >
         <svg class="shell__nav-icon" viewBox="0 0 16 16" fill="none" aria-hidden="true">
@@ -87,6 +87,70 @@
     </nav>
 
     <div class="shell__sidebar-footer">
+      <section class="shell__rates" aria-labelledby="shell-rates-title">
+        <div class="shell__rates-head">
+          <div>
+            <p class="shell__rates-eyebrow">{{ 'shell.rates.eyebrow' | t }}</p>
+            <h2 class="shell__rates-title" id="shell-rates-title">{{ 'shell.rates.title' | t }}</h2>
+          </div>
+
+          <button
+            class="shell__rates-refresh"
+            type="button"
+            [disabled]="isRefreshingRates()"
+            [attr.aria-label]="'currency.rates.update' | t"
+            (click)="refreshRates()"
+          >
+            <svg
+              class="shell__rates-refresh-icon"
+              [class.shell__rates-refresh-icon--spinning]="isRefreshingRates()"
+              viewBox="0 0 16 16"
+              fill="none"
+              aria-hidden="true"
+            >
+              <path
+                d="M3.3 3.3A6 6 0 1 1 2.8 8"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+              />
+              <path
+                d="M1.5 5.5 2.8 8 5.3 6.7"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </button>
+        </div>
+
+        <div class="shell__rates-list">
+          <div class="shell__rates-item">
+            <span class="shell__rates-label">{{ 'currency.rates.usdToUah' | t }}</span>
+            <strong class="shell__rates-value">₴{{ rates().usdToUah | number: '1.2-2' }}</strong>
+          </div>
+          <div class="shell__rates-item">
+            <span class="shell__rates-label">{{ 'currency.rates.eurToUah' | t }}</span>
+            <strong class="shell__rates-value">₴{{ rates().eurToUah | number: '1.2-2' }}</strong>
+          </div>
+          <div class="shell__rates-item">
+            <span class="shell__rates-label">{{ 'currency.rates.eurToUsd' | t }}</span>
+            <strong class="shell__rates-value">${{ rates().eurToUsd | number: '1.4-4' }}</strong>
+          </div>
+        </div>
+
+        @if (ratesLastFetched()) {
+          <p class="shell__rates-meta">
+            {{ 'currency.rates.updatedAt' | t: { time: (ratesLastFetched() | date: 'HH:mm') } }}
+          </p>
+        }
+
+        @if (ratesError()) {
+          <p class="shell__rates-error" role="alert">{{ ratesError()! | t }}</p>
+        }
+      </section>
+
       <div class="shell__locale">
         <div class="shell__locale-label">
           <svg class="shell__locale-icon" viewBox="0 0 16 16" fill="none" aria-hidden="true">

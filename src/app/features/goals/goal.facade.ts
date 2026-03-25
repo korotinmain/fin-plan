@@ -11,9 +11,7 @@ export class GoalFacade {
   private readonly authService = inject(AuthService);
   private readonly goalService = inject(GoalService);
 
-  private readonly uid = computed(
-    () => this.authService.currentUser()?.uid ?? null,
-  );
+  private readonly uid = computed(() => this.authService.currentUser()?.uid ?? null);
 
   /**
    * Signal for the user's goal.
@@ -24,9 +22,7 @@ export class GoalFacade {
   readonly goal = toSignal(
     toObservable(this.uid).pipe(
       switchMap((uid) =>
-        uid
-          ? this.goalService.getGoal$(uid).pipe(catchError(() => of(null)))
-          : of(null),
+        uid ? this.goalService.getGoal$(uid).pipe(catchError(() => of(null))) : of(null),
       ),
     ),
   );
@@ -34,10 +30,11 @@ export class GoalFacade {
   readonly isLoading = computed(() => this.goal() === undefined);
   readonly hasGoal = computed(() => this.goal() != null);
   readonly targetAmount = computed(() => this.goal()?.targetAmount ?? 0);
+  readonly alreadyPaidAmount = computed(() => this.goal()?.alreadyPaidAmount ?? 0);
 
-  save(targetAmount: number): ReturnType<GoalService['setGoal']> {
+  save(targetAmount: number, alreadyPaidAmount: number): ReturnType<GoalService['setGoal']> {
     const uid = this.uid();
     if (!uid) throw new Error('Not authenticated');
-    return this.goalService.setGoal(uid, targetAmount);
+    return this.goalService.setGoal(uid, targetAmount, alreadyPaidAmount);
   }
 }

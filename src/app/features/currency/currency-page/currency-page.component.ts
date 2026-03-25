@@ -9,6 +9,8 @@ import {
 import { CurrencyPipe, DatePipe, DecimalPipe } from '@angular/common';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
 import { ChartData, ChartOptions } from 'chart.js';
 import { BaseChartDirective } from 'ng2-charts';
 import { map, startWith } from 'rxjs';
@@ -46,6 +48,8 @@ type HoldingKey = 'uah' | 'usd' | 'eur';
   selector: 'app-currency-page',
   imports: [
     ReactiveFormsModule,
+    MatFormFieldModule,
+    MatSelectModule,
     CurrencyPipe,
     DatePipe,
     DecimalPipe,

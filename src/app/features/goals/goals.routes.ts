@@ -6,6 +6,6 @@ export const goalRoutes: Routes = [
   {
     path: '',
     loadComponent: () => import('./goal-page/goal-page.component').then((m) => m.GoalPageComponent),
-    title: () => inject(I18nService).translate('route.goalTitle'),
+    title: () => inject(I18nService).translate('route.dashboardTitle'),
   },
 ];

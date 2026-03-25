@@ -51,28 +51,47 @@ describe('GoalService', () => {
     });
 
     it('returns a Goal when the document has a targetAmount', async () => {
+      mocks.mockDocData.mockReturnValue(
+        of({ targetAmount: 250_000, alreadyPaidAmount: 40_000, currency: 'USD' }),
+      );
+
+      const result = await firstValueFrom(service.getGoal$('uid-1'));
+      expect(result).toEqual({
+        targetAmount: 250_000,
+        alreadyPaidAmount: 40_000,
+        currency: 'USD',
+      });
+    });
+
+    it('defaults alreadyPaidAmount to 0 when the document omits it', async () => {
       mocks.mockDocData.mockReturnValue(of({ targetAmount: 250_000, currency: 'USD' }));
 
       const result = await firstValueFrom(service.getGoal$('uid-1'));
-      expect(result).toEqual({ targetAmount: 250_000, currency: 'USD' });
+      expect(result).toEqual({
+        targetAmount: 250_000,
+        alreadyPaidAmount: 0,
+        currency: 'USD',
+      });
     });
   });
 
   describe('setGoal', () => {
     it('returns an Observable', () => {
-      const result = service.setGoal('uid-1', 250_000);
+      const result = service.setGoal('uid-1', 250_000, 40_000);
       expect(isObservable(result)).toBe(true);
     });
 
     it('resolves without error', async () => {
-      await expect(firstValueFrom(service.setGoal('uid-1', 250_000))).resolves.toBeUndefined();
+      await expect(
+        firstValueFrom(service.setGoal('uid-1', 250_000, 40_000)),
+      ).resolves.toBeUndefined();
     });
 
     it('calls Firestore setDoc with the correct data', async () => {
-      await firstValueFrom(service.setGoal('uid-1', 180_000));
+      await firstValueFrom(service.setGoal('uid-1', 180_000, 40_000));
       expect(mocks.mockSetDoc).toHaveBeenCalledWith(
         expect.anything(),
-        { targetAmount: 180_000, currency: 'USD' },
+        { targetAmount: 180_000, alreadyPaidAmount: 40_000, currency: 'USD' },
         { merge: true },
       );
     });

@@ -26,10 +26,7 @@ export const routes: Routes = [
       },
       {
         path: 'dashboard',
-        loadComponent: () =>
-          import('./features/dashboard/dashboard-page.component').then(
-            (m) => m.DashboardPageComponent,
-          ),
+        loadChildren: () => import('./features/goals/goals.routes').then((m) => m.goalRoutes),
         title: () => inject(I18nService).translate('route.dashboardTitle'),
       },
       {
@@ -44,14 +41,20 @@ export const routes: Routes = [
           ),
       },
       {
-        path: 'exchange-ops',
+        path: 'activities',
         loadChildren: () =>
           import('./features/operations/operations.routes').then((m) => m.operationsRoutes),
         title: () => inject(I18nService).translate('route.exchangeOpsTitle'),
       },
       {
+        path: 'exchange-ops',
+        redirectTo: 'activities',
+        pathMatch: 'full',
+      },
+      {
         path: 'goals',
-        loadChildren: () => import('./features/goals/goals.routes').then((m) => m.goalRoutes),
+        redirectTo: 'dashboard',
+        pathMatch: 'full',
       },
       {
         path: 'currency',

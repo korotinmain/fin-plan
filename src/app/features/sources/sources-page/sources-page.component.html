@@ -7,6 +7,14 @@
     </div>
 
     <button class="sources-page__cta" type="button" (click)="openEditor()">
+      <svg class="sources-page__cta-icon" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+        <path
+          d="M8 2.25v11.5M2.25 8h11.5"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"
+        />
+      </svg>
       {{ 'sources.editBalances' | t }}
     </button>
   </header>
@@ -106,16 +114,6 @@
               <strong>{{ usdAlreadyLiquid() | currency: 'USD' : 'symbol' : '1.0-0' }}</strong>
               <p>{{ 'sources.usdAlreadyLiquidHint' | t }}</p>
             </div>
-            <div class="sources-insights__item">
-              <span>{{ 'sources.uahExposure' | t }}</span>
-              <strong>{{ uahExposureUsd() | currency: 'USD' : 'symbol' : '1.0-0' }}</strong>
-              <p>{{ 'sources.uahExposureHint' | t }}</p>
-            </div>
-            <div class="sources-insights__item">
-              <span>{{ 'sources.recommendedNextStep' | t }}</span>
-              <strong>{{ recommendedNextStep() | t }}</strong>
-              <p>{{ 'sources.recommendedHint' | t }}</p>
-            </div>
           </div>
         </div>
       </app-card>
@@ -131,7 +129,7 @@
     >
       <div class="sources-dialog__backdrop" (click)="cancelEditing()"></div>
 
-      <app-card class="sources-dialog__panel">
+      <app-card class="sources-dialog__panel" padding="compact">
         <form class="sources-editor" [formGroup]="form" (ngSubmit)="saveAll()">
           <div class="sources-editor__head">
             <div>

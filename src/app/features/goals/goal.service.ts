@@ -23,12 +23,22 @@ export class GoalService {
     return runInInjectionContext(this.injector, () =>
       (
         docData(ref) as Observable<
-          { targetAmount?: number; currency?: string; updatedAt?: string } | undefined
+          | {
+              targetAmount?: number;
+              alreadyPaidAmount?: number;
+              currency?: string;
+              updatedAt?: string;
+            }
+          | undefined
         >
       ).pipe(
         map((data) =>
           data?.targetAmount != null
-            ? { targetAmount: data.targetAmount, currency: 'USD' as const }
+            ? {
+                targetAmount: data.targetAmount,
+                alreadyPaidAmount: data.alreadyPaidAmount ?? 0,
+                currency: 'USD' as const,
+              }
             : null,
         ),
       ),
@@ -38,8 +48,8 @@ export class GoalService {
   /**
    * Creates or updates the user's goal (upsert via merge).
    */
-  setGoal(uid: string, targetAmount: number): Observable<void> {
+  setGoal(uid: string, targetAmount: number, alreadyPaidAmount: number): Observable<void> {
     const ref = doc(this.firestore, FIRESTORE_PATHS.goals(uid));
-    return from(setDoc(ref, { targetAmount, currency: 'USD' }, { merge: true }));
+    return from(setDoc(ref, { targetAmount, alreadyPaidAmount, currency: 'USD' }, { merge: true }));
   }
 }

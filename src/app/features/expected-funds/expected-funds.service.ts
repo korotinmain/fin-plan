@@ -3,7 +3,7 @@ import { doc, docData, Firestore, setDoc } from '@angular/fire/firestore';
 import { from, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { FIRESTORE_PATHS } from '../../core/constants/firestore.constants';
-import { DEFAULT_EXPECTED_FUND_RECORDS, ExpectedFundRecord } from './expected-funds.data';
+import { EMPTY_EXPECTED_FUNDS_DOCUMENT, ExpectedFundRecord } from './expected-funds.data';
 
 @Injectable({ providedIn: 'root' })
 export class ExpectedFundsService {
@@ -15,7 +15,7 @@ export class ExpectedFundsService {
 
     return runInInjectionContext(this.injector, () =>
       (docData(ref) as Observable<{ items?: ExpectedFundRecord[] } | undefined>).pipe(
-        map((data) => data?.items ?? DEFAULT_EXPECTED_FUND_RECORDS),
+        map((data) => data?.items ?? EMPTY_EXPECTED_FUNDS_DOCUMENT.items),
       ),
     );
   }

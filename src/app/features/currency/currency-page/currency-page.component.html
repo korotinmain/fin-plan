@@ -322,14 +322,19 @@
               <div class="converter-card__selectors">
                 <label class="editor-field">
                   <span class="editor-field__label">{{ 'currency.from' | t }}</span>
-                  <select
-                    class="editor-field__input editor-field__input--select converter-card__select"
-                    formControlName="from"
+                  <mat-form-field
+                    appearance="outline"
+                    subscriptSizing="dynamic"
+                    class="premium-select-field converter-card__select-field"
                   >
-                    @for (item of fromCurrencyOptions(); track item.code) {
-                      <option [value]="item.code">{{ item.code }} {{ item.symbol }}</option>
-                    }
-                  </select>
+                    <mat-select formControlName="from" panelClass="premium-select-panel">
+                      @for (item of fromCurrencyOptions(); track item.code) {
+                        <mat-option [value]="item.code"
+                          >{{ item.code }} {{ item.symbol }}</mat-option
+                        >
+                      }
+                    </mat-select>
+                  </mat-form-field>
                 </label>
 
                 <button
@@ -351,14 +356,19 @@
 
                 <label class="editor-field">
                   <span class="editor-field__label">{{ 'currency.to' | t }}</span>
-                  <select
-                    class="editor-field__input editor-field__input--select converter-card__select"
-                    formControlName="to"
+                  <mat-form-field
+                    appearance="outline"
+                    subscriptSizing="dynamic"
+                    class="premium-select-field converter-card__select-field"
                   >
-                    @for (item of toCurrencyOptions(); track item.code) {
-                      <option [value]="item.code">{{ item.code }} {{ item.symbol }}</option>
-                    }
-                  </select>
+                    <mat-select formControlName="to" panelClass="premium-select-panel">
+                      @for (item of toCurrencyOptions(); track item.code) {
+                        <mat-option [value]="item.code"
+                          >{{ item.code }} {{ item.symbol }}</mat-option
+                        >
+                      }
+                    </mat-select>
+                  </mat-form-field>
                 </label>
               </div>
 
@@ -402,17 +412,13 @@
         aria-labelledby="holdings-dialog-title"
         (click)="$event.stopPropagation()"
       >
-        <form
-          class="editor-card holdings-dialog__form"
-          [formGroup]="holdingsForm"
-          (ngSubmit)="saveHoldings()"
-        >
+        <form class="holdings-dialog__form" [formGroup]="holdingsForm" (ngSubmit)="saveHoldings()">
           <div class="holdings-dialog__header">
             <div>
-              <h2 class="editor-card__title" id="holdings-dialog-title">
+              <h2 class="holdings-dialog__title" id="holdings-dialog-title">
                 {{ 'currency.dialog.title' | t }}
               </h2>
-              <p class="editor-card__subtitle">{{ 'currency.dialog.subtitle' | t }}</p>
+              <p class="holdings-dialog__subtitle">{{ 'currency.dialog.subtitle' | t }}</p>
             </div>
 
             <button
@@ -443,22 +449,21 @@
                 [formGroupName]="holdingFormKey(item.code)"
               >
                 <div class="holdings-dialog__currency-head">
-                  <div>
+                  <div class="holdings-dialog__currency-copy">
                     <div class="holdings-dialog__currency-topline">
                       <span class="holdings-dialog__currency-code">{{ item.code }}</span>
                       <span class="holdings-dialog__currency-name">{{ item.label }}</span>
                     </div>
-                    <div class="holdings-dialog__currency-total">
-                      <span>{{ 'currency.total' | t }}</span>
-                      <strong>{{
-                        formatHoldingAmount(item.code, editedHoldingTotal(item.code))
-                      }}</strong>
-                    </div>
                   </div>
 
-                  <span class="holdings-dialog__currency-approx">
-                    ≈ {{ editedValueInUah(item.code) | number: '1.0-0' }} UAH
-                  </span>
+                  <div class="holdings-dialog__currency-summary">
+                    <strong>{{
+                      formatHoldingAmount(item.code, editedHoldingTotal(item.code))
+                    }}</strong>
+                    <span class="holdings-dialog__currency-approx">
+                      ≈ {{ editedValueInUah(item.code) | number: '1.0-0' }} UAH
+                    </span>
+                  </div>
                 </div>
 
                 <div class="holdings-dialog__channel-grid">
@@ -494,6 +499,27 @@
 
           <div class="holdings-dialog__actions">
             <button
+              class="currency-page__action currency-page__action--ghost holdings-dialog__cancel"
+              type="button"
+              [disabled]="isSavingHoldings()"
+              (click)="cancelEditingHoldings()"
+            >
+              <svg
+                class="currency-page__action-icon"
+                viewBox="0 0 16 16"
+                fill="none"
+                aria-hidden="true"
+              >
+                <path
+                  d="M4 4l8 8M12 4 4 12"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                />
+              </svg>
+              {{ 'currency.dialog.cancel' | t }}
+            </button>
+            <button
               class="currency-page__action currency-page__action--primary holdings-dialog__save"
               type="submit"
               [disabled]="isSavingHoldings() || holdingsForm.invalid"
@@ -521,27 +547,6 @@
               {{
                 isSavingHoldings() ? ('currency.dialog.saving' | t) : ('currency.dialog.save' | t)
               }}
-            </button>
-            <button
-              class="currency-page__action currency-page__action--ghost"
-              type="button"
-              [disabled]="isSavingHoldings()"
-              (click)="cancelEditingHoldings()"
-            >
-              <svg
-                class="currency-page__action-icon"
-                viewBox="0 0 16 16"
-                fill="none"
-                aria-hidden="true"
-              >
-                <path
-                  d="M4 4l8 8M12 4 4 12"
-                  stroke="currentColor"
-                  stroke-width="1.5"
-                  stroke-linecap="round"
-                />
-              </svg>
-              {{ 'currency.dialog.cancel' | t }}
             </button>
           </div>
         </form>

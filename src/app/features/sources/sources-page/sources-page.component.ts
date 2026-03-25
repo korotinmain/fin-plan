@@ -72,19 +72,6 @@ export class SourcesPageComponent {
     () => this.balances().cashUsd + this.balances().cardUsd,
   );
 
-  protected readonly uahExposureUsd = computed(() =>
-    convertUahToUsd(
-      this.balances().cardUah + this.balances().cashUah,
-      this.currencyFacade.rates().usdToUah,
-    ),
-  );
-
-  protected readonly recommendedNextStep = computed(() =>
-    this.balances().cardUah >= this.balances().cashUah
-      ? 'sources.recommendedCardUah'
-      : 'sources.recommendedCashUah',
-  );
-
   protected readonly sourceCards = computed<SourceCardViewModel[]>(() => {
     const rate = this.currencyFacade.rates().usdToUah;
     const totalOwnSavings = this.ownSavingsUsd();
