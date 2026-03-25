@@ -40,7 +40,7 @@ The app must allow the user to:
 
 - define one financial goal: buying a house
 - set the house price target
-- track available money across multiple savings sources
+- track available money across currency holdings
 - normalize all values into USD
 - track expected borrowed funds
 - track exchange operations
@@ -123,6 +123,9 @@ The application must optimize for:
 - loading, empty, and error states must be designed
 - auth screens must match the same product quality standard
 - responsive behavior must be considered from the start
+- do not add hardcoded user-facing strings in templates when the i18n layer is available
+- every new user-facing string must be added to translations in the same change
+- translation coverage must include both English and Ukrainian, including labels, CTA text, helper text, ARIA labels, and route titles
 
 ### Firebase Standards
 
@@ -167,21 +170,20 @@ The app must allow:
 - setting the target amount
 - using USD as the base analytics currency
 
-### 2. Savings Sources
+### 2. Currency Tracker
 
-Required initial savings sources:
+Required initial holdings:
 
-- Cash USD
-- Card USD
-- Card UAH
-- Cash UAH
+- UAH
+- USD
+- EUR
 
 The app must show:
 
-- source balance
-- source currency
-- normalized USD value
-- total own savings across all sources
+- holding balance per currency
+- current exchange rates
+- normalized portfolio totals
+- total own savings across all tracked currencies
 
 ### 3. Currency Conversion
 
@@ -284,7 +286,7 @@ src/app/
     auth/
     dashboard/
     goals/
-    sources/
+    currency/
     exchange-rates/
     expected-funds/
     operations/

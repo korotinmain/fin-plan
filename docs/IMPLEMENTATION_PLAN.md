@@ -27,7 +27,7 @@ Build a premium personal finance web application for tracking progress toward bu
 The app must help the user:
 
 - define the house price target
-- track current available money across multiple sources
+- track current available money across key currencies
 - automatically convert all balances into USD
 - account for expected borrowed money
 - track exchange operations and losses caused by currency spread
@@ -35,6 +35,14 @@ The app must help the user:
 - use the product as a better alternative to spreadsheets
 
 The application should feel like a **high-quality personal financial control panel**, not a raw table UI.
+
+The application must also support a bilingual interface:
+
+- English
+- Ukrainian
+
+Authenticated users must be able to switch language from the shell sidebar.
+This preference must persist across sessions and devices through Firestore-backed user preferences, with local fallback for startup continuity.
 
 ---
 
@@ -91,6 +99,7 @@ Requirements:
 - session restoration must work correctly
 - logout must be supported
 - auth screens must match the same premium UX standard as the dashboard
+- locale preference for authenticated users must persist in user-scoped Firestore data
 
 Do not build this app with open Firestore access.
 
@@ -113,23 +122,20 @@ All analytics must be normalized to USD.
 
 ---
 
-### 2. Savings Sources
+### 2. Currency Tracker
 
-The app must support multiple money sources, including:
+The app must support the main tracked currencies, including:
 
-- Cash USD
-- Card USD
-- Card UAH
-- Cash UAH
-
-Future extensibility is allowed, but these are the required MVP sources.
+- UAH
+- USD
+- EUR
 
 The user must be able to:
 
-- see current amount per source
-- understand source currency
-- track overall value in USD
-- update balances through operations, not hidden state changes
+- see current amount per currency
+- understand the active exchange rates
+- track overall value in USD, EUR, and UAH
+- update holdings intentionally through the dedicated tracker UI
 
 ---
 
@@ -260,6 +266,11 @@ The operations history must support:
 This product must have a **premium UI/UX** standard.
 
 Design requirements:
+
+- all visible product copy must be available in English and Ukrainian
+- shell-level language switching must be discoverable but visually quiet
+- CTA actions must use consistent, appropriate icons across the app
+- translated states must preserve the same spacing, hierarchy, and polish as the default locale
 
 - dark or light premium visual system is acceptable
 - polished spacing and typography
@@ -494,46 +505,46 @@ Unit tests:
 
 ---
 
-### Phase 4 — Savings Sources
+### Phase 4 — Currency Tracker
 
 Goal:
-Introduce the main money containers.
+Introduce the main currency tracker surface.
 
 Scope:
 
-- define required sources
-  - Cash USD
-  - Card USD
-  - Card UAH
-  - Cash UAH
-- source listing
-- source summary cards
-- source state retrieval/storage
-- source-level totals
+- define tracked currencies
+  - UAH
+  - USD
+  - EUR
+- exchange rate strip
+- currency summary cards
+- currency state retrieval/storage
+- portfolio totals and conversion
 
 Definition of done:
 
-- all core sources exist
-- the user can see source balances
-- balances are clearly grouped and understandable
+- all core currencies exist
+- the user can see holdings and rates
+- portfolio value is clearly grouped and understandable
 
 Unit tests:
 
-- source mapping
-- source totals
-- source display logic if derived through service/facade code
+- conversion logic
+- portfolio totals
+- display logic if derived through service/facade code
 
 ---
 
 ### Phase 5 — Exchange Rates
 
 Goal:
-Introduce current rate normalization.
+Replace the manual tracker rates with live rate normalization.
 
 Scope:
 
 - fetch актуальні rates
 - support USD, UAH, EUR
+- integrate fetched rates into the currency tracker
 - normalize non-USD values into USD
 - show rate freshness
 - handle fallback / unavailable rate states safely
@@ -542,6 +553,7 @@ Definition of done:
 
 - current balances can be reflected in USD
 - expected EUR/UAH values can be converted into USD
+- manual tracker rates can be refreshed from a live source
 - rate loading state is handled cleanly
 
 Unit tests:

@@ -182,7 +182,7 @@ Create the reusable visual and structural foundation of the product.
 - avoid default-looking admin-panel design
 - ShellComponent: core/layout/shell/ — fixed left sidebar, app branding, stacked nav, bottom user/sign-out, main content area
 - Shared UI primitives in shared/ui/: card, badge, skeleton, empty-state, error-state
-- _layout.scss: .page container class (max-width: 1200px, consistent padding)
+- \_layout.scss: .page container class (max-width: 1200px, consistent padding)
 - Shell is lazy-loaded as the protected route wrapper in app.routes.ts
 - Badge class-mapping logic tested: 8 tests passing
 - Phase completed: 2026-03-25
@@ -229,46 +229,83 @@ Allow the user to define and manage the house target.
 
 ---
 
-## [x] Phase 4 — Savings Sources
+## [x] Phase 4 — Currency Tracker
 
 ### Goal
 
-Introduce and display the required money sources.
+Introduce a currency tracker with holdings, manual rates, and portfolio conversion.
 
 ### Scope
 
-- support required sources:
-  - Cash USD
-  - Card USD
-  - Card UAH
-  - Cash UAH
-- display source list
-- display source summary cards
-- store and load source balances
-- show currency per source
+- support required currencies:
+  - UAH
+  - USD
+  - EUR
+- display exchange rate strip
+- display currency summary cards
+- store and load holdings and rates
+- provide a live converter
 
 ### Deliverables
 
-- user sees all main savings sources ✓
-- balances are understandable ✓
-- source states are persisted correctly ✓
+- user sees the tracked currencies ✓
+- holdings and rates are understandable ✓
+- currency states are persisted correctly ✓
 
 ### Tests
 
-- source mapping logic
-- source totals
-- source-related derived values
+- conversion logic
+- portfolio totals
+- currency-related derived values
 
 ### Notes
 
-- source logic must stay explicit and easy to extend
-- Fixed source model with four supported balances only: Cash USD, Card USD, Card UAH, Cash UAH
-- SourceService stores balances at sources/{uid} with merge updates and safe default zero mapping
-- SourceFacade exposes signal state, USD total, UAH total, and single-source update flow
-- SourcesPageComponent provides summary cards plus inline editing for each source row
-- Sidebar navigation updated with Sources route
-- Firestore rules updated for sources/{userId}
-- Tests added: source.helpers.spec.ts + source.service.spec.ts
+- Currency tracker now refreshes live FX rates from a public API and persists the latest rates to Firestore.
+- Rates auto-refresh once when the currency page opens for an authenticated user.
+- Holdings editing uses a modal dialog to avoid layout jumps in the main page flow.
+- Portfolio distribution now uses a chart package instead of a CSS-only custom visualization.
+- Currency page spacing and card heights were normalized to match the product design system.
+
+---
+
+## [-] Cross-Cutting — Localization and UX Consistency
+
+### Goal
+
+Roll out bilingual UI support and remove visible CTA inconsistency across the product.
+
+### Scope
+
+- English and Ukrainian translations for all user-facing screens
+- sidebar language switch in authenticated shell
+- persist locale to Firestore user preferences
+- maintain local fallback for language on startup
+- align CTA icons across auth, goals, currency, and dashboard views
+- update product documentation to reflect the new standards
+
+### Deliverables
+
+- authenticated users can switch locale from the sidebar
+- locale persists across sessions and devices
+- major user flows are translated in both locales
+- CTA buttons and action links use consistent icon patterns
+
+### Tests
+
+- verify translated shell and primary flows render without template errors
+- verify locale persistence does not break unauthenticated screens
+
+### Notes
+
+- currency tracker logic must stay explicit and easy to extend
+- Manual rates are stored with holdings at currency/{uid}
+- CurrencyService exposes merge updates for holdings and rates
+- CurrencyFacade exposes signal state, totals, shares, and chart data
+- CurrencyPageComponent follows the screenshot layout: rate strip, holding cards, total block, donut, and converter
+- Sidebar navigation now links to Currency
+- Firestore rules updated for currency/{userId}
+- Tests added: currency.helpers.spec.ts + currency.service.spec.ts
+- Validation: `npm run build` ✓, `npx ng test --watch=false` ✓ (84 tests passing)
 - Phase completed: 2026-03-25
 
 ---
@@ -277,19 +314,19 @@ Introduce and display the required money sources.
 
 ### Goal
 
-Normalize all relevant values into USD using live rates.
+Automate the manual tracker rates with live rate refresh and freshness handling.
 
 ### Scope
 
 - fetch current rates
 - support USD / UAH / EUR
-- convert non-USD values into USD
+- replace manual rate-only flow with fetched live rates
 - display rate freshness/status
 - handle unavailable-rate scenarios safely
 
 ### Deliverables
 
-- dashboard can normalize UAH and EUR values into USD
+- dashboard can normalize UAH and EUR values into USD from fetched rates
 - conversions are understandable
 - missing rate states are handled cleanly
 
@@ -301,7 +338,7 @@ Normalize all relevant values into USD using live rates.
 
 ### Notes
 
-- current dashboard totals should always be explainable
+- builds on the manual rates stored in Phase 4
 
 ---
 

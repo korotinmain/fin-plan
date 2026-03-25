@@ -1,14 +1,15 @@
+import { inject } from '@angular/core';
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
 import { noAuthGuard } from './core/guards/no-auth.guard';
+import { I18nService } from './core/services/i18n.service';
 
 export const routes: Routes = [
   // ─── Public: auth (redirect to dashboard if already signed in) ───────────
   {
     path: 'auth',
     canActivate: [noAuthGuard],
-    loadChildren: () =>
-      import('./features/auth/auth.routes').then((m) => m.authRoutes),
+    loadChildren: () => import('./features/auth/auth.routes').then((m) => m.authRoutes),
   },
 
   // ─── Protected: app shell ────────────────────────────────────────────────
@@ -16,9 +17,7 @@ export const routes: Routes = [
     path: '',
     canActivate: [authGuard],
     loadComponent: () =>
-      import('./core/layout/shell/shell.component').then(
-        (m) => m.ShellComponent,
-      ),
+      import('./core/layout/shell/shell.component').then((m) => m.ShellComponent),
     children: [
       {
         path: '',
@@ -31,17 +30,16 @@ export const routes: Routes = [
           import('./features/dashboard/dashboard-placeholder.component').then(
             (m) => m.DashboardPlaceholderComponent,
           ),
-        title: 'Dashboard — FinPlan',
+        title: () => inject(I18nService).translate('route.dashboardTitle'),
       },
       {
         path: 'goals',
-        loadChildren: () =>
-          import('./features/goals/goals.routes').then((m) => m.goalRoutes),
+        loadChildren: () => import('./features/goals/goals.routes').then((m) => m.goalRoutes),
       },
       {
-        path: 'sources',
+        path: 'currency',
         loadChildren: () =>
-          import('./features/sources/sources.routes').then((m) => m.sourceRoutes),
+          import('./features/currency/currency.routes').then((m) => m.currencyRoutes),
       },
     ],
   },

@@ -1,0 +1,681 @@
+.currency-page {
+  flex: 1;
+}
+
+.currency-page__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-bottom: var(--space-5);
+}
+
+.currency-page__title-wrap {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.currency-page__icon {
+  width: 52px;
+  height: 52px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--color-success) 22%, transparent),
+    rgba(12, 20, 35, 0.8)
+  );
+  color: var(--color-success);
+  box-shadow: inset 0 0 0 1px var(--color-border);
+}
+
+.currency-page__icon svg {
+  width: var(--icon-xl);
+  height: var(--icon-xl);
+}
+
+.currency-page__title {
+  font-size: var(--text-3xl);
+  font-weight: var(--font-bold);
+  letter-spacing: -0.03em;
+  color: var(--color-text-primary);
+}
+
+.currency-page__subtitle {
+  margin-top: var(--space-1);
+  color: var(--color-text-secondary);
+  font-size: var(--text-sm);
+}
+
+.currency-page__content {
+  display: grid;
+  gap: var(--space-5);
+}
+
+.currency-page__actions {
+  display: flex;
+  gap: var(--space-3);
+  justify-content: flex-end;
+}
+
+.currency-page__action {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 42px;
+  padding: 0 var(--space-4);
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+  font-family: var(--font-sans);
+  transition:
+    background-color var(--transition-fast),
+    color var(--transition-fast),
+    border-color var(--transition-fast);
+  cursor: pointer;
+}
+
+.currency-page__action--primary {
+  background: linear-gradient(
+    135deg,
+    var(--color-accent-violet),
+    color-mix(in srgb, var(--color-accent-violet) 70%, white)
+  );
+  color: var(--color-text-primary);
+}
+
+.currency-page__action--secondary {
+  background-color: var(--color-bg-overlay);
+  border-color: var(--color-border);
+  color: var(--color-text-primary);
+}
+
+.currency-page__action--ghost {
+  background-color: transparent;
+  border-color: var(--color-border);
+  color: var(--color-text-secondary);
+}
+
+.currency-page__action:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.currency-page__action-icon {
+  width: var(--icon-md);
+  height: var(--icon-md);
+  flex-shrink: 0;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.currency-page__action-icon--spinning {
+  animation: spin 0.85s linear infinite;
+}
+
+.currency-page__skeletons {
+  display: grid;
+  gap: var(--space-4);
+}
+
+/* ── Rates Strip ─────────────────────────────────────── */
+
+.rates-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.rates-strip__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-5);
+  flex: 1;
+}
+
+.rates-strip__item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.rates-strip__label,
+.portfolio-total__label,
+.editor-field__label,
+.converter-card__hint,
+.chart-card__caption,
+.converter-card__result-label {
+  color: var(--color-text-tertiary);
+  font-size: var(--text-xs);
+  font-weight: var(--font-medium);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.rates-strip__value {
+  color: var(--color-text-primary);
+  font-size: var(--text-xl);
+  font-weight: var(--font-semibold);
+  font-variant-numeric: tabular-nums;
+}
+
+.rates-strip__link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  background: transparent;
+  border: none;
+  color: var(--color-primary);
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+  cursor: pointer;
+  font-family: var(--font-sans);
+  white-space: nowrap;
+  padding: 0;
+  transition: color var(--transition-fast);
+
+  &:hover:not(:disabled) {
+    color: var(--color-primary-hover);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.rates-strip__link-icon {
+  width: var(--icon-sm);
+  height: var(--icon-sm);
+  flex-shrink: 0;
+}
+
+.rates-strip__error {
+  color: var(--color-danger);
+  font-size: var(--text-sm);
+  margin-top: var(--space-2);
+}
+
+/* ── Currency Holdings Cards ─────────────────────────── */
+
+.currency-cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-5);
+}
+
+.holding-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.holding-card__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.holding-card__share,
+.holding-card__approx,
+.portfolio-total__side {
+  color: var(--color-text-secondary);
+  font-size: var(--text-sm);
+}
+
+.holding-card__amount-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.holding-card__amount,
+.portfolio-total__amount,
+.converter-card__result-value {
+  color: var(--color-text-primary);
+  font-size: clamp(2rem, 3vw, 3.25rem);
+  line-height: 1;
+  font-weight: var(--font-bold);
+  letter-spacing: -0.04em;
+  font-variant-numeric: tabular-nums;
+}
+
+.holding-card__bar {
+  height: 8px;
+  background-color: var(--color-bg-overlay);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.holding-card__bar-fill {
+  height: 100%;
+  border-radius: var(--radius-full);
+  transition: width var(--transition-slow);
+}
+
+.holding-card__bar-fill--uah,
+.chart-card__legend-dot--uah {
+  background-color: var(--color-accent-violet);
+}
+
+.holding-card__bar-fill--usd,
+.chart-card__legend-dot--usd {
+  background-color: var(--color-accent-emerald);
+}
+
+.holding-card__bar-fill--eur,
+.chart-card__legend-dot--eur {
+  background-color: var(--color-primary);
+}
+
+/* ── Portfolio Total ────────────────────────────────── */
+
+.portfolio-total {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.portfolio-total__side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--space-1);
+}
+
+/* ── Editor Card ────────────────────────────────────── */
+
+.editor-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.editor-card__header,
+.chart-card__header,
+.converter-card__header,
+.portfolio-total {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.editor-card__title,
+.chart-card__title,
+.converter-card__title {
+  color: var(--color-text-primary);
+  font-size: var(--text-lg);
+  font-weight: var(--font-semibold);
+}
+
+.editor-card__subtitle {
+  margin-top: var(--space-1);
+  color: var(--color-text-secondary);
+  font-size: var(--text-sm);
+}
+
+.editor-card__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+
+.editor-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.editor-field__input {
+  min-height: 48px;
+  padding: 0 var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background-color: var(--color-bg-elevated);
+  color: var(--color-text-primary);
+  font-size: var(--text-md);
+  font-family: var(--font-sans);
+  transition: border-color var(--transition-fast);
+
+  &:focus {
+    outline: none;
+    border-color: var(--color-primary);
+  }
+}
+
+.editor-field__input--select {
+  appearance: none;
+}
+
+.editor-card__actions {
+  display: flex;
+  gap: var(--space-3);
+}
+
+.editor-card__error {
+  color: var(--color-danger);
+  font-size: var(--text-sm);
+}
+
+/* ── Holdings Dialog ───────────────────────────────── */
+
+.holdings-dialog {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  display: grid;
+  place-items: center;
+  padding: var(--space-6);
+}
+
+.holdings-dialog__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(3, 6, 14, 0.72);
+  backdrop-filter: blur(12px);
+}
+
+.holdings-dialog__panel {
+  position: relative;
+  width: min(100%, 440px);
+  border-radius: var(--radius-xl);
+  background: linear-gradient(180deg, rgba(24, 27, 34, 0.98), rgba(20, 24, 38, 0.98));
+  box-shadow:
+    0 24px 80px rgba(0, 0, 0, 0.45),
+    inset 0 0 0 1px var(--color-border);
+}
+
+.holdings-dialog__form {
+  padding: var(--space-6);
+}
+
+.holdings-dialog__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.holdings-dialog__fields {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.holdings-dialog__close {
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition:
+    background-color var(--transition-fast),
+    color var(--transition-fast);
+}
+
+.holdings-dialog__close:hover:not(:disabled) {
+  background-color: var(--color-bg-overlay);
+  color: var(--color-text-primary);
+}
+
+.holdings-dialog__close:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.holdings-dialog__close svg {
+  width: var(--icon-md);
+  height: var(--icon-md);
+}
+
+.holdings-dialog__actions {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.holdings-dialog__save {
+  flex: 1;
+  justify-content: center;
+}
+
+/* ── Bottom Grid ──────────────────────────────────── */
+
+.currency-page__bottom-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 0.92fr);
+  gap: var(--space-5);
+}
+
+.currency-page__bottom-grid > app-card {
+  height: 100%;
+}
+
+/* ── Chart Card ───────────────────────────────────── */
+
+.chart-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.chart-card__body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-5);
+  padding-top: var(--space-5);
+}
+
+.chart-card__chart-wrap {
+  width: 220px;
+  height: 220px;
+  position: relative;
+}
+
+.chart-card__canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.chart-card__legend {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.chart-card__legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-text-secondary);
+  font-size: var(--text-sm);
+}
+
+.chart-card__legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+/* ── Converter Card ───────────────────────────────── */
+
+.converter-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  gap: var(--space-6);
+}
+
+.converter-card__amount-input {
+  min-height: 64px;
+  padding-inline: var(--space-5);
+  border-color: color-mix(in srgb, var(--color-primary) 60%, var(--color-border));
+  background-color: color-mix(in srgb, var(--color-bg-elevated) 92%, var(--color-primary-muted));
+  font-size: clamp(1.25rem, 2vw, 2rem);
+  font-weight: var(--font-semibold);
+  letter-spacing: -0.03em;
+}
+
+.converter-card__selectors {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: end;
+  gap: var(--space-3);
+}
+
+.converter-card__select {
+  min-height: 56px;
+  padding-right: 44px;
+  border-color: color-mix(in srgb, var(--color-border-strong) 78%, transparent);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='M1 1.5 6 6.5 11 1.5' stroke='%23F1F3F8' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  background-size: 12px 8px;
+  font-size: var(--text-xl);
+  font-weight: var(--font-semibold);
+}
+
+.converter-card__swap-btn {
+  width: 56px;
+  height: 56px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  background-color: var(--color-bg-overlay);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition:
+    background-color var(--transition-fast),
+    color var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+.converter-card__swap-btn:hover {
+  background-color: color-mix(in srgb, var(--color-bg-overlay) 84%, var(--color-primary-muted));
+  color: var(--color-text-primary);
+}
+
+.converter-card__swap-btn:active {
+  transform: scale(0.98);
+}
+
+.converter-card__swap-btn svg {
+  width: var(--icon-lg);
+  height: var(--icon-lg);
+}
+
+.converter-card__result {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  padding: var(--space-6) var(--space-5);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--color-primary) 10%, transparent),
+    rgba(28, 38, 58, 0.72)
+  );
+  box-shadow: inset 0 0 0 1px var(--color-border);
+  text-align: center;
+}
+
+.converter-card__result-meta {
+  color: var(--color-text-secondary);
+  font-size: clamp(1rem, 1.5vw, 1.2rem);
+  font-weight: var(--font-medium);
+}
+
+.converter-card__result-rate {
+  color: var(--color-text-secondary);
+  font-size: var(--text-md);
+}
+
+/* ── Responsive ───────────────────────────────────── */
+
+@media (max-width: 1024px) {
+  .currency-page__header,
+  .editor-card__header,
+  .portfolio-total,
+  .chart-card__header,
+  .converter-card__header {
+    flex-direction: column;
+  }
+
+  .currency-cards,
+  .editor-card__grid,
+  .currency-page__bottom-grid,
+  .rates-strip__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .rates-strip {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 768px) {
+  .currency-page__actions,
+  .editor-card__actions,
+  .converter-card__selectors {
+    width: 100%;
+    grid-template-columns: 1fr;
+  }
+
+  .currency-page__actions,
+  .editor-card__actions {
+    display: grid;
+  }
+
+  .converter-card__swap-btn {
+    width: 100%;
+  }
+
+  .chart-card__chart-wrap {
+    width: 180px;
+    height: 180px;
+  }
+
+  .holding-card__amount,
+  .portfolio-total__amount,
+  .converter-card__result-value {
+    font-size: 2.4rem;
+  }
+
+  .holdings-dialog {
+    padding: var(--space-4);
+  }
+
+  .holdings-dialog__form {
+    padding: var(--space-5);
+  }
+
+  .holdings-dialog__actions {
+    flex-direction: column;
+  }
+}

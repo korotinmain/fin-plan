@@ -1,0 +1,438 @@
+<div class="currency-page">
+  <div class="page">
+    <div class="currency-page__header">
+      <div class="currency-page__title-wrap">
+        <div class="currency-page__icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path
+              d="M12 4v16M16 7.5c0-1.933-1.79-3.5-4-3.5s-4 1.567-4 3.5 1.79 3.5 4 3.5 4 1.567 4 3.5-1.79 3.5-4 3.5-4-1.567-4-3.5"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </div>
+        <div>
+          <h1 class="currency-page__title">{{ 'currency.title' | t }}</h1>
+          <p class="currency-page__subtitle">{{ 'currency.subtitle' | t }}</p>
+        </div>
+      </div>
+
+      <div class="currency-page__actions">
+        <button
+          class="currency-page__action currency-page__action--primary"
+          type="button"
+          (click)="startEditingHoldings()"
+        >
+          <svg
+            class="currency-page__action-icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            aria-hidden="true"
+          >
+            <path
+              d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+            <path
+              d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+          {{ 'currency.editHoldings' | t }}
+        </button>
+      </div>
+    </div>
+
+    @if (isLoading()) {
+      <div class="currency-page__skeletons">
+        <app-skeleton height="140px" />
+        <app-skeleton height="420px" />
+      </div>
+    } @else {
+      <div class="currency-page__content">
+        <app-card>
+          <div class="rates-strip">
+            <div class="rates-strip__grid">
+              <div class="rates-strip__item">
+                <span class="rates-strip__label">{{ 'currency.rates.usdToUah' | t }}</span>
+                <span class="rates-strip__value">₴{{ rates().usdToUah | number: '1.2-2' }}</span>
+              </div>
+              <div class="rates-strip__item">
+                <span class="rates-strip__label">{{ 'currency.rates.eurToUah' | t }}</span>
+                <span class="rates-strip__value">₴{{ rates().eurToUah | number: '1.2-2' }}</span>
+              </div>
+              <div class="rates-strip__item">
+                <span class="rates-strip__label">{{ 'currency.rates.eurToUsd' | t }}</span>
+                <span class="rates-strip__value">${{ rates().eurToUsd | number: '1.4-4' }}</span>
+              </div>
+            </div>
+
+            <button
+              class="rates-strip__link"
+              type="button"
+              [disabled]="isFetchingRates()"
+              (click)="fetchLiveRates()"
+            >
+              <svg
+                class="rates-strip__link-icon"
+                viewBox="0 0 16 16"
+                fill="none"
+                aria-hidden="true"
+              >
+                <path
+                  d="M3.3 3.3A6 6 0 1 1 2.8 8"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                />
+                <path
+                  d="M1.5 5.5 2.8 8 5.3 6.7"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+              @if (ratesLastFetched()) {
+                {{ 'currency.rates.updatedAt' | t: { time: (ratesLastFetched() | date: 'HH:mm') } }}
+              } @else {
+                {{ 'currency.rates.update' | t }}
+              }
+            </button>
+          </div>
+          @if (fetchRatesError()) {
+            <p class="rates-strip__error" role="alert">{{ fetchRatesError() | t }}</p>
+          }
+        </app-card>
+
+        <section class="currency-cards" [attr.aria-label]="'currency.aria.holdings' | t">
+          @for (item of meta; track item.code) {
+            <app-card>
+              <div class="holding-card">
+                <div class="holding-card__top">
+                  <app-badge
+                    [label]="item.code"
+                    [variant]="
+                      item.code === 'USD' ? 'success' : item.code === 'EUR' ? 'info' : 'neutral'
+                    "
+                  />
+                  <span class="holding-card__share">{{
+                    'currency.shareOfTotal' | t: { value: (shareFor(item.code) | number: '1.1-1') }
+                  }}</span>
+                </div>
+
+                <div class="holding-card__amount-wrap">
+                  <div class="holding-card__amount">
+                    @if (item.code === 'UAH') {
+                      {{ item.symbol }}{{ holdingAmount(item.code) | number: '1.0-0' }}
+                    } @else {
+                      {{ holdingAmount(item.code) | currency: item.code : 'symbol' : '1.0-0' }}
+                    }
+                  </div>
+                  <div class="holding-card__approx">
+                    ≈ {{ valueInUah(item.code) | number: '1.0-0' }} UAH
+                  </div>
+                </div>
+
+                <div class="holding-card__bar" aria-hidden="true">
+                  <div
+                    class="holding-card__bar-fill"
+                    [class]="
+                      'holding-card__bar-fill holding-card__bar-fill--' + item.code.toLowerCase()
+                    "
+                    [style.width.%]="shareFor(item.code)"
+                  ></div>
+                </div>
+              </div>
+            </app-card>
+          }
+        </section>
+
+        <app-card>
+          <div class="portfolio-total">
+            <div>
+              <span class="portfolio-total__label">{{ 'currency.totalValue' | t }}</span>
+              <div class="portfolio-total__amount">
+                {{ totals().totalUah | number: '1.0-0' }} UAH
+              </div>
+            </div>
+
+            <div class="portfolio-total__side">
+              <span>≈ {{ totals().totalUsd | currency: 'USD' : 'symbol' : '1.0-2' }}</span>
+              <span>≈ {{ totals().totalEur | currency: 'EUR' : 'symbol' : '1.0-2' }}</span>
+            </div>
+          </div>
+        </app-card>
+
+        <section class="currency-page__bottom-grid">
+          <app-card>
+            <div class="chart-card">
+              <div class="chart-card__header">
+                <h2 class="chart-card__title">{{ 'currency.distribution' | t }}</h2>
+                <span class="chart-card__caption">{{ 'currency.distributionCaption' | t }}</span>
+              </div>
+
+              <div class="chart-card__body">
+                <div class="chart-card__chart-wrap">
+                  <canvas
+                    class="chart-card__canvas"
+                    baseChart
+                    [data]="doughnutChartData()"
+                    [options]="doughnutChartOptions"
+                    [type]="'doughnut'"
+                    [attr.aria-label]="'currency.aria.distributionChart' | t"
+                    role="img"
+                  ></canvas>
+                </div>
+
+                <div class="chart-card__legend">
+                  @for (segment of chartSegments(); track segment.code) {
+                    <div class="chart-card__legend-item">
+                      <span
+                        class="chart-card__legend-dot"
+                        [class]="
+                          'chart-card__legend-dot chart-card__legend-dot--' +
+                          segment.code.toLowerCase()
+                        "
+                      ></span>
+                      <span>{{ segment.code }}</span>
+                      <span>{{ segment.share | number: '1.1-1' }}%</span>
+                    </div>
+                  }
+                </div>
+              </div>
+            </div>
+          </app-card>
+
+          <app-card>
+            <form class="converter-card" [formGroup]="converterForm">
+              <div class="converter-card__header">
+                <h2 class="converter-card__title">{{ 'currency.converter' | t }}</h2>
+                <span class="converter-card__hint">{{ 'currency.converterHint' | t }}</span>
+              </div>
+
+              <label class="editor-field">
+                <span class="editor-field__label">{{ 'currency.amount' | t }}</span>
+                <input
+                  class="editor-field__input converter-card__amount-input"
+                  formControlName="amount"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  [placeholder]="'currency.amount' | t"
+                />
+              </label>
+
+              <div class="converter-card__selectors">
+                <label class="editor-field">
+                  <span class="editor-field__label">{{ 'currency.from' | t }}</span>
+                  <select
+                    class="editor-field__input editor-field__input--select converter-card__select"
+                    formControlName="from"
+                  >
+                    @for (item of fromCurrencyOptions(); track item.code) {
+                      <option [value]="item.code">{{ item.code }} {{ item.symbol }}</option>
+                    }
+                  </select>
+                </label>
+
+                <button
+                  class="converter-card__swap-btn"
+                  type="button"
+                  [attr.aria-label]="'currency.swap' | t"
+                  (click)="swapConverterCurrencies()"
+                >
+                  <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                    <path
+                      d="M3 8h10M8.5 3.5 13 8l-4.5 4.5"
+                      stroke="currentColor"
+                      stroke-width="1.5"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                </button>
+
+                <label class="editor-field">
+                  <span class="editor-field__label">{{ 'currency.to' | t }}</span>
+                  <select
+                    class="editor-field__input editor-field__input--select converter-card__select"
+                    formControlName="to"
+                  >
+                    @for (item of toCurrencyOptions(); track item.code) {
+                      <option [value]="item.code">{{ item.code }} {{ item.symbol }}</option>
+                    }
+                  </select>
+                </label>
+              </div>
+
+              <div class="converter-card__result">
+                <span class="converter-card__result-meta">
+                  {{ formatConverterInputAmount(converterState().amount) }} {{ converterState().from }} =
+                </span>
+                <span class="converter-card__result-value">
+                  {{ converterSymbol(converterState().to) }}{{ formatConverterAmount(converterResult(), converterState().to) }}
+                </span>
+                <span class="converter-card__result-rate">
+                  {{
+                    'currency.converterRate'
+                      | t
+                        : {
+                            from: '1 ' + converterState().from,
+                            to:
+                              converterSymbol(converterState().to) +
+                              formatConverterRate(converterRate(), converterState().to),
+                          }
+                  }}
+                </span>
+              </div>
+            </form>
+          </app-card>
+        </section>
+      </div>
+    }
+  </div>
+
+  @if (isEditingHoldings()) {
+    <div class="holdings-dialog" role="presentation" (click)="cancelEditingHoldings()">
+      <div class="holdings-dialog__backdrop" aria-hidden="true"></div>
+
+      <div
+        class="holdings-dialog__panel"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="holdings-dialog-title"
+        (click)="$event.stopPropagation()"
+      >
+        <form
+          class="editor-card holdings-dialog__form"
+          [formGroup]="holdingsForm"
+          (ngSubmit)="saveHoldings()"
+        >
+          <div class="holdings-dialog__header">
+            <div>
+              <h2 class="editor-card__title" id="holdings-dialog-title">
+                {{ 'currency.dialog.title' | t }}
+              </h2>
+            </div>
+
+            <button
+              class="holdings-dialog__close"
+              type="button"
+              [attr.aria-label]="'currency.aria.closeDialog' | t"
+              [disabled]="isSavingHoldings()"
+              (click)="cancelEditingHoldings()"
+            >
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path
+                  d="M6 6l12 12M18 6 6 18"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                />
+              </svg>
+            </button>
+          </div>
+
+          <div class="holdings-dialog__fields">
+            <label class="editor-field">
+              <span class="editor-field__label">{{ 'currency.dialog.uah' | t }}</span>
+              <input
+                class="editor-field__input"
+                formControlName="uah"
+                type="number"
+                min="0"
+                step="100"
+              />
+            </label>
+            <label class="editor-field">
+              <span class="editor-field__label">{{ 'currency.dialog.usd' | t }}</span>
+              <input
+                class="editor-field__input"
+                formControlName="usd"
+                type="number"
+                min="0"
+                step="10"
+              />
+            </label>
+            <label class="editor-field">
+              <span class="editor-field__label">{{ 'currency.dialog.eur' | t }}</span>
+              <input
+                class="editor-field__input"
+                formControlName="eur"
+                type="number"
+                min="0"
+                step="10"
+              />
+            </label>
+          </div>
+
+          @if (holdingsError()) {
+            <p class="editor-card__error" role="alert">{{ holdingsError() | t }}</p>
+          }
+
+          <div class="holdings-dialog__actions">
+            <button
+              class="currency-page__action currency-page__action--primary holdings-dialog__save"
+              type="submit"
+              [disabled]="isSavingHoldings() || holdingsForm.invalid"
+            >
+              <svg
+                class="currency-page__action-icon"
+                viewBox="0 0 16 16"
+                fill="none"
+                aria-hidden="true"
+              >
+                <path
+                  d="M3 2.5h8.5L13 4v9.5H3z"
+                  stroke="currentColor"
+                  stroke-width="1.3"
+                  stroke-linejoin="round"
+                />
+                <path
+                  d="M5 2.5v3h5v-3M5.5 11h5"
+                  stroke="currentColor"
+                  stroke-width="1.3"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+              {{
+                isSavingHoldings() ? ('currency.dialog.saving' | t) : ('currency.dialog.save' | t)
+              }}
+            </button>
+            <button
+              class="currency-page__action currency-page__action--ghost"
+              type="button"
+              [disabled]="isSavingHoldings()"
+              (click)="cancelEditingHoldings()"
+            >
+              <svg
+                class="currency-page__action-icon"
+                viewBox="0 0 16 16"
+                fill="none"
+                aria-hidden="true"
+              >
+                <path
+                  d="M4 4l8 8M12 4 4 12"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                />
+              </svg>
+              {{ 'currency.dialog.cancel' | t }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+</div>

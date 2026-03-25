@@ -9,6 +9,7 @@ This document must be treated as the primary design behavior guide for AI-assist
 The goal is not to create random beautiful screens.
 
 The goal is to create a **premium, calm, trustworthy financial product UI** with:
+
 - strong visual hierarchy
 - clear information architecture
 - low visual noise
@@ -25,9 +26,11 @@ If a proposed UI looks generic, cluttered, flat, noisy, spreadsheet-like, or low
 ## Design Source of Truth
 
 ### Primary visual taste reference
+
 Refactoring UI
 
 Use it as the main source for:
+
 - visual hierarchy
 - spacing
 - density control
@@ -37,9 +40,11 @@ Use it as the main source for:
 - “developer-friendly” premium UI thinking
 
 ### Primary design-system reference
+
 IBM Carbon Design System
 
 Use it as the main source for:
+
 - design system discipline
 - information architecture consistency
 - component behavior
@@ -48,18 +53,22 @@ Use it as the main source for:
 - scalable product UI rules
 
 ### Secondary reference
+
 Microsoft Fluent 2
 
 Use it as a secondary reference for:
+
 - polished modern product behavior
 - coherent digital experience patterns
 - calm and refined interface language
 - high-quality interaction and layout restraint
 
 ### Optional fallback reference
+
 Material Design 3
 
 Use only as a fallback for:
+
 - accessibility behavior
 - basic component state conventions
 - responsive/foundation patterns
@@ -69,12 +78,14 @@ Use only as a fallback for:
 ## Core Design Philosophy
 
 This product must feel like:
+
 - a premium financial control panel
 - a trustworthy product
 - a focused personal wealth-tracking dashboard
 - a calm, intentional tool for decision-making
 
 This product must not feel like:
+
 - an internal admin panel
 - a spreadsheet pasted into cards
 - a startup template
@@ -98,6 +109,7 @@ The interface must optimize for:
 - usability over dribbble-style experimentation
 
 The user must immediately understand:
+
 - how much money is currently available
 - how much is still missing
 - where the money is stored
@@ -116,12 +128,14 @@ If the UI fails to answer these questions quickly, the design is wrong.
 Every screen must have a clear reading order.
 
 The user should instantly identify:
+
 1. primary summary
 2. secondary breakdown
 3. actions
 4. supporting detail
 
 Use hierarchy through:
+
 - size
 - spacing
 - contrast
@@ -140,6 +154,7 @@ Do not compress the UI too early.
 Do not create empty luxury spacing that harms information flow.
 
 Target feeling:
+
 - premium
 - breathable
 - structured
@@ -148,6 +163,7 @@ Target feeling:
 ### 3. Use Fewer Visual Decisions
 
 Reduce unnecessary variation in:
+
 - corner radii
 - shadows
 - border styles
@@ -161,6 +177,7 @@ A polished UI repeats strong decisions consistently.
 ### 4. Prefer Surface Hierarchy Over Decoration
 
 Use:
+
 - sections
 - cards
 - grouped blocks
@@ -169,6 +186,7 @@ Use:
 - background separation
 
 Do not use:
+
 - excessive gradients
 - glow effects
 - unnecessary glassmorphism
@@ -179,6 +197,7 @@ Do not use:
 ### 5. Typography Must Carry Meaning
 
 Typography must signal:
+
 - page importance
 - metric importance
 - section grouping
@@ -196,31 +215,54 @@ Do not create headings that are stylistically loud but structurally weak.
 The application shell defines the structural container for all authenticated screens.
 
 ### Layout model
+
 - **No top header.** The application must not use a horizontal top navigation bar.
 - **Left sidebar navigation only.** All navigation is contained in a fixed-width left sidebar.
 - The sidebar is the sole persistent application chrome once authenticated.
 - The main content area occupies all remaining horizontal space to the right of the sidebar.
 
 ### Sidebar structure
+
 - App branding (name + subtitle) appears at the top of the sidebar.
 - Navigation items are listed below branding, vertically stacked.
 - Active route must be visually distinct — use an accent background or left indicator.
+- Language switching belongs in the sidebar footer, not in page-level headers or content cards.
 - A subtle metadata line (e.g. last updated timestamp) may appear at the bottom of the sidebar.
 - The sidebar must feel calm, structured, and secondary to the content — it must not compete for attention.
 
 ### Sidebar visual rules
+
 - Use a dark or deeply tinted sidebar background that separates from the content area.
 - Icon + label pairs for each nav item; icons must be consistent in size and weight.
+- Locale toggle controls must match the sidebar visual language and behave like compact segmented controls.
 - Nav items must have clear hover and active states.
 - The sidebar width must be fixed and consistent across all screens.
 - No collapsible/hamburger sidebar behavior is required at this stage.
 
+### Localization rules
+
+- All user-facing screens must support English and Ukrainian.
+- Translation must be centralized through a shared i18n layer; do not hardcode duplicate strings across templates.
+- Locale choice must be user-controlled from the authenticated shell and persisted for signed-in users.
+- Auth screens, shell, forms, feedback states, and primary financial labels must remain fully translated.
+- If a new feature introduces user-visible copy, both locales must be added in the same change.
+
+### CTA and icon rules
+
+- Primary and secondary CTA buttons must use a relevant icon when the action is directional, additive, save-related, edit-related, refresh-related, or destructive.
+- CTA icons must be simple stroke icons, visually aligned with button text, and consistent in size across the product.
+- Do not mix iconized CTAs with plain-text CTAs for equivalent actions in the same feature.
+- Links styled as actions should use icons only when they represent a direct action, not passive navigation text.
+- Never add decorative icons that do not clarify the action.
+
 ### Content area
+
 - Content area has its own background, separate from the sidebar.
 - Each page manages its own internal padding and layout.
 - The content area must never include a redundant page-level top bar or secondary nav strip.
 
 ### Reject
+
 - any top horizontal nav bar or header bar
 - dual navigation (sidebar + top bar simultaneously)
 - collapsing or overlay sidebars at desktop width
@@ -236,6 +278,7 @@ The dashboard is the most important screen in the app.
 It must behave like a **decision cockpit**, not a statistics wall.
 
 ### Dashboard priorities
+
 The dashboard must present, in this order:
 
 1. house target status
@@ -248,6 +291,7 @@ The dashboard must present, in this order:
 8. recent activity
 
 ### Dashboard layout rules
+
 - the top section must contain the highest-value summary
 - major financial numbers must be visible without scrolling
 - supporting detail should be grouped below or beside the summary
@@ -256,7 +300,9 @@ The dashboard must present, in this order:
 - major summaries should be larger and calmer than supporting widgets
 
 ### Dashboard anti-patterns
+
 Reject dashboards that:
+
 - show too many cards with equal emphasis
 - hide the most important number
 - use charts before core metrics are understood
@@ -271,15 +317,18 @@ Reject dashboards that:
 Cards are allowed, but card overload is not.
 
 ### Good card usage
+
 Use cards for:
+
 - key summaries
 - grouped data
-- source balances
+- currency holdings
 - expected funds
 - FX overview
 - recent activity blocks
 
 ### Card behavior rules
+
 - each card must have a clear purpose
 - cards must not become generic containers for everything
 - cards must have consistent internal spacing
@@ -288,7 +337,9 @@ Use cards for:
 - secondary metadata must be visually quieter
 
 ### Card anti-patterns
+
 Reject cards that:
+
 - contain too many unrelated elements
 - are visually loud without adding clarity
 - use weak padding
@@ -303,6 +354,7 @@ Reject cards that:
 Tables are useful in this product, especially for operations and expected funds.
 
 ### Table principles
+
 - tables must remain highly readable
 - row density should be efficient but not cramped
 - alignment must be intentional
@@ -311,6 +363,7 @@ Tables are useful in this product, especially for operations and expected funds.
 - headers should be useful, not decorative
 
 ### Table design rules
+
 - numeric columns must align consistently
 - currency and amount relationships must be immediately understandable
 - supporting text should not overpower numeric values
@@ -318,7 +371,9 @@ Tables are useful in this product, especially for operations and expected funds.
 - filters must be clean and not overcomplicate the layout
 
 ### Table anti-patterns
+
 Reject tables that:
+
 - feel like raw database grids
 - have too many visible borders
 - have poor numeric alignment
@@ -332,6 +387,7 @@ Reject tables that:
 Forms must feel premium, structured, and trustworthy.
 
 ### Form behavior
+
 - forms should be calm and explicit
 - labels must be clear
 - field grouping must be meaningful
@@ -339,6 +395,7 @@ Forms must feel premium, structured, and trustworthy.
 - validation must be understandable, not noisy
 
 ### Form layout
+
 - group fields by meaning, not by arbitrary symmetry
 - avoid overlong forms where possible
 - keep field widths intentional
@@ -346,7 +403,9 @@ Forms must feel premium, structured, and trustworthy.
 - exchange and conversion forms must surface rate context clearly
 
 ### Form anti-patterns
+
 Reject forms that:
+
 - look like generic admin CRUD
 - stack too many unrelated inputs in one block
 - hide important financial context
@@ -363,11 +422,13 @@ Charts are optional and secondary.
 This product is not chart-first.
 
 ### Use charts only when they help answer a real question:
+
 - progress over time
 - FX loss trend
 - balance distribution by source
 
 ### Chart rules
+
 - charts must support a concrete decision
 - charts must not replace direct key metrics
 - charts must be visually restrained
@@ -375,11 +436,13 @@ This product is not chart-first.
 - avoid decorative chart-heavy dashboards
 
 ### Prefer:
+
 - simple line charts
 - restrained bar charts
 - compact visual summaries
 
 ### Avoid:
+
 - donut charts for everything
 - 3D charts
 - highly saturated multi-series clutter
@@ -392,6 +455,7 @@ This product is not chart-first.
 Color must support meaning, not entertain the user.
 
 ### Color principles
+
 - use a restrained palette
 - maintain strong contrast for important metrics
 - use accent colors intentionally
@@ -399,7 +463,9 @@ Color must support meaning, not entertain the user.
 - avoid high-saturation overload
 
 ### Color usage
+
 Use color primarily for:
+
 - status
 - emphasis
 - progress
@@ -408,6 +474,7 @@ Use color primarily for:
 - subtle structural separation
 
 ### Avoid
+
 - rainbow dashboards
 - too many accent colors
 - bright colors on every card
@@ -415,6 +482,7 @@ Use color primarily for:
 - decorative gradients that reduce trust
 
 ### Financial meaning
+
 - positive values should feel stable, not celebratory
 - warnings should feel controlled, not alarming
 - losses should be clear but not visually aggressive
@@ -427,6 +495,7 @@ Use color primarily for:
 Spacing is one of the main tools for making the UI feel premium.
 
 ### Spacing principles
+
 - use spacing to group meaning
 - more space between groups than within groups
 - keep rhythm consistent
@@ -434,12 +503,14 @@ Spacing is one of the main tools for making the UI feel premium.
 - preserve calmness
 
 ### Rules
+
 - internal component spacing must be systematic
 - section spacing must clearly signal structure
 - dense data can exist, but must still breathe
 - spacing must not feel accidental
 
 ### Reject
+
 - cramped layouts
 - inconsistent padding
 - cards with shallow interiors
@@ -453,6 +524,7 @@ Spacing is one of the main tools for making the UI feel premium.
 Typography must create trust and hierarchy.
 
 ### Principles
+
 - important numbers must be visually unmistakable
 - section titles must be clear but not oversized for no reason
 - metadata must be quieter
@@ -460,6 +532,7 @@ Typography must create trust and hierarchy.
 - text styles must stay limited and systematic
 
 ### Use typography to distinguish:
+
 - page title
 - section title
 - primary metric
@@ -469,6 +542,7 @@ Typography must create trust and hierarchy.
 - muted metadata
 
 ### Avoid
+
 - too many font weights
 - too many font sizes
 - weak contrast between primary and secondary text
@@ -482,12 +556,14 @@ Typography must create trust and hierarchy.
 Interactions must feel premium and calm.
 
 ### Principles
+
 - smooth, not flashy
 - clear, not dramatic
 - intentional, not busy
 - subtle motion, not performative motion
 
 ### Required interaction qualities
+
 - obvious hover states
 - clean focus states
 - polished pressed states
@@ -496,6 +572,7 @@ Interactions must feel premium and calm.
 - meaningful success/error feedback
 
 ### Motion
+
 - use motion sparingly
 - motion should explain transitions, not decorate them
 - avoid excessive bounce, dramatic entrance animations, and noisy microinteractions
@@ -507,17 +584,20 @@ Interactions must feel premium and calm.
 These states must be designed from the start.
 
 ### Empty states
+
 - should feel intentional
 - should explain what to do next
 - should not look like missing UI
 - should preserve premium product feel
 
 ### Loading states
+
 - should be calm and structured
 - prefer skeletons or subtle placeholders where appropriate
 - avoid chaotic spinners everywhere
 
 ### Error states
+
 - should be clear and respectful
 - should not destroy layout consistency
 - should guide recovery when possible
@@ -529,6 +609,7 @@ These states must be designed from the start.
 Authentication is part of the product experience.
 
 ### Requirements
+
 - auth screens must feel premium
 - they must visually belong to the same product
 - they must not feel like Firebase defaults
@@ -536,6 +617,7 @@ Authentication is part of the product experience.
 - Google and email/password options should be cleanly presented
 
 ### Reject
+
 - bland default login cards
 - weak spacing
 - no hierarchy
@@ -548,6 +630,7 @@ Authentication is part of the product experience.
 Every generated screen must pass this test:
 
 ### It should feel:
+
 - calm
 - expensive
 - clean
@@ -558,6 +641,7 @@ Every generated screen must pass this test:
 - product-grade
 
 ### It should not feel:
+
 - noisy
 - playful in the wrong way
 - over-decorated
@@ -589,27 +673,33 @@ When generating UI, the AI must:
 ## Screen-Level Rules
 
 ### Goal Screen
+
 Must feel simple, high-confidence, and intentional.
 No excessive steps.
 The target amount must feel important.
 
-### Savings Sources Screen
-Must make source balances easy to scan and compare.
-Currency context must never be ambiguous.
+### Currency Tracker Screen
+
+Must make holdings, exchange rates, and conversion easy to scan in one view.
+Currency context must never be ambiguous and the portfolio breakdown should feel decision-ready.
 
 ### Expected Funds Screen
+
 Must clearly distinguish external support from own money.
 Status must be easy to understand.
 
 ### Operations Screen
+
 Must feel structured and auditable.
 The user should trust the history instantly.
 
 ### Exchange Flow
+
 Must feel precise.
 Inputs, rates, and FX impact must be extremely clear.
 
 ### Dashboard
+
 Must feel like the financial command center.
 This is the most important product surface.
 
@@ -618,6 +708,7 @@ This is the most important product surface.
 ## Hard Design Rejections
 
 Reject any generated UI that includes:
+
 - top horizontal header or navigation bar
 - dual navigation (sidebar + top bar)
 - generic template dashboard layout
@@ -648,6 +739,7 @@ Not just “modern”.
 Not just “clean”.
 
 It must look like:
+
 - a real SaaS product
 - with strong hierarchy
 - strong judgment

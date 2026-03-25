@@ -1,29 +1,29 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  inject,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { AppLocale } from '../../models/ui-preferences.model';
+import { I18nService } from '../../services/i18n.service';
 import { AuthService } from '../../services/auth.service';
+import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 
 @Component({
   selector: 'app-shell',
-  imports: [RouterOutlet, RouterLink, RouterLinkActive],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, TranslatePipe],
   templateUrl: './shell.component.html',
   styleUrl: './shell.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ShellComponent {
   private readonly authService = inject(AuthService);
+  private readonly i18n = inject(I18nService);
   private readonly router = inject(Router);
 
   readonly user = this.authService.currentUser;
+  readonly locale = this.i18n.locale;
 
   readonly initials = computed(() => {
     const u = this.user();
     if (!u) return '';
-    if (u.displayName) {
+    if (u.displayName !== null && u.displayName !== '') {
       return u.displayName
         .split(' ')
         .slice(0, 2)
@@ -36,7 +36,11 @@ export class ShellComponent {
 
   signOut(): void {
     this.authService.signOut().subscribe(() => {
-      this.router.navigate(['/auth/login']);
+      void this.router.navigate(['/auth/login']);
     });
+  }
+
+  setLocale(locale: AppLocale): void {
+    this.i18n.setLocale(locale);
   }
 }

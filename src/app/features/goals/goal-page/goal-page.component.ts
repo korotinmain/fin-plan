@@ -1,18 +1,14 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  inject,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CurrencyPipe } from '@angular/common';
 import { CardComponent } from '../../../shared/ui/card/card.component';
 import { SkeletonComponent } from '../../../shared/ui/skeleton/skeleton.component';
+import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 import { GoalFacade } from '../goal.facade';
 
 @Component({
   selector: 'app-goal-page',
-  imports: [ReactiveFormsModule, CurrencyPipe, CardComponent, SkeletonComponent],
+  imports: [ReactiveFormsModule, CurrencyPipe, CardComponent, SkeletonComponent, TranslatePipe],
   templateUrl: './goal-page.component.html',
   styleUrl: './goal-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -57,7 +53,7 @@ export class GoalPageComponent {
       },
       error: () => {
         this.isSaving.set(false);
-        this.saveError.set('Could not save your goal. Please try again.');
+        this.saveError.set('goal.saveError');
       },
     });
   }

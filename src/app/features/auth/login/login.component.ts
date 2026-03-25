@@ -1,22 +1,13 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  inject,
-  signal,
-} from '@angular/core';
-import {
-  FormBuilder,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 import { AuthService } from '../../../core/services/auth.service';
+import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 
 @Component({
   selector: 'app-login',
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, TranslatePipe],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -40,7 +31,11 @@ export class LoginComponent {
 
     this.authService
       .signInWithGoogle()
-      .pipe(finalize(() => { this.isLoading.set(false); }))
+      .pipe(
+        finalize(() => {
+          this.isLoading.set(false);
+        }),
+      )
       .subscribe({
         next: () => void this.router.navigate(['/']),
         error: (err: unknown) => {
@@ -65,7 +60,11 @@ export class LoginComponent {
 
     this.authService
       .signInWithEmailPassword(email, password)
-      .pipe(finalize(() => { this.isLoading.set(false); }))
+      .pipe(
+        finalize(() => {
+          this.isLoading.set(false);
+        }),
+      )
       .subscribe({
         next: () => void this.router.navigate(['/']),
         error: (err: unknown) => {
@@ -81,29 +80,22 @@ export class LoginComponent {
       'code' in err &&
       typeof (err as Record<string, unknown>)['code'] === 'string'
     ) {
-      return this.mapFirebaseError(
-        (err as Record<string, string>)['code'],
-      );
+      return this.mapFirebaseError((err as Record<string, string>)['code']);
     }
-    return 'An unexpected error occurred. Please try again.';
+    return 'auth.errors.unexpected';
   }
 
   private mapFirebaseError(code: string): string {
     const messages: Record<string, string> = {
-      'auth/invalid-credential': 'Invalid email or password.',
-      'auth/user-not-found': 'No account found with this email.',
-      'auth/wrong-password': 'Incorrect password.',
-      'auth/too-many-requests':
-        'Too many attempts. Please try again later.',
-      'auth/popup-closed-by-user':
-        'Sign-in popup was closed. Please try again.',
-      'auth/popup-blocked':
-        'Popup was blocked by your browser. Please allow popups for this site.',
-      'auth/cancelled-popup-request':
-        'Only one sign-in popup can be open at a time.',
-      'auth/network-request-failed':
-        'Network error. Please check your connection.',
+      'auth/invalid-credential': 'auth.errors.invalidCredential',
+      'auth/user-not-found': 'auth.errors.userNotFound',
+      'auth/wrong-password': 'auth.errors.wrongPassword',
+      'auth/too-many-requests': 'auth.errors.tooManyRequests',
+      'auth/popup-closed-by-user': 'auth.errors.popupClosedSignIn',
+      'auth/popup-blocked': 'auth.errors.popupBlocked',
+      'auth/cancelled-popup-request': 'auth.errors.popupCancelled',
+      'auth/network-request-failed': 'auth.errors.network',
     };
-    return messages[code] ?? 'Sign-in failed. Please try again.';
+    return messages[code] ?? 'auth.errors.signInFailed';
   }
 }

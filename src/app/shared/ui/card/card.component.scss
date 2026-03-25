@@ -4,7 +4,14 @@
 // cards throughout the product.
 // ============================================================
 
+:host {
+  display: block;
+  height: 100%;
+}
+
 .card {
+  display: block;
+  height: 100%;
   background-color: var(--color-bg-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
