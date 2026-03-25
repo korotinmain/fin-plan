@@ -38,6 +38,11 @@ export const routes: Routes = [
         loadChildren: () =>
           import('./features/goals/goals.routes').then((m) => m.goalRoutes),
       },
+      {
+        path: 'sources',
+        loadChildren: () =>
+          import('./features/sources/sources.routes').then((m) => m.sourceRoutes),
+      },
     ],
   },
 

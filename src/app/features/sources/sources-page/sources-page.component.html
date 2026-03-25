@@ -1,0 +1,144 @@
+<div class="sources-page">
+  <div class="page">
+
+    <div class="sources-page__header">
+      <div>
+        <h1 class="sources-page__title">Savings Sources</h1>
+        <p class="sources-page__subtitle">Your money across all accounts and cash</p>
+      </div>
+    </div>
+
+    @if (isLoading()) {
+
+      <div class="sources-page__skeleton-wrap">
+        <app-skeleton height="320px" />
+      </div>
+
+    } @else {
+
+      <!-- ─── Summary row ─────────────────────────────────────────── -->
+      <div class="sources-summary">
+        <app-card>
+          <div class="sources-summary__block">
+            <span class="sources-summary__label">USD total</span>
+            <span class="sources-summary__amount sources-summary__amount--usd">
+              {{ usdTotal() | currency:'USD':'symbol':'1.0-2' }}
+            </span>
+            <app-badge label="USD" variant="info" />
+          </div>
+        </app-card>
+
+        <app-card>
+          <div class="sources-summary__block">
+            <span class="sources-summary__label">UAH total</span>
+            <span class="sources-summary__amount sources-summary__amount--uah">
+              {{ uahTotal() | number:'1.0-0' }} ₴
+            </span>
+            <app-badge label="UAH" variant="neutral" />
+          </div>
+        </app-card>
+      </div>
+
+      <!-- ─── Source rows ────────────────────────────────────────── -->
+      <app-card padding="none">
+        <div class="source-list">
+          @for (meta of sourceMeta; track meta.id; let last = $last) {
+            <div class="source-row" [class.source-row--last]="last">
+
+              @if (editingId() === meta.id) {
+
+                <!-- Inline edit form -->
+                <form
+                  class="source-row__edit-form"
+                  [formGroup]="form"
+                  (ngSubmit)="save(meta.id)"
+                >
+                  <div class="source-row__edit-label">
+                    <span class="source-row__name">{{ meta.label }}</span>
+                    <app-badge
+                      [label]="meta.currency"
+                      [variant]="meta.currency === 'USD' ? 'info' : 'neutral'"
+                    />
+                  </div>
+
+                  <div class="source-row__edit-controls">
+                    <div class="source-row__input-wrap">
+                      <span class="source-row__prefix" aria-hidden="true">
+                        {{ meta.currency === 'USD' ? '$' : '₴' }}
+                      </span>
+                      <input
+                        class="source-row__input"
+                        formControlName="amount"
+                        type="number"
+                        min="0"
+                        step="100"
+                        autocomplete="off"
+                        [attr.aria-label]="'Balance for ' + meta.label"
+                      />
+                    </div>
+
+                    <div class="source-row__edit-actions">
+                      <button
+                        class="source-row__btn source-row__btn--save"
+                        type="submit"
+                        [disabled]="isSaving() || form.invalid"
+                      >
+                        {{ isSaving() ? '...' : 'Save' }}
+                      </button>
+                      <button
+                        class="source-row__btn source-row__btn--cancel"
+                        type="button"
+                        [disabled]="isSaving()"
+                        (click)="cancelEditing()"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+
+                  @if (saveError()) {
+                    <p class="source-row__error" role="alert">{{ saveError() }}</p>
+                  }
+                </form>
+
+              } @else {
+
+                <!-- Read-only row -->
+                <div class="source-row__content">
+                  <div class="source-row__left">
+                    <span class="source-row__name">{{ meta.label }}</span>
+                    <app-badge
+                      [label]="meta.currency"
+                      [variant]="meta.currency === 'USD' ? 'info' : 'neutral'"
+                    />
+                  </div>
+                  <div class="source-row__right">
+                    <span class="source-row__amount">
+                      @if (meta.currency === 'USD') {
+                        {{ balanceFor(meta.id) | currency:'USD':'symbol':'1.0-2' }}
+                      } @else {
+                        {{ balanceFor(meta.id) | number:'1.0-0' }} ₴
+                      }
+                    </span>
+                    <button
+                      class="source-row__edit-btn"
+                      type="button"
+                      (click)="startEditing(meta)"
+                      [attr.aria-label]="'Edit ' + meta.label"
+                    >
+                      Edit
+                    </button>
+                  </div>
+                </div>
+
+              }
+
+            </div>
+          }
+        </div>
+      </app-card>
+
+    }
+
+  </div>
+</div>

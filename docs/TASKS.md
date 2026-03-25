@@ -180,7 +180,7 @@ Create the reusable visual and structural foundation of the product.
 
 - focus on trust, hierarchy, and polish
 - avoid default-looking admin-panel design
-- ShellComponent: core/layout/shell/ — top nav (logo, user avatar, sign-out) + router-outlet
+- ShellComponent: core/layout/shell/ — fixed left sidebar, app branding, stacked nav, bottom user/sign-out, main content area
 - Shared UI primitives in shared/ui/: card, badge, skeleton, empty-state, error-state
 - _layout.scss: .page container class (max-width: 1200px, consistent padding)
 - Shell is lazy-loaded as the protected route wrapper in app.routes.ts
@@ -229,7 +229,7 @@ Allow the user to define and manage the house target.
 
 ---
 
-## [ ] Phase 4 — Savings Sources
+## [x] Phase 4 — Savings Sources
 
 ### Goal
 
@@ -249,9 +249,9 @@ Introduce and display the required money sources.
 
 ### Deliverables
 
-- user sees all main savings sources
-- balances are understandable
-- source states are persisted correctly
+- user sees all main savings sources ✓
+- balances are understandable ✓
+- source states are persisted correctly ✓
 
 ### Tests
 
@@ -262,6 +262,14 @@ Introduce and display the required money sources.
 ### Notes
 
 - source logic must stay explicit and easy to extend
+- Fixed source model with four supported balances only: Cash USD, Card USD, Card UAH, Cash UAH
+- SourceService stores balances at sources/{uid} with merge updates and safe default zero mapping
+- SourceFacade exposes signal state, USD total, UAH total, and single-source update flow
+- SourcesPageComponent provides summary cards plus inline editing for each source row
+- Sidebar navigation updated with Sources route
+- Firestore rules updated for sources/{userId}
+- Tests added: source.helpers.spec.ts + source.service.spec.ts
+- Phase completed: 2026-03-25
 
 ---
 
