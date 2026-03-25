@@ -4,6 +4,7 @@ import { computed } from '@angular/core';
 import {
   Auth,
   authState,
+  createUserWithEmailAndPassword,
   GoogleAuthProvider,
   signInWithPopup,
   signInWithEmailAndPassword,
@@ -41,6 +42,13 @@ export class AuthService {
     password: string,
   ): Observable<UserCredential> {
     return from(signInWithEmailAndPassword(this.auth, email, password));
+  }
+
+  registerWithEmailPassword(
+    email: string,
+    password: string,
+  ): Observable<UserCredential> {
+    return from(createUserWithEmailAndPassword(this.auth, email, password));
   }
 
   signOut(): Observable<void> {

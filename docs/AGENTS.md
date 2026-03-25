@@ -18,6 +18,20 @@ If a solution is more complex than the product actually needs, reject it.
 
 ---
 
+## Mandatory Pre-Implementation Checklist
+
+Before writing or changing **any** UI code, components, layouts, or styles:
+
+1. Read `docs/DESIGN_RULES.md` in full.
+2. Match every visual decision to the tokens, patterns, and principles defined there.
+3. Do not introduce colors, spacing values, border-radius, typography, or shadow values that are not defined in `_theme.scss` or `DESIGN_RULES.md`.
+4. Do not override or bypass design tokens with raw CSS values.
+5. If a required token is missing, add it to `_theme.scss` first, then use it.
+
+This rule applies to every phase, every component, every iteration.
+
+---
+
 ## Product Intent
 
 The project is a premium personal finance web application for tracking progress toward buying a house.
@@ -96,6 +110,9 @@ The application must optimize for:
 - prefer explicit event names like `goalSaved`, `operationDeleted`, `expectedFundUpdated`
 
 ### UI Standards
+
+> **Always read `docs/DESIGN_RULES.md` before implementing any UI.**
+> All visual decisions must be grounded in the design system defined there.
 
 - premium, polished, high-trust UI
 - strong visual hierarchy

@@ -1,5 +1,9 @@
 @use '../../../../styles/variables' as v;
 
+// Register shares the same split-panel layout as login.
+// Only register-specific overrides are here — layout tokens
+// are identical so the page looks cohesive as a pair.
+
 // ─── Two-column layout ────────────────────────────────────────────────────────
 .auth-layout {
   display: grid;
@@ -25,7 +29,6 @@
     display: none;
   }
 
-  // Radial ambient glow
   &__glow {
     position: absolute;
     top: 28%;
@@ -43,7 +46,6 @@
     pointer-events: none;
   }
 
-  // Subtle dot-grid pattern
   &__grid {
     position: absolute;
     inset: 0;
@@ -138,7 +140,6 @@
   }
 }
 
-// Feature check icon
 .feature-check {
   display: flex;
   align-items: center;
@@ -335,7 +336,6 @@
   border: none;
   cursor: pointer;
   transition: all var(--transition-fast);
-  position: relative;
 
   &:focus-visible {
     outline: 2px solid var(--color-primary);
@@ -361,7 +361,6 @@
 
     &:not(:disabled):active {
       transform: translateY(1px);
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
     }
   }
 
@@ -429,27 +428,10 @@
   gap: var(--space-2);
   margin-bottom: var(--space-4);
 
-  &__label-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
   &__label {
     font-size: var(--text-sm);
     font-weight: var(--font-medium);
     color: var(--color-text-secondary);
-  }
-
-  &__forgot {
-    font-size: var(--text-xs);
-    color: var(--color-text-tertiary);
-    text-decoration: none;
-    transition: color var(--transition-fast);
-
-    &:hover {
-      color: var(--color-text-link);
-    }
   }
 
   &__error {
@@ -459,7 +441,7 @@
   }
 }
 
-// ─── Input wrapper with icon ───────────────────────────────────────────────────
+// ─── Input wrapper with icon ──────────────────────────────────────────────────
 .input-wrap {
   position: relative;
 
@@ -495,14 +477,13 @@
   color: var(--color-text-primary);
   font-size: var(--text-base);
   font-family: var(--font-sans);
-  transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
   box-sizing: border-box;
 
   &::placeholder {
     color: var(--color-text-tertiary);
   }
 
-  // Override browser autofill background with inset shadow trick
   &:-webkit-autofill,
   &:-webkit-autofill:hover,
   &:-webkit-autofill:focus {
@@ -534,8 +515,8 @@
   }
 }
 
-// ─── Sign-up link ─────────────────────────────────────────────────────────────
-.auth-signup-link {
+// ─── Sign-in link ─────────────────────────────────────────────────────────────
+.auth-signin-link {
   text-align: center;
   font-size: var(--text-sm);
   color: var(--color-text-tertiary);
@@ -559,7 +540,7 @@
   align-items: center;
   justify-content: center;
   gap: var(--space-2);
-  margin-top: var(--space-8);
+  margin-top: var(--space-5);
   font-size: var(--text-xs);
   color: var(--color-text-tertiary);
   letter-spacing: 0.02em;
@@ -567,203 +548,5 @@
   svg {
     flex-shrink: 0;
     opacity: 0.55;
-  }
-}
-
-
-// ─── Card ─────────────────────────────────────────────────────────────────────
-.auth-card {
-  width: 100%;
-  max-width: 400px;
-  background-color: var(--color-bg-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-xl);
-  padding: var(--space-10) var(--space-8);
-  box-shadow: var(--shadow-lg);
-
-  @media (max-width: #{v.$bp-sm}) {
-    padding: var(--space-8) var(--space-6);
-  }
-}
-
-// ─── Brand ───────────────────────────────────────────────────────────────────
-.auth-brand {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  margin-bottom: var(--space-8);
-
-  &__name {
-    font-size: var(--text-lg);
-    font-weight: var(--font-semibold);
-    color: var(--color-text-primary);
-    letter-spacing: -0.02em;
-  }
-}
-
-// ─── Header ──────────────────────────────────────────────────────────────────
-.auth-header {
-  margin-bottom: var(--space-6);
-
-  &__title {
-    font-size: var(--text-2xl);
-    font-weight: var(--font-bold);
-    color: var(--color-text-primary);
-    margin-bottom: var(--space-1);
-  }
-
-  &__subtitle {
-    font-size: var(--text-sm);
-    color: var(--color-text-secondary);
-    line-height: var(--leading-normal, 1.5);
-  }
-}
-
-// ─── Error banner ────────────────────────────────────────────────────────────
-.auth-error {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  background-color: var(--color-danger-muted);
-  border: 1px solid rgba(239, 68, 68, 0.25);
-  border-radius: var(--radius-md);
-  padding: var(--space-3) var(--space-4);
-  margin-bottom: var(--space-5);
-  font-size: var(--text-sm);
-  color: var(--color-danger);
-
-  svg {
-    flex-shrink: 0;
-  }
-}
-
-// ─── Buttons ─────────────────────────────────────────────────────────────────
-.btn {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-2);
-  padding: var(--space-3) var(--space-4);
-  border-radius: var(--radius-md);
-  font-size: var(--text-base);
-  font-weight: var(--font-medium);
-  line-height: 1.5;
-  transition: all var(--transition-fast);
-  cursor: pointer;
-  border: none;
-
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
-
-  &--google {
-    background-color: var(--color-bg-elevated);
-    color: var(--color-text-primary);
-    border: 1px solid var(--color-border-strong);
-
-    &:not(:disabled):hover {
-      background-color: var(--color-bg-overlay);
-      border-color: var(--color-border-strong);
-    }
-  }
-
-  &--primary {
-    background-color: var(--color-primary);
-    color: #ffffff;
-    margin-top: var(--space-4);
-
-    &:not(:disabled):hover {
-      background-color: var(--color-primary-hover);
-    }
-  }
-
-  &__spinner {
-    display: inline-block;
-    width: 16px;
-    height: 16px;
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    border-top-color: #ffffff;
-    border-radius: 50%;
-    animation: spin 0.7s linear infinite;
-  }
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-// ─── Divider ─────────────────────────────────────────────────────────────────
-.auth-divider {
-  display: flex;
-  align-items: center;
-  gap: var(--space-4);
-  margin: var(--space-5) 0;
-
-  &::before,
-  &::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background-color: var(--color-border);
-  }
-
-  span {
-    font-size: var(--text-xs);
-    color: var(--color-text-tertiary);
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-  }
-}
-
-// ─── Form ────────────────────────────────────────────────────────────────────
-.form-field {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-  margin-bottom: var(--space-4);
-
-  &__label {
-    font-size: var(--text-sm);
-    font-weight: var(--font-medium);
-    color: var(--color-text-secondary);
-  }
-
-  &__input {
-    width: 100%;
-    padding: var(--space-3) var(--space-4);
-    background-color: var(--color-bg-elevated);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
-    color: var(--color-text-primary);
-    font-size: var(--text-base);
-    font-family: var(--font-sans);
-    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
-
-    &::placeholder {
-      color: var(--color-text-tertiary);
-    }
-
-    &:focus {
-      outline: none;
-      border-color: var(--color-primary);
-      box-shadow: 0 0 0 3px var(--color-primary-muted);
-    }
-
-    &--error {
-      border-color: var(--color-danger);
-
-      &:focus {
-        border-color: var(--color-danger);
-        box-shadow: 0 0 0 3px var(--color-danger-muted);
-      }
-    }
-  }
-
-  &__error {
-    font-size: var(--text-xs);
-    color: var(--color-danger);
-    margin-top: var(--space-1);
   }
 }

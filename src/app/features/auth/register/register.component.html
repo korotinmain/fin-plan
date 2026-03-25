@@ -17,8 +17,8 @@
       </div>
 
       <div class="auth-left__headline">
-        <h2>Your finances,<br>fully visualized.</h2>
-        <p>One intelligent dashboard to plan, track, and grow your savings — with clarity.</p>
+        <h2>Start your path<br>to home ownership.</h2>
+        <p>Set your goal, connect your savings, and watch your progress grow — all in one place.</p>
       </div>
 
       <ul class="auth-left__features">
@@ -29,7 +29,7 @@
                 stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </span>
-          Real-time savings progress tracking
+          Free to use — no credit card needed
         </li>
         <li>
           <span class="feature-check">
@@ -38,7 +38,7 @@
                 stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </span>
-          Smart budget forecasting &amp; projections
+          All your savings sources in one view
         </li>
         <li>
           <span class="feature-check">
@@ -47,7 +47,7 @@
                 stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </span>
-          Secure, private, encrypted by default
+          Live FX rates &amp; real progress tracking
         </li>
       </ul>
     </div>
@@ -86,8 +86,8 @@
       </div>
 
       <div class="auth-header">
-        <h1>Welcome back</h1>
-        <p>Sign in to your financial dashboard</p>
+        <h1>Create your account</h1>
+        <p>Start tracking your savings toward your home goal</p>
       </div>
 
       @if (errorMessage()) {
@@ -101,12 +101,12 @@
         </div>
       }
 
-      <!-- Google sign-in -->
+      <!-- Google sign-up -->
       <button
         type="button"
         class="btn btn--google"
         [disabled]="isLoading()"
-        (click)="signInWithGoogle()">
+        (click)="signUpWithGoogle()">
         @if (!isLoading()) {
           <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
             <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844a4.14 4.14 0 0 1-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615Z" fill="#4285F4"/>
@@ -116,14 +116,14 @@
           </svg>
           Continue with Google
         } @else {
-          <span class="btn__spinner" aria-label="Signing in…"></span>
-          Signing in…
+          <span class="btn__spinner" aria-label="Creating account…"></span>
+          Creating account…
         }
       </button>
 
-      <div class="auth-divider"><span>or continue with email</span></div>
+      <div class="auth-divider"><span>or sign up with email</span></div>
 
-      <form [formGroup]="form" (ngSubmit)="signInWithEmail()" novalidate>
+      <form [formGroup]="form" (ngSubmit)="signUpWithEmail()" novalidate>
 
         <!-- Email -->
         <div class="form-field">
@@ -150,10 +150,7 @@
 
         <!-- Password -->
         <div class="form-field">
-          <div class="form-field__label-row">
-            <label class="form-field__label" for="password">Password</label>
-            <a href="#" class="form-field__forgot" tabindex="-1">Forgot password?</a>
-          </div>
+          <label class="form-field__label" for="password">Password</label>
           <div class="input-wrap" [class.input-wrap--error]="form.get('password')?.invalid && form.get('password')?.touched">
             <span class="input-wrap__icon">
               <svg width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true">
@@ -167,11 +164,38 @@
               type="password"
               class="form-field__input"
               formControlName="password"
-              autocomplete="current-password"
-              placeholder="••••••••"/>
+              autocomplete="new-password"
+              placeholder="At least 8 characters"/>
           </div>
           @if (form.get('password')?.invalid && form.get('password')?.touched) {
-            <span class="form-field__error">Password must be at least 6 characters</span>
+            <span class="form-field__error">Password must be at least 8 characters</span>
+          }
+        </div>
+
+        <!-- Confirm password -->
+        <div class="form-field">
+          <label class="form-field__label" for="confirmPassword">Confirm password</label>
+          <div class="input-wrap"
+            [class.input-wrap--error]="(form.get('confirmPassword')?.touched && form.get('confirmPassword')?.invalid) || (form.hasError('passwordsMismatch') && form.get('confirmPassword')?.touched)">
+            <span class="input-wrap__icon">
+              <svg width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true">
+                <rect x="2.5" y="6.5" width="10" height="7" rx="1.5" stroke="currentColor" stroke-width="1.2"/>
+                <path d="M4.5 6.5V4.5a3 3 0 0 1 6 0v2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+                <circle cx="7.5" cy="10" r="1" fill="currentColor"/>
+              </svg>
+            </span>
+            <input
+              id="confirmPassword"
+              type="password"
+              class="form-field__input"
+              formControlName="confirmPassword"
+              autocomplete="new-password"
+              placeholder="Repeat your password"/>
+          </div>
+          @if (form.get('confirmPassword')?.touched && form.hasError('passwordsMismatch')) {
+            <span class="form-field__error">Passwords do not match</span>
+          } @else if (form.get('confirmPassword')?.invalid && form.get('confirmPassword')?.touched) {
+            <span class="form-field__error">Please confirm your password</span>
           }
         </div>
 
@@ -180,18 +204,18 @@
           class="btn btn--primary"
           [disabled]="isLoading()">
           @if (isLoading()) {
-            <span class="btn__spinner" aria-label="Signing in…"></span>
-            Signing in…
+            <span class="btn__spinner" aria-label="Creating account…"></span>
+            Creating account…
           } @else {
-            Sign in
+            Create account
           }
         </button>
 
       </form>
 
-      <p class="auth-signup-link">
-        Don't have an account?
-        <a routerLink="/auth/register">Create account</a>
+      <p class="auth-signin-link">
+        Already have an account?
+        <a routerLink="/auth/login">Sign in</a>
       </p>
 
       <p class="auth-footer">

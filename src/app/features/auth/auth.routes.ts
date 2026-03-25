@@ -8,6 +8,12 @@ export const authRoutes: Routes = [
     title: 'Sign in — FinPlan',
   },
   {
+    path: 'register',
+    loadComponent: () =>
+      import('./register/register.component').then((m) => m.RegisterComponent),
+    title: 'Create account — FinPlan',
+  },
+  {
     path: '',
     redirectTo: 'login',
     pathMatch: 'full',
