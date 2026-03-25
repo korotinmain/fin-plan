@@ -14,28 +14,6 @@ Items are grouped by priority. Each item cites the specific violation and the ru
 
 ## Priority: Critical
 
-### RT-02 — Extract formatting helpers from `currency-page.component.ts`
-
-**Files affected**: `currency-page.component.ts`, (new) `currency-formatting.helpers.ts`
-
-**Rule**: AGENTS.md: _"components must not contain financial business logic"_; _"do not put business logic in templates"_. The component is 400+ lines.
-
-**Issue**: The following methods are pure formatting/utility logic that does not belong in a component:
-
-- `formatNumber(n)` — generic number formatter
-- `formatHoldingAmount(code, amount)` — format based on currency
-- `formatConverterAmount(amount, code)` — duplicate of above for converter
-- `formatConverterRate(rate, from, to)` — rate formatting string
-- `formatConverterInputAmount(amount, from)` — input display value
-- `converterSymbol(code)` — currency → symbol lookup
-- `getAlternativeCurrency(code)` — swap-partner logic
-- `holdingInputStep(code)` — currency-specific step config
-- `holdingFormKey(code)` — code → form key mapping
-
-**Action**: Create `src/app/features/currency/currency-formatting.helpers.ts` with these as pure exported functions. Update the component to import and call them. Add tests.
-
----
-
 ## Priority: High
 
 ### RT-04 — Tokenize all hardcoded RGBA/hex colors in component SCSS
@@ -115,24 +93,6 @@ Items are grouped by priority. Each item cites the specific violation and the ru
 
 ---
 
-### RT-15 — Internationalise chart tooltip callback
-
-**Files affected**: `currency-page.component.ts`
-
-**Rule**: AGENTS.md: _"every new user-facing string must be added to translations"_.
-
-**Issue**: The doughnut chart tooltip callback formats a string inline:
-
-```typescript
-label: (context) => `${context.label}: ${context.parsed.toFixed(1)}%`;
-```
-
-This bypasses the i18n layer. In Ukrainian locale the word order and percentage formatting convention may differ.
-
-**Action**: Inject `I18nService` into the chart options factory and use `t('currency.chartTooltipLabel', { label, value })` or format the percentage via Angular's `PercentPipe`.
-
----
-
 ## Done
 
 _Completed items are moved here with a completion date._
@@ -147,6 +107,11 @@ _Completed items are moved here with a completion date._
 
 **Completed**: 2026-03-25
 **What changed**: Added [src/app/features/currency/currency.facade.spec.ts](src/app/features/currency/currency.facade.spec.ts), [src/app/features/goals/goal.facade.spec.ts](src/app/features/goals/goal.facade.spec.ts), and expanded [src/app/features/goals/goal.service.spec.ts](src/app/features/goals/goal.service.spec.ts) to cover facade signals and goal Firestore read/write behavior.
+
+### RT-02 — Extract formatting helpers from `currency-page.component.ts`
+
+**Completed**: 2026-03-25
+**What changed**: Added [src/app/features/currency/currency-formatting.helpers.ts](src/app/features/currency/currency-formatting.helpers.ts), updated [src/app/features/currency/currency-page/currency-page.component.ts](src/app/features/currency/currency-page/currency-page.component.ts) to delegate formatting logic to it, and added [src/app/features/currency/currency-formatting.helpers.spec.ts](src/app/features/currency/currency-formatting.helpers.spec.ts).
 
 ### RT-03 — Extract template percentage calculations to computed properties
 
@@ -182,3 +147,8 @@ _Completed items are moved here with a completion date._
 
 **Completed**: 2026-03-25
 **What changed**: Removed the `EMPTY_CURRENCY_DATA` re-export from [src/app/features/currency/currency.service.ts](src/app/features/currency/currency.service.ts), keeping that constant sourced directly from the model layer.
+
+### RT-15 — Internationalise chart tooltip callback
+
+**Completed**: 2026-03-25
+**What changed**: Updated [src/app/features/currency/currency-page/currency-page.component.ts](src/app/features/currency/currency-page/currency-page.component.ts) to build doughnut-chart tooltip labels through [src/app/core/services/i18n.service.ts](src/app/core/services/i18n.service.ts) with locale-aware percent formatting.
