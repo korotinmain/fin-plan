@@ -1,0 +1,23 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ─── Deny-all default ───────────────────────────────────────────────────
+    // All documents are inaccessible unless explicitly allowed below.
+    // This is the secure baseline. Every rule below NARROWS this default.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // ─── User-scoped data ───────────────────────────────────────────────────
+    // Each user can only access their own data.
+    // The authenticated user ID must match the document path segment.
+    // This prevents cross-user data leakage.
+    match /users/{userId}/{document=**} {
+      allow read, write: if request.auth != null
+                         && request.auth.uid == userId;
+    }
+
+  }
+}
