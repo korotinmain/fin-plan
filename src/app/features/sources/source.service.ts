@@ -1,16 +1,9 @@
 import { inject, Injectable, Injector, runInInjectionContext } from '@angular/core';
-import {
-  doc,
-  docData,
-  Firestore,
-  setDoc,
-} from '@angular/fire/firestore';
+import { doc, docData, Firestore, setDoc } from '@angular/fire/firestore';
 import { from, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import {
-  EMPTY_SOURCE_BALANCE,
-  SourceBalance,
-} from '../../core/models/source.model';
+import { EMPTY_SOURCE_BALANCE, SourceBalance } from '../../core/models/source.model';
+import { FIRESTORE_PATHS } from '../../core/constants/firestore.constants';
 
 @Injectable({ providedIn: 'root' })
 export class SourceService {
@@ -26,7 +19,7 @@ export class SourceService {
    * internally and would error when called inside a switchMap callback.
    */
   getBalances$(uid: string): Observable<SourceBalance> {
-    const ref = doc(this.firestore, `sources/${uid}`);
+    const ref = doc(this.firestore, FIRESTORE_PATHS.sources(uid));
     return runInInjectionContext(this.injector, () =>
       (docData(ref) as Observable<Partial<SourceBalance> | undefined>).pipe(
         map((data) => ({
@@ -43,18 +36,15 @@ export class SourceService {
    * Persists the full source balance map (upsert via merge).
    */
   setBalances(uid: string, balances: SourceBalance): Observable<void> {
-    const ref = doc(this.firestore, `sources/${uid}`);
+    const ref = doc(this.firestore, FIRESTORE_PATHS.sources(uid));
     return from(setDoc(ref, balances, { merge: true }));
   }
 
   /**
    * Updates a single source's balance without overwriting others.
    */
-  updateSource(
-    uid: string,
-    partial: Partial<SourceBalance>,
-  ): Observable<void> {
-    const ref = doc(this.firestore, `sources/${uid}`);
+  updateSource(uid: string, partial: Partial<SourceBalance>): Observable<void> {
+    const ref = doc(this.firestore, FIRESTORE_PATHS.sources(uid));
     return from(setDoc(ref, partial, { merge: true }));
   }
 }

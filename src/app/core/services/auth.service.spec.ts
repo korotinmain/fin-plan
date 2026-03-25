@@ -7,14 +7,14 @@ import { Auth } from '@angular/fire/auth';
 const mocks = vi.hoisted(() => ({
   authStateFn: vi.fn(),
   signInWithPopup: vi.fn().mockResolvedValue({ user: { uid: 'google-uid' } }),
-  signInWithEmailAndPassword: vi
-    .fn()
-    .mockResolvedValue({ user: { uid: 'email-uid' } }),
+  createUserWithEmailAndPassword: vi.fn().mockResolvedValue({ user: { uid: 'register-uid' } }),
+  signInWithEmailAndPassword: vi.fn().mockResolvedValue({ user: { uid: 'email-uid' } }),
   signOut: vi.fn().mockResolvedValue(undefined),
 }));
 
 vi.mock('@angular/fire/auth', () => ({
   authState: mocks.authStateFn,
+  createUserWithEmailAndPassword: mocks.createUserWithEmailAndPassword,
   signInWithPopup: mocks.signInWithPopup,
   signInWithEmailAndPassword: mocks.signInWithEmailAndPassword,
   signOut: mocks.signOut,
@@ -36,10 +36,7 @@ describe('AuthService', () => {
     mocks.authStateFn.mockReturnValue(authStateSubject.asObservable());
 
     TestBed.configureTestingModule({
-      providers: [
-        AuthService,
-        { provide: Auth, useValue: {} },
-      ],
+      providers: [AuthService, { provide: Auth, useValue: {} }],
     });
 
     service = TestBed.inject(AuthService);
@@ -83,10 +80,7 @@ describe('AuthService', () => {
   });
 
   it('signInWithEmailPassword should return an Observable', () => {
-    const result = service.signInWithEmailPassword(
-      'test@example.com',
-      'password123',
-    );
+    const result = service.signInWithEmailPassword('test@example.com', 'password123');
     expect(isObservable(result)).toBe(true);
   });
 

@@ -1,144 +1,182 @@
-<div class="sources-page">
-  <div class="page">
-
-    <div class="sources-page__header">
-      <div>
-        <h1 class="sources-page__title">Savings Sources</h1>
-        <p class="sources-page__subtitle">Your money across all accounts and cash</p>
-      </div>
+<div class="sources-page page page--wide">
+  <header class="sources-page__header">
+    <div>
+      <p class="sources-page__eyebrow">{{ 'sources.eyebrow' | t }}</p>
+      <h1 class="sources-page__title">{{ 'sources.title' | t }}</h1>
+      <p class="sources-page__subtitle">{{ 'sources.subtitle' | t }}</p>
     </div>
 
-    @if (isLoading()) {
+    <button class="sources-page__cta" type="button" (click)="openEditor()">
+      {{ 'sources.editBalances' | t }}
+    </button>
+  </header>
 
-      <div class="sources-page__skeleton-wrap">
-        <app-skeleton height="320px" />
-      </div>
-
-    } @else {
-
-      <!-- ─── Summary row ─────────────────────────────────────────── -->
-      <div class="sources-summary">
+  @if (isLoading()) {
+    <div class="sources-page__skeleton-wrap">
+      <app-skeleton height="620px" />
+    </div>
+  } @else {
+    <section class="sources-page__cards">
+      @for (card of sourceCards(); track card.id) {
         <app-card>
-          <div class="sources-summary__block">
-            <span class="sources-summary__label">USD total</span>
-            <span class="sources-summary__amount sources-summary__amount--usd">
-              {{ usdTotal() | currency:'USD':'symbol':'1.0-2' }}
-            </span>
-            <app-badge label="USD" variant="info" />
-          </div>
-        </app-card>
-
-        <app-card>
-          <div class="sources-summary__block">
-            <span class="sources-summary__label">UAH total</span>
-            <span class="sources-summary__amount sources-summary__amount--uah">
-              {{ uahTotal() | number:'1.0-0' }} ₴
-            </span>
-            <app-badge label="UAH" variant="neutral" />
-          </div>
-        </app-card>
-      </div>
-
-      <!-- ─── Source rows ────────────────────────────────────────── -->
-      <app-card padding="none">
-        <div class="source-list">
-          @for (meta of sourceMeta; track meta.id; let last = $last) {
-            <div class="source-row" [class.source-row--last]="last">
-
-              @if (editingId() === meta.id) {
-
-                <!-- Inline edit form -->
-                <form
-                  class="source-row__edit-form"
-                  [formGroup]="form"
-                  (ngSubmit)="save(meta.id)"
-                >
-                  <div class="source-row__edit-label">
-                    <span class="source-row__name">{{ meta.label }}</span>
-                    <app-badge
-                      [label]="meta.currency"
-                      [variant]="meta.currency === 'USD' ? 'info' : 'neutral'"
-                    />
-                  </div>
-
-                  <div class="source-row__edit-controls">
-                    <div class="source-row__input-wrap">
-                      <span class="source-row__prefix" aria-hidden="true">
-                        {{ meta.currency === 'USD' ? '$' : '₴' }}
-                      </span>
-                      <input
-                        class="source-row__input"
-                        formControlName="amount"
-                        type="number"
-                        min="0"
-                        step="100"
-                        autocomplete="off"
-                        [attr.aria-label]="'Balance for ' + meta.label"
-                      />
-                    </div>
-
-                    <div class="source-row__edit-actions">
-                      <button
-                        class="source-row__btn source-row__btn--save"
-                        type="submit"
-                        [disabled]="isSaving() || form.invalid"
-                      >
-                        {{ isSaving() ? '...' : 'Save' }}
-                      </button>
-                      <button
-                        class="source-row__btn source-row__btn--cancel"
-                        type="button"
-                        [disabled]="isSaving()"
-                        (click)="cancelEditing()"
-                      >
-                        Cancel
-                      </button>
-                    </div>
-                  </div>
-
-                  @if (saveError()) {
-                    <p class="source-row__error" role="alert">{{ saveError() }}</p>
-                  }
-                </form>
-
-              } @else {
-
-                <!-- Read-only row -->
-                <div class="source-row__content">
-                  <div class="source-row__left">
-                    <span class="source-row__name">{{ meta.label }}</span>
-                    <app-badge
-                      [label]="meta.currency"
-                      [variant]="meta.currency === 'USD' ? 'info' : 'neutral'"
-                    />
-                  </div>
-                  <div class="source-row__right">
-                    <span class="source-row__amount">
-                      @if (meta.currency === 'USD') {
-                        {{ balanceFor(meta.id) | currency:'USD':'symbol':'1.0-2' }}
-                      } @else {
-                        {{ balanceFor(meta.id) | number:'1.0-0' }} ₴
-                      }
-                    </span>
-                    <button
-                      class="source-row__edit-btn"
-                      type="button"
-                      (click)="startEditing(meta)"
-                      [attr.aria-label]="'Edit ' + meta.label"
-                    >
-                      Edit
-                    </button>
-                  </div>
-                </div>
-
-              }
-
+          <article class="source-card">
+            <div class="source-card__top">
+              <div>
+                <h2 class="source-card__title">{{ card.label }}</h2>
+                <p class="source-card__share">
+                  {{ 'sources.shareOfCapital' | t: { value: card.share | number: '1.0-1' } }}
+                </p>
+              </div>
+              <app-badge [label]="'sources.active' | t" variant="neutral" />
             </div>
-          }
+
+            <div class="source-card__amount-wrap">
+              <span class="source-card__kicker">{{ 'sources.currentAmount' | t }}</span>
+              <strong class="source-card__amount">{{ balanceLabel(card) }}</strong>
+              <span class="source-card__normalized">
+                {{
+                  'sources.normalizedUsd'
+                    | t: { value: (card.normalizedUsd | currency: 'USD' : 'symbol' : '1.0-0') }
+                }}
+              </span>
+            </div>
+
+            <p class="source-card__note">{{ 'sources.notes.' + card.id | t }}</p>
+          </article>
+        </app-card>
+      }
+    </section>
+
+    <section class="sources-page__grid">
+      <app-card>
+        <div class="sources-composition">
+          <div class="sources-composition__head">
+            <h2>{{ 'sources.compositionTitle' | t }}</h2>
+            <p>{{ 'sources.compositionSubtitle' | t }}</p>
+          </div>
+
+          <div class="sources-composition__chart-panel">
+            <div class="sources-composition__chart-wrap">
+              <canvas
+                baseChart
+                [data]="compositionData()"
+                [options]="compositionOptions"
+                [type]="'doughnut'"
+              ></canvas>
+              <div class="sources-composition__center">
+                <span>{{ 'sources.ownSavings' | t }}</span>
+                <strong>{{ ownSavingsUsd() | currency: 'USD' : 'symbol' : '1.0-0' }}</strong>
+              </div>
+            </div>
+
+            <div class="sources-composition__legend">
+              @for (card of sourceCards(); track card.id) {
+                <div class="sources-composition__legend-row">
+                  <div class="sources-composition__legend-label">
+                    <span
+                      class="sources-composition__legend-dot sources-composition__legend-dot--{{
+                        card.id
+                      }}"
+                    ></span>
+                    <span>{{ card.label }}</span>
+                  </div>
+                  <strong>{{ card.share | number: '1.0-0' }}%</strong>
+                </div>
+              }
+            </div>
+          </div>
         </div>
       </app-card>
 
-    }
+      <app-card>
+        <div class="sources-insights">
+          <div class="sources-insights__head">
+            <h2>{{ 'sources.insightsTitle' | t }}</h2>
+            <p>{{ 'sources.insightsSubtitle' | t }}</p>
+          </div>
 
-  </div>
+          <div class="sources-insights__stack">
+            <div class="sources-insights__item">
+              <span>{{ 'sources.totalOwnSavings' | t }}</span>
+              <strong>{{ ownSavingsUsd() | currency: 'USD' : 'symbol' : '1.0-0' }}</strong>
+              <p>{{ 'sources.totalOwnSavingsHint' | t }}</p>
+            </div>
+            <div class="sources-insights__item">
+              <span>{{ 'sources.usdAlreadyLiquid' | t }}</span>
+              <strong>{{ usdAlreadyLiquid() | currency: 'USD' : 'symbol' : '1.0-0' }}</strong>
+              <p>{{ 'sources.usdAlreadyLiquidHint' | t }}</p>
+            </div>
+            <div class="sources-insights__item">
+              <span>{{ 'sources.uahExposure' | t }}</span>
+              <strong>{{ uahExposureUsd() | currency: 'USD' : 'symbol' : '1.0-0' }}</strong>
+              <p>{{ 'sources.uahExposureHint' | t }}</p>
+            </div>
+            <div class="sources-insights__item">
+              <span>{{ 'sources.recommendedNextStep' | t }}</span>
+              <strong>{{ recommendedNextStep() | t }}</strong>
+              <p>{{ 'sources.recommendedHint' | t }}</p>
+            </div>
+          </div>
+        </div>
+      </app-card>
+    </section>
+  }
+
+  @if (isEditing()) {
+    <div
+      class="sources-dialog"
+      role="dialog"
+      aria-modal="true"
+      [attr.aria-label]="'sources.editBalances' | t"
+    >
+      <div class="sources-dialog__backdrop" (click)="cancelEditing()"></div>
+
+      <app-card class="sources-dialog__panel">
+        <form class="sources-editor" [formGroup]="form" (ngSubmit)="saveAll()">
+          <div class="sources-editor__head">
+            <div>
+              <h2>{{ 'sources.editBalances' | t }}</h2>
+              <p>{{ 'sources.editSubtitle' | t }}</p>
+            </div>
+            <button class="sources-editor__close" type="button" (click)="cancelEditing()">×</button>
+          </div>
+
+          <div class="sources-editor__grid">
+            @for (meta of sourceMeta; track meta.id) {
+              <label class="sources-editor__field">
+                <span>{{ meta.label }}</span>
+                <input
+                  [formControlName]="meta.id"
+                  type="number"
+                  min="0"
+                  [step]="meta.currency === 'USD' ? 10 : 100"
+                />
+              </label>
+            }
+          </div>
+
+          @if (saveError()) {
+            <p class="sources-editor__error">{{ saveError()! | t }}</p>
+          }
+
+          <div class="sources-editor__actions">
+            <button
+              class="sources-editor__btn sources-editor__btn--secondary"
+              type="button"
+              (click)="cancelEditing()"
+            >
+              {{ 'sources.cancel' | t }}
+            </button>
+            <button
+              class="sources-editor__btn sources-editor__btn--primary"
+              type="submit"
+              [disabled]="isSaving() || form.invalid"
+            >
+              {{ isSaving() ? ('sources.saving' | t) : ('sources.save' | t) }}
+            </button>
+          </div>
+        </form>
+      </app-card>
+    </div>
+  }
 </div>

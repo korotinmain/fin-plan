@@ -27,10 +27,27 @@ export const routes: Routes = [
       {
         path: 'dashboard',
         loadComponent: () =>
-          import('./features/dashboard/dashboard-placeholder.component').then(
-            (m) => m.DashboardPlaceholderComponent,
+          import('./features/dashboard/dashboard-page.component').then(
+            (m) => m.DashboardPageComponent,
           ),
         title: () => inject(I18nService).translate('route.dashboardTitle'),
+      },
+      {
+        path: 'sources',
+        loadChildren: () => import('./features/sources/sources.routes').then((m) => m.sourceRoutes),
+      },
+      {
+        path: 'expected-funds',
+        loadChildren: () =>
+          import('./features/expected-funds/expected-funds.routes').then(
+            (m) => m.expectedFundsRoutes,
+          ),
+      },
+      {
+        path: 'exchange-ops',
+        loadChildren: () =>
+          import('./features/operations/operations.routes').then((m) => m.operationsRoutes),
+        title: () => inject(I18nService).translate('route.exchangeOpsTitle'),
       },
       {
         path: 'goals',

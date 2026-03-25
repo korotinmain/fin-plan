@@ -1,0 +1,159 @@
+<div class="dashboard-page page page--wide">
+  <header class="dashboard-page__header">
+    <div>
+      <p class="dashboard-page__eyebrow">{{ 'dashboard.eyebrow' | t }}</p>
+      <h1 class="dashboard-page__title">{{ 'dashboard.heroTitle' | t }}</h1>
+      <p class="dashboard-page__subtitle">{{ 'dashboard.heroSubtitle' | t }}</p>
+    </div>
+
+    <a class="dashboard-page__cta" routerLink="/goals">
+      {{ 'dashboard.reviewPlan' | t }}
+    </a>
+  </header>
+
+  <section class="dashboard-hero">
+    <div class="dashboard-hero__metric">
+      <span>{{ 'dashboard.targetHousePrice' | t }}</span>
+      <strong>{{ targetAmountUsd() | currency: 'USD' : 'symbol' : '1.0-0' }}</strong>
+    </div>
+    <div class="dashboard-hero__metric dashboard-hero__metric--positive">
+      <span>{{ 'dashboard.ownSavings' | t }}</span>
+      <strong>{{ ownSavingsUsd() | currency: 'USD' : 'symbol' : '1.0-0' }}</strong>
+    </div>
+    <div class="dashboard-hero__metric dashboard-hero__metric--info">
+      <span>{{ 'dashboard.expectedBorrowedFunds' | t }}</span>
+      <strong>{{ borrowedSupportUsd() | currency: 'USD' : 'symbol' : '1.0-0' }}</strong>
+    </div>
+    <div class="dashboard-hero__metric dashboard-hero__metric--warning">
+      <span>{{ 'dashboard.stillMissing' | t }}</span>
+      <strong>{{ remainingGapUsd() | currency: 'USD' : 'symbol' : '1.0-0' }}</strong>
+    </div>
+
+    <div class="dashboard-hero__progress-block">
+      <div class="dashboard-hero__progress-labels">
+        <span>{{ 'dashboard.totalReadinessProgress' | t }}</span>
+        <span>{{ readinessProgress() | number: '1.0-0' }}%</span>
+      </div>
+      <div class="dashboard-hero__track" aria-hidden="true">
+        <div class="dashboard-hero__fill" [style.width.%]="readinessProgress()"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="dashboard-stats">
+    <app-card>
+      <div class="dashboard-stat">
+        <span class="dashboard-stat__label">{{ 'dashboard.ownSavings' | t }}</span>
+        <strong class="dashboard-stat__value dashboard-stat__value--positive">
+          {{ ownSavingsUsd() | currency: 'USD' : 'symbol' : '1.0-0' }}
+        </strong>
+        <span class="dashboard-stat__hint">
+          {{ 'dashboard.activeSourcesHint' | t: { value: activeSourceCount() } }}
+        </span>
+      </div>
+    </app-card>
+
+    <app-card>
+      <div class="dashboard-stat">
+        <span class="dashboard-stat__label">{{ 'dashboard.borrowedSupport' | t }}</span>
+        <strong class="dashboard-stat__value">{{
+          borrowedSupportUsd() | currency: 'USD' : 'symbol' : '1.0-0'
+        }}</strong>
+        <span class="dashboard-stat__hint">{{ 'dashboard.borrowedSupportHint' | t }}</span>
+      </div>
+    </app-card>
+
+    <app-card>
+      <div class="dashboard-stat">
+        <span class="dashboard-stat__label">{{ 'dashboard.fxLosses' | t }}</span>
+        <strong class="dashboard-stat__value dashboard-stat__value--danger">{{
+          fxLossesUsd() | currency: 'USD' : 'symbol' : '1.0-0'
+        }}</strong>
+        <span class="dashboard-stat__hint">{{ 'dashboard.fxLossesHint' | t }}</span>
+      </div>
+    </app-card>
+
+    <app-card>
+      <div class="dashboard-stat">
+        <span class="dashboard-stat__label">{{ 'dashboard.estimatedCompletion' | t }}</span>
+        <strong class="dashboard-stat__value dashboard-stat__value--warning">
+          @if (estimatedMonths() > 0) {
+            ~{{ estimatedMonths() }} {{ 'dashboard.monthsShort' | t }}
+          } @else {
+            {{ 'dashboard.goalReached' | t }}
+          }
+        </strong>
+        <span class="dashboard-stat__hint">{{ 'dashboard.estimatedCompletionHint' | t }}</span>
+      </div>
+    </app-card>
+  </section>
+
+  <section class="dashboard-grid">
+    <app-card>
+      <div class="dashboard-growth">
+        <div class="dashboard-growth__head">
+          <h2>{{ 'dashboard.readinessGrowth' | t }}</h2>
+          <p>{{ 'dashboard.readinessGrowthHint' | t }}</p>
+        </div>
+
+        <div class="dashboard-growth__chart-wrap">
+          <canvas
+            baseChart
+            [data]="growthChartData()"
+            [options]="growthChartOptions"
+            [type]="'line'"
+          ></canvas>
+        </div>
+      </div>
+    </app-card>
+
+    <app-card>
+      <div class="dashboard-composition">
+        <div class="dashboard-composition__head">
+          <h2>{{ 'dashboard.capitalComposition' | t }}</h2>
+          <p>{{ 'dashboard.capitalCompositionHint' | t }}</p>
+        </div>
+
+        <div class="dashboard-composition__hero">
+          <span>{{ 'dashboard.totalReadyCapital' | t }}</span>
+          <strong>{{ readyCapitalUsd() | currency: 'USD' : 'symbol' : '1.0-0' }}</strong>
+        </div>
+
+        <div class="dashboard-composition__row">
+          <div class="dashboard-composition__label-row">
+            <span>{{ 'dashboard.ownSavings' | t }}</span>
+            <strong>{{ ownSavingsUsd() | currency: 'USD' : 'symbol' : '1.0-0' }}</strong>
+          </div>
+          <div class="dashboard-composition__bar">
+            <div
+              class="dashboard-composition__bar-fill dashboard-composition__bar-fill--positive"
+              [style.width.%]="
+                readyCapitalUsd() > 0 ? (ownSavingsUsd() / readyCapitalUsd()) * 100 : 0
+              "
+            ></div>
+          </div>
+        </div>
+
+        <div class="dashboard-composition__row">
+          <div class="dashboard-composition__label-row">
+            <span>{{ 'dashboard.borrowedSupport' | t }}</span>
+            <strong>{{ borrowedSupportUsd() | currency: 'USD' : 'symbol' : '1.0-0' }}</strong>
+          </div>
+          <div class="dashboard-composition__bar">
+            <div
+              class="dashboard-composition__bar-fill dashboard-composition__bar-fill--violet"
+              [style.width.%]="
+                readyCapitalUsd() > 0 ? (borrowedSupportUsd() / readyCapitalUsd()) * 100 : 0
+              "
+            ></div>
+          </div>
+        </div>
+
+        <div class="dashboard-composition__gap">
+          <span>{{ 'dashboard.remainingGap' | t }}</span>
+          <strong>{{ remainingGapUsd() | currency: 'USD' : 'symbol' : '1.0-0' }}</strong>
+        </div>
+      </div>
+    </app-card>
+  </section>
+</div>

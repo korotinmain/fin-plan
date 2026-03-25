@@ -1,0 +1,202 @@
+<div class="expected-funds-page page page--wide">
+  <header class="expected-funds-page__header">
+    <div>
+      <p class="expected-funds-page__eyebrow">{{ 'expectedFunds.eyebrow' | t }}</p>
+      <h1 class="expected-funds-page__title">{{ 'expectedFunds.title' | t }}</h1>
+      <p class="expected-funds-page__subtitle">{{ 'expectedFunds.subtitle' | t }}</p>
+    </div>
+
+    <button class="expected-funds-page__cta" type="button" (click)="openCreateDialog()">
+      {{ 'expectedFunds.addCta' | t }}
+    </button>
+  </header>
+
+  <section class="expected-funds-summary" aria-label="Expected funds summary">
+    <app-card>
+      <div class="expected-funds-summary__card">
+        <span class="expected-funds-summary__label">{{ 'expectedFunds.total' | t }}</span>
+        <strong class="expected-funds-summary__value">
+          {{ expectedTotalUsd() | currency: 'USD' : 'symbol' : '1.0-0' }}
+        </strong>
+        <span class="expected-funds-summary__hint">{{ 'expectedFunds.totalHint' | t }}</span>
+      </div>
+    </app-card>
+
+    <app-card>
+      <div class="expected-funds-summary__card">
+        <span class="expected-funds-summary__label">{{ 'expectedFunds.confirmed' | t }}</span>
+        <strong class="expected-funds-summary__value expected-funds-summary__value--positive">
+          {{ confirmedAmountUsd() | currency: 'USD' : 'symbol' : '1.0-0' }}
+        </strong>
+        <span class="expected-funds-summary__hint">{{ 'expectedFunds.confirmedHint' | t }}</span>
+      </div>
+    </app-card>
+
+    <app-card>
+      <div class="expected-funds-summary__card">
+        <span class="expected-funds-summary__label">{{ 'expectedFunds.coverage' | t }}</span>
+        <strong class="expected-funds-summary__value expected-funds-summary__value--warning">
+          {{ supportCoveragePercent() }}%
+        </strong>
+        <span class="expected-funds-summary__hint">{{ 'expectedFunds.coverageHint' | t }}</span>
+      </div>
+    </app-card>
+  </section>
+
+  <app-card>
+    <section class="expected-funds-table">
+      <div class="expected-funds-table__header">
+        <div>
+          <h2 class="expected-funds-table__title">{{ 'expectedFunds.registryTitle' | t }}</h2>
+          <p class="expected-funds-table__subtitle">{{ 'expectedFunds.registrySubtitle' | t }}</p>
+        </div>
+
+        <label class="expected-funds-table__search">
+          <span class="expected-funds-table__search-icon" aria-hidden="true">⌕</span>
+          <input
+            class="expected-funds-table__search-input"
+            type="search"
+            [value]="searchTerm()"
+            [placeholder]="'expectedFunds.searchPlaceholder' | t"
+            #searchInput
+            (input)="setSearchTerm(searchInput.value)"
+          />
+        </label>
+      </div>
+
+      <div class="expected-funds-table__grid expected-funds-table__grid--head" aria-hidden="true">
+        <span>{{ 'expectedFunds.colSource' | t }}</span>
+        <span>{{ 'expectedFunds.colOriginal' | t }}</span>
+        <span>{{ 'expectedFunds.colUsdValue' | t }}</span>
+        <span>{{ 'expectedFunds.colEta' | t }}</span>
+        <span>{{ 'expectedFunds.colStatus' | t }}</span>
+      </div>
+
+      @if (hasEntries()) {
+        <div class="expected-funds-table__rows">
+          @for (entry of filteredEntries(); track entry.id) {
+            <div class="expected-funds-table__grid expected-funds-table__row">
+              <div class="expected-funds-table__source">
+                <strong>{{ entry.source }}</strong>
+                <span>{{ entry.description }}</span>
+              </div>
+              <span>{{ originalAmountLabel(entry) }}</span>
+              <strong>{{ entry.usdValue | currency: 'USD' : 'symbol' : '1.0-0' }}</strong>
+              <span>{{ entry.eta }}</span>
+              <div class="expected-funds-table__status-wrap">
+                <app-badge [label]="statusLabel(entry)" [variant]="statusVariant(entry)" />
+                <div class="expected-funds-table__actions">
+                  <button type="button" (click)="openEditDialog(entry)">
+                    {{ 'expectedFunds.edit' | t }}
+                  </button>
+                  <button type="button" (click)="deleteEntry(entry)">
+                    {{ 'expectedFunds.delete' | t }}
+                  </button>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      } @else {
+        <div class="expected-funds-empty">
+          <p class="expected-funds-empty__title">{{ 'expectedFunds.emptyTitle' | t }}</p>
+          <p class="expected-funds-empty__subtitle">{{ 'expectedFunds.emptySubtitle' | t }}</p>
+        </div>
+      }
+    </section>
+  </app-card>
+
+  @if (isDialogOpen()) {
+    <div class="expected-funds-dialog">
+      <div class="expected-funds-dialog__backdrop" (click)="closeDialog()"></div>
+
+      <app-card class="expected-funds-dialog__panel">
+        <form class="expected-funds-editor" [formGroup]="form" (ngSubmit)="saveEntry()">
+          <div class="expected-funds-editor__head">
+            <div>
+              <h2>{{ dialogTitle() }}</h2>
+              <p>{{ 'expectedFunds.dialogSubtitle' | t }}</p>
+            </div>
+            <button class="expected-funds-editor__close" type="button" (click)="closeDialog()">
+              ×
+            </button>
+          </div>
+
+          <div class="expected-funds-editor__grid expected-funds-editor__grid--two">
+            <label class="expected-funds-editor__field">
+              <span>{{ 'expectedFunds.form.sourceLabel' | t }}</span>
+              <input
+                formControlName="source"
+                type="text"
+                [placeholder]="'expectedFunds.form.sourcePlaceholder' | t"
+              />
+            </label>
+            <label class="expected-funds-editor__field">
+              <span>{{ 'expectedFunds.form.descriptionLabel' | t }}</span>
+              <input
+                formControlName="description"
+                type="text"
+                [placeholder]="'expectedFunds.form.descriptionPlaceholder' | t"
+              />
+            </label>
+          </div>
+
+          <div class="expected-funds-editor__grid expected-funds-editor__grid--three">
+            <label class="expected-funds-editor__field">
+              <span>{{ 'expectedFunds.form.currencyLabel' | t }}</span>
+              <select formControlName="originalCurrency">
+                @for (currency of currencies; track currency) {
+                  <option [value]="currency">{{ currency }}</option>
+                }
+              </select>
+            </label>
+            <label class="expected-funds-editor__field">
+              <span>{{ 'expectedFunds.form.amountLabel' | t }}</span>
+              <input formControlName="originalAmount" type="number" min="1" step="1" />
+            </label>
+            <label class="expected-funds-editor__field">
+              <span>{{ 'expectedFunds.form.etaLabel' | t }}</span>
+              <input
+                formControlName="eta"
+                type="text"
+                [placeholder]="'expectedFunds.form.etaPlaceholder' | t"
+              />
+            </label>
+          </div>
+
+          <div class="expected-funds-editor__grid">
+            <label class="expected-funds-editor__field">
+              <span>{{ 'expectedFunds.form.statusLabel' | t }}</span>
+              <select formControlName="status">
+                @for (status of statuses; track status) {
+                  <option [value]="status">{{ 'expectedFunds.form.status.' + status | t }}</option>
+                }
+              </select>
+            </label>
+          </div>
+
+          @if (saveError()) {
+            <p class="expected-funds-editor__error">{{ saveError() }}</p>
+          }
+
+          <div class="expected-funds-editor__actions">
+            <button
+              class="expected-funds-editor__btn expected-funds-editor__btn--secondary"
+              type="button"
+              (click)="closeDialog()"
+            >
+              {{ 'expectedFunds.cancel' | t }}
+            </button>
+            <button
+              class="expected-funds-editor__btn expected-funds-editor__btn--primary"
+              type="submit"
+              [disabled]="isSaving()"
+            >
+              {{ isSaving() ? ('expectedFunds.saving' | t) : ('expectedFunds.save' | t) }}
+            </button>
+          </div>
+        </form>
+      </app-card>
+    </div>
+  }
+</div>

@@ -1,0 +1,316 @@
+<div class="operations-page">
+  <div class="page">
+    <header class="operations-page__header">
+      <div class="operations-page__heading">
+        <span class="operations-page__eyebrow">{{ 'operations.eyebrow' | t }}</span>
+        <h1 class="operations-page__title">{{ 'operations.title' | t }}</h1>
+        <p class="operations-page__subtitle">{{ 'operations.subtitle' | t }}</p>
+      </div>
+
+      <button class="operations-page__cta" type="button" (click)="openDialog()">
+        {{ 'operations.recordExchange' | t }}
+      </button>
+    </header>
+
+    <div class="operations-layout">
+      <app-card>
+        <section class="impact-card">
+          <div class="panel-head">
+            <h2 class="panel-head__title">{{ 'operations.impactTitle' | t }}</h2>
+            <p class="panel-head__subtitle">{{ 'operations.impactSubtitle' | t }}</p>
+          </div>
+
+          <div class="impact-card__metrics">
+            <article class="metric-tile">
+              <span class="metric-tile__label">{{ 'operations.cumulativeFxLoss' | t }}</span>
+              <strong class="metric-tile__value"
+                >${{ cumulativeFxLossUsd() | number: '1.0-0' }}</strong
+              >
+              <span class="metric-tile__note">{{ 'operations.cumulativeFxLossHint' | t }}</span>
+            </article>
+
+            <article class="metric-tile metric-tile--loss">
+              <span class="metric-tile__label">{{ 'operations.largestRecentLoss' | t }}</span>
+              <strong class="metric-tile__value">
+                @if (largestRecentLoss(); as recentLoss) {
+                  ${{ recentLoss.fxLossUsd | number: '1.0-0' }}
+                } @else {
+                  $0
+                }
+              </strong>
+              <span class="metric-tile__note">
+                {{ largestRecentLossNote() }}
+              </span>
+            </article>
+          </div>
+
+          <div class="impact-card__chart-shell">
+            <canvas
+              baseChart
+              [data]="fxLossChartData()"
+              [options]="fxLossChartOptions"
+              [type]="'line'"
+            ></canvas>
+          </div>
+        </section>
+      </app-card>
+
+      <app-card>
+        <section class="activity-card-shell">
+          <div class="panel-head">
+            <h2 class="panel-head__title">{{ 'operations.activityTitle' | t }}</h2>
+            <p class="panel-head__subtitle">{{ 'operations.activitySubtitle' | t }}</p>
+          </div>
+
+          @if (activityEntries().length > 0) {
+            <div class="activity-list">
+              @for (entry of activityEntries(); track entry.id) {
+                <article class="activity-item">
+                  <div class="activity-item__top">
+                    <div>
+                      <h3 class="activity-item__title">{{ entry.title }}</h3>
+                      <p class="activity-item__subtitle">{{ entry.subtitle }}</p>
+                    </div>
+
+                    <span class="activity-item__date">{{ entry.dateLabel }}</span>
+                  </div>
+
+                  <div class="activity-item__columns">
+                    <div class="activity-item__cell">
+                      <span class="activity-item__label">{{ 'operations.colFrom' | t }}</span>
+                      <span class="activity-item__value">{{ entry.fromLabel }}</span>
+                    </div>
+
+                    <div class="activity-item__cell">
+                      <span class="activity-item__label">{{ 'operations.colTo' | t }}</span>
+                      <span class="activity-item__value">{{ entry.toLabel }}</span>
+                    </div>
+
+                    <div class="activity-item__cell">
+                      <span class="activity-item__label">{{ 'operations.colEffect' | t }}</span>
+                      <span
+                        class="activity-item__value"
+                        [class]="
+                          'activity-item__value activity-item__value--' + effectBadgeVariant(entry)
+                        "
+                      >
+                        {{ entry.effectLabel }}
+                      </span>
+                    </div>
+                  </div>
+
+                  <p class="activity-item__footnote">{{ entry.footnote }}</p>
+                </article>
+              }
+            </div>
+          } @else {
+            <div class="activity-empty">
+              <p class="activity-empty__title">{{ 'operations.emptyTitle' | t }}</p>
+              <p class="activity-empty__subtitle">{{ 'operations.emptySubtitle' | t }}</p>
+            </div>
+          }
+        </section>
+      </app-card>
+    </div>
+  </div>
+
+  @if (isDialogOpen()) {
+    <div class="operations-dialog-backdrop" (click)="closeDialog()"></div>
+
+    <section
+      class="operations-dialog"
+      aria-modal="true"
+      role="dialog"
+      [attr.aria-label]="'operations.dialogTitle' | t"
+    >
+      <div class="operations-dialog__head">
+        <div>
+          <h2 class="operations-dialog__title">{{ 'operations.dialogTitle' | t }}</h2>
+          <p class="operations-dialog__subtitle">{{ 'operations.dialogSubtitle' | t }}</p>
+        </div>
+
+        <button
+          class="operations-dialog__close"
+          type="button"
+          (click)="closeDialog()"
+          aria-label="Close"
+        >
+          ×
+        </button>
+      </div>
+
+      <form class="operations-form" [formGroup]="form" (ngSubmit)="saveOperation()">
+        <div
+          class="operations-form__types"
+          role="tablist"
+          [attr.aria-label]="'operations.typeLabel' | t"
+        >
+          @for (type of operationTypes; track type) {
+            <button
+              class="operations-form__type-pill"
+              [class.operations-form__type-pill--active]="formState().type === type"
+              type="button"
+              (click)="setType(type)"
+            >
+              {{ 'operations.type.' + type | t }}
+            </button>
+          }
+        </div>
+
+        <div class="operations-form__grid operations-form__grid--two">
+          <label class="field">
+            <span class="field__label">{{ 'operations.dateLabel' | t }}</span>
+            <input class="field__control" type="date" formControlName="occurredAt" />
+          </label>
+
+          <label class="field">
+            <span class="field__label">{{ 'operations.noteLabel' | t }}</span>
+            <input
+              class="field__control"
+              type="text"
+              formControlName="note"
+              [placeholder]="'operations.notePlaceholder' | t"
+            />
+          </label>
+        </div>
+
+        @if (formState().type !== 'income') {
+          <div class="operations-form__grid operations-form__grid--two">
+            <label class="field">
+              <span class="field__label">{{ 'operations.fromSourceLabel' | t }}</span>
+              <select class="field__control" formControlName="fromSource">
+                @for (source of sourceMeta; track source.id) {
+                  <option [value]="source.id">{{ source.label }}</option>
+                }
+              </select>
+            </label>
+
+            <label class="field">
+              <span class="field__label">{{ 'operations.toSourceLabel' | t }}</span>
+              <select class="field__control" formControlName="toSource">
+                @for (source of toSourceOptions(); track source.id) {
+                  <option [value]="source.id">{{ source.label }}</option>
+                }
+              </select>
+            </label>
+          </div>
+        } @else {
+          <div class="operations-form__grid operations-form__grid--two">
+            <label class="field">
+              <span class="field__label">{{ 'operations.counterpartyLabel' | t }}</span>
+              <input
+                class="field__control"
+                type="text"
+                formControlName="counterparty"
+                [placeholder]="'operations.counterpartyPlaceholder' | t"
+              />
+            </label>
+
+            <label class="field">
+              <span class="field__label">{{ 'operations.toSourceLabel' | t }}</span>
+              <select class="field__control" formControlName="toSource">
+                @for (source of toSourceOptions(); track source.id) {
+                  <option [value]="source.id">{{ source.label }}</option>
+                }
+              </select>
+            </label>
+          </div>
+        }
+
+        @if (formState().type === 'exchange') {
+          <div class="operations-form__grid operations-form__grid--two">
+            <label class="field">
+              <span class="field__label">{{ 'operations.amountFromLabel' | t }}</span>
+              <input
+                class="field__control"
+                type="number"
+                step="0.01"
+                min="0"
+                formControlName="fromAmount"
+              />
+            </label>
+
+            <label class="field">
+              <span class="field__label">{{ 'operations.amountToLabel' | t }}</span>
+              <input
+                class="field__control"
+                type="number"
+                step="0.01"
+                min="0"
+                formControlName="toAmount"
+              />
+            </label>
+          </div>
+
+          <div class="operations-form__hint-card">
+            <span class="operations-form__hint-label">{{ 'operations.marketRateLabel' | t }}</span>
+            <strong class="operations-form__hint-value">
+              @if (selectedExchangeRate(); as selectedExchangeRate) {
+                {{ selectedExchangeRate | number: '1.2-2' }}
+              } @else {
+                —
+              }
+            </strong>
+            <span class="operations-form__hint-note">{{ 'operations.marketRateHint' | t }}</span>
+          </div>
+        }
+
+        @if (formState().type === 'income') {
+          <div class="operations-form__grid">
+            <label class="field">
+              <span class="field__label">{{ 'operations.amountLabel' | t }}</span>
+              <input
+                class="field__control"
+                type="number"
+                step="0.01"
+                min="0"
+                formControlName="toAmount"
+              />
+            </label>
+          </div>
+        }
+
+        @if (formState().type === 'transfer') {
+          <div class="operations-form__grid">
+            <label class="field">
+              <span class="field__label">{{ 'operations.amountLabel' | t }}</span>
+              <input
+                class="field__control"
+                type="number"
+                step="0.01"
+                min="0"
+                formControlName="fromAmount"
+              />
+            </label>
+          </div>
+        }
+
+        @if (saveError()) {
+          <p class="operations-form__error" role="alert">{{ saveError() }}</p>
+        }
+
+        <div class="operations-dialog__actions">
+          <button
+            class="operations-dialog__button operations-dialog__button--secondary"
+            type="button"
+            (click)="closeDialog()"
+          >
+            {{ 'operations.cancel' | t }}
+          </button>
+
+          <button
+            class="operations-dialog__button operations-dialog__button--primary"
+            type="submit"
+            [disabled]="isSaving()"
+          >
+            @if (isSaving()) {
+              {{ 'operations.saving' | t }}
+            } @else {
+              {{ 'operations.save' | t }}
+            }
+          </button>
+        </div>
+      </form>
+    </section>
+  }
+</div>

@@ -17,9 +17,7 @@ export class SourceFacade {
   private readonly authService = inject(AuthService);
   private readonly sourceService = inject(SourceService);
 
-  private readonly uid = computed(
-    () => this.authService.currentUser()?.uid ?? null,
-  );
+  private readonly uid = computed(() => this.authService.currentUser()?.uid ?? null);
 
   /**
    * Signal for the live source balances document.
@@ -30,9 +28,7 @@ export class SourceFacade {
     toObservable(this.uid).pipe(
       switchMap((uid) =>
         uid !== null
-          ? this.sourceService
-              .getBalances$(uid)
-              .pipe(catchError(() => of(EMPTY_SOURCE_BALANCE)))
+          ? this.sourceService.getBalances$(uid).pipe(catchError(() => of(EMPTY_SOURCE_BALANCE)))
           : of(EMPTY_SOURCE_BALANCE),
       ),
     ),
@@ -63,5 +59,11 @@ export class SourceFacade {
     const uid = this.uid();
     if (uid === null) throw new Error('Not authenticated');
     return this.sourceService.updateSource(uid, { [id]: amount } as Partial<SourceBalance>);
+  }
+
+  saveAll(balances: SourceBalance): ReturnType<SourceService['setBalances']> {
+    const uid = this.uid();
+    if (uid === null) throw new Error('Not authenticated');
+    return this.sourceService.setBalances(uid, balances);
   }
 }
