@@ -1,0 +1,30 @@
+<div class="empty-state">
+  <div class="empty-state__icon">
+    <svg width="48" height="48" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+      <rect x="8" y="6" width="32" height="36" rx="4"
+            fill="var(--color-bg-elevated)"
+            stroke="var(--color-border-strong)"
+            stroke-width="1.5"/>
+      <path d="M16 18h16M16 24h10"
+            stroke="var(--color-text-tertiary)"
+            stroke-width="1.5"
+            stroke-linecap="round"/>
+    </svg>
+  </div>
+
+  <h3 class="empty-state__title">{{ title() }}</h3>
+
+  @if (subtitle()) {
+    <p class="empty-state__subtitle">{{ subtitle() }}</p>
+  }
+
+  @if (actionLabel()) {
+    <button
+      class="empty-state__action"
+      type="button"
+      (click)="action.emit()"
+    >
+      {{ actionLabel() }}
+    </button>
+  }
+</div>

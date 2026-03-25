@@ -1,0 +1,35 @@
+// ============================================================
+// skeleton.component.scss
+// Loading skeleton placeholder — calm shimmer animation.
+// ============================================================
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--color-bg-elevated) 25%,
+    var(--color-bg-overlay) 50%,
+    var(--color-bg-elevated) 75%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.6s ease-in-out infinite;
+  border-radius: var(--radius-sm);
+  display: block;
+
+  &--text {
+    border-radius: var(--radius-full);
+  }
+
+  &--circle {
+    border-radius: var(--radius-full);
+    aspect-ratio: 1;
+  }
+}
+
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}

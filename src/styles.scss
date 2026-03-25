@@ -1,5 +1,6 @@
 // Global styles entry point
-// Order matters: reset → theme tokens → typography
+// Order matters: reset → theme tokens → typography → layout
 @use 'styles/reset';
 @use 'styles/theme';
 @use 'styles/typography';
+@use 'styles/layout';

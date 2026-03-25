@@ -19,13 +19,18 @@ export class AuthService {
   private readonly auth = inject(Auth);
 
   /**
+   * Raw authState observable — used by guards to wait for the first
+   * resolved Firebase auth state (avoids redirect on hard reload).
+   */
+  readonly user$ = authState(this.auth);
+
+  /**
    * Signal reflecting the current Firebase User.
-   * null  → not authenticated
+   * null  → not authenticated / auth state not yet resolved
    * User  → authenticated
-   * undefined → auth state not yet resolved (initial emission)
    */
   readonly currentUser = toSignal<User | null>(
-    authState(this.auth),
+    this.user$,
     { initialValue: null },
   );
 

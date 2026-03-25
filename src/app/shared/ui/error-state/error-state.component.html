@@ -1,0 +1,21 @@
+<div class="error-state" role="alert">
+  <div class="error-state__icon" aria-hidden="true">
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+      <circle cx="10" cy="10" r="8.25" stroke="currentColor" stroke-width="1.5"/>
+      <path d="M10 6v5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      <circle cx="10" cy="13.5" r="0.75" fill="currentColor"/>
+    </svg>
+  </div>
+
+  <p class="error-state__message">{{ message() }}</p>
+
+  @if (showRetry()) {
+    <button
+      class="error-state__retry"
+      type="button"
+      (click)="retry.emit()"
+    >
+      {{ retryLabel() }}
+    </button>
+  }
+</div>

@@ -144,7 +144,7 @@ Secure the app and create a premium access flow.
 
 ---
 
-## [ ] Phase 2 — App Shell and Design Foundation
+## [x] Phase 2 — App Shell and Design Foundation
 
 ### Goal
 
@@ -167,9 +167,9 @@ Create the reusable visual and structural foundation of the product.
 
 ### Deliverables
 
-- app already feels like a premium product shell
-- future screens can be built consistently
-- visual language is coherent
+- app already feels like a premium product shell ✓
+- future screens can be built consistently ✓
+- visual language is coherent ✓
 
 ### Tests
 
@@ -180,6 +180,12 @@ Create the reusable visual and structural foundation of the product.
 
 - focus on trust, hierarchy, and polish
 - avoid default-looking admin-panel design
+- ShellComponent: core/layout/shell/ — top nav (logo, user avatar, sign-out) + router-outlet
+- Shared UI primitives in shared/ui/: card, badge, skeleton, empty-state, error-state
+- _layout.scss: .page container class (max-width: 1200px, consistent padding)
+- Shell is lazy-loaded as the protected route wrapper in app.routes.ts
+- Badge class-mapping logic tested: 8 tests passing
+- Phase completed: 2026-03-25
 
 ---
 

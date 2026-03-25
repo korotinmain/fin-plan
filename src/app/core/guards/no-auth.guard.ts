@@ -1,18 +1,19 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
+import { map, take } from 'rxjs/operators';
 import { AuthService } from '../services/auth.service';
 
 /**
  * Prevents authenticated users from accessing public-only routes (e.g. login).
- * Redirects to the dashboard if already signed in.
+ * Returns an Observable so the router waits for Firebase to resolve the
+ * persisted session — prevents a signed-in user from briefly seeing the login page.
  */
 export const noAuthGuard: CanActivateFn = () => {
   const auth = inject(AuthService);
   const router = inject(Router);
 
-  if (auth.isAuthenticated()) {
-    return router.createUrlTree(['/dashboard']);
-  }
-
-  return true;
+  return auth.user$.pipe(
+    take(1),
+    map((user) => (user ? router.createUrlTree(['/dashboard']) : true)),
+  );
 };

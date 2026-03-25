@@ -15,13 +15,16 @@ export const routes: Routes = [
   {
     path: '',
     canActivate: [authGuard],
+    loadComponent: () =>
+      import('./core/layout/shell/shell.component').then(
+        (m) => m.ShellComponent,
+      ),
     children: [
       {
         path: '',
         redirectTo: 'dashboard',
         pathMatch: 'full',
       },
-      // Phase 2+ will replace this placeholder with the real dashboard
       {
         path: 'dashboard',
         loadComponent: () =>

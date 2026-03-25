@@ -1,0 +1,38 @@
+// ============================================================
+// card.component.scss
+// Base card wrapper — used as the foundation for all content
+// cards throughout the product.
+// ============================================================
+
+.card {
+  background-color: var(--color-bg-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+
+  // ─── Variants ─────────────────────────────────────────────
+
+  &--elevated {
+    background-color: var(--color-bg-elevated);
+    box-shadow: var(--shadow-md);
+  }
+
+  &--flat {
+    background-color: transparent;
+    border-color: transparent;
+    box-shadow: none;
+  }
+
+  // ─── Padding ──────────────────────────────────────────────
+
+  &--pad-default {
+    padding: var(--space-6);
+  }
+
+  &--pad-compact {
+    padding: var(--space-4);
+  }
+
+  &--pad-none {
+    padding: 0;
+  }
+}

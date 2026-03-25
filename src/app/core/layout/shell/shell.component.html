@@ -1,0 +1,26 @@
+<div class="shell">
+  <header class="shell__nav">
+    <div class="shell__nav-inner">
+      <a class="shell__logo" routerLink="/dashboard">
+        <span class="shell__logo-mark">FP</span>
+        <span class="shell__logo-name">FinPlan</span>
+      </a>
+
+      <div class="shell__nav-end">
+        @if (user(); as u) {
+          <div class="shell__user">
+            <span class="shell__user-avatar">{{ initials() }}</span>
+            <span class="shell__user-email">{{ u.email }}</span>
+          </div>
+        }
+        <button class="shell__signout" type="button" (click)="signOut()">
+          Sign out
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="shell__main">
+    <router-outlet />
+  </main>
+</div>
