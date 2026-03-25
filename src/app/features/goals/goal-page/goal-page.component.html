@@ -1,0 +1,132 @@
+<div class="goal-page">
+  <div class="page">
+
+    <div class="goal-page__header">
+      <div>
+        <h1 class="goal-page__title">House Target</h1>
+        <p class="goal-page__subtitle">Your primary savings goal</p>
+      </div>
+      @if (hasGoal() && !isEditing()) {
+        <button class="goal-page__edit-btn" type="button" (click)="startEditing()">
+          Edit goal
+        </button>
+      }
+    </div>
+
+    @if (isLoading()) {
+
+      <div class="goal-page__skeleton-wrap">
+        <app-skeleton height="200px" />
+      </div>
+
+    } @else if (isEditing() || !hasGoal()) {
+
+      <app-card>
+        <div class="goal-form">
+          <div class="goal-form__heading">
+            <h2 class="goal-form__title">
+              {{ hasGoal() ? 'Update target' : 'Set your target' }}
+            </h2>
+            <p class="goal-form__desc">
+              Define the total price of the property you are saving toward.
+              All progress will be tracked in USD.
+            </p>
+          </div>
+
+          <form [formGroup]="form" (ngSubmit)="save()" class="goal-form__body">
+            <div class="goal-form__field">
+              <label class="goal-form__label" for="targetAmount">
+                Target amount
+                <span class="goal-form__currency-tag">USD</span>
+              </label>
+              <div class="goal-form__input-wrap">
+                <span class="goal-form__prefix" aria-hidden="true">$</span>
+                <input
+                  id="targetAmount"
+                  class="goal-form__input"
+                  formControlName="targetAmount"
+                  type="number"
+                  placeholder="250000"
+                  min="1"
+                  step="1000"
+                  autocomplete="off"
+                />
+              </div>
+              @if (form.controls.targetAmount.invalid && form.controls.targetAmount.dirty) {
+                <p class="goal-form__error" role="alert">
+                  Enter a valid amount greater than $0.
+                </p>
+              }
+            </div>
+
+            @if (saveError()) {
+              <p class="goal-form__save-error" role="alert">{{ saveError() }}</p>
+            }
+
+            <div class="goal-form__actions">
+              <button
+                class="goal-form__submit"
+                type="submit"
+                [disabled]="isSaving() || form.invalid"
+              >
+                {{ isSaving() ? 'Saving...' : (hasGoal() ? 'Update goal' : 'Save goal') }}
+              </button>
+              @if (hasGoal()) {
+                <button
+                  class="goal-form__cancel"
+                  type="button"
+                  [disabled]="isSaving()"
+                  (click)="cancel()"
+                >
+                  Cancel
+                </button>
+              }
+            </div>
+          </form>
+        </div>
+      </app-card>
+
+    } @else {
+
+      <app-card>
+        <div class="goal-summary">
+          <div class="goal-summary__meta">
+            <span class="goal-summary__label">Target</span>
+            <span class="goal-summary__currency-tag">USD</span>
+          </div>
+
+          <div class="goal-summary__amount">
+            {{ targetAmount() | currency:'USD':'symbol':'1.0-0' }}
+          </div>
+
+          <div class="goal-summary__progress">
+            <div class="goal-summary__progress-track">
+              <div class="goal-summary__progress-fill" [style.width.%]="0"></div>
+            </div>
+            <div class="goal-summary__progress-labels">
+              <span class="goal-summary__progress-pct">0% saved</span>
+              <span class="goal-summary__progress-note">
+                Add savings sources to track progress
+              </span>
+            </div>
+          </div>
+
+          <div class="goal-summary__stats">
+            <div class="goal-summary__stat">
+              <span class="goal-summary__stat-label">Total saved</span>
+              <span class="goal-summary__stat-value">—</span>
+            </div>
+            <div class="goal-summary__stat">
+              <span class="goal-summary__stat-label">Remaining</span>
+              <span class="goal-summary__stat-value">
+                {{ targetAmount() | currency:'USD':'symbol':'1.0-0' }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </app-card>
+
+    }
+
+  </div>
+</div>

@@ -1,53 +1,41 @@
 // ============================================================
 // shell.component.scss
-// App shell: top navigation + main content area.
+// App shell: left sidebar + main content area.
 // ============================================================
 
 .shell {
-  min-height: 100vh;
   display: flex;
-  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
   background-color: var(--color-bg-base);
 }
 
-// ─── Top Navigation ─────────────────────────────────────────
+// ─── Sidebar ────────────────────────────────────────────────
 
-.shell__nav {
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  background-color: var(--color-bg-surface);
-  border-bottom: 1px solid var(--color-border);
+.shell__sidebar {
+  width: 240px;
   flex-shrink: 0;
-}
-
-.shell__nav-inner {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  max-width: 1440px;
-  margin: 0 auto;
-  padding: 0 var(--space-6);
-  height: 56px;
+  flex-direction: column;
+  background-color: var(--color-bg-surface);
+  border-right: 1px solid var(--color-border);
+  overflow-y: auto;
 }
 
-// ─── Logo ───────────────────────────────────────────────────
+// ─── Brand ──────────────────────────────────────────────────
 
-.shell__logo {
+.shell__brand {
   display: flex;
   align-items: center;
   gap: var(--space-3);
+  padding: var(--space-5) var(--space-5) var(--space-6);
   text-decoration: none;
-  transition: opacity var(--transition-fast);
-
-  &:hover {
-    opacity: 0.85;
-  }
+  flex-shrink: 0;
 }
 
-.shell__logo-mark {
-  width: 30px;
-  height: 30px;
+.shell__brand-mark {
+  width: 34px;
+  height: 34px;
   border-radius: var(--radius-md);
   background-color: var(--color-primary);
   color: #fff;
@@ -56,22 +44,83 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  letter-spacing: 0;
+  flex-shrink: 0;
 }
 
-.shell__logo-name {
+.shell__brand-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.shell__brand-name {
   font-size: var(--text-md);
   font-weight: var(--font-semibold);
   color: var(--color-text-primary);
   letter-spacing: -0.02em;
+  line-height: 1.2;
 }
 
-// ─── Nav End ────────────────────────────────────────────────
+.shell__brand-sub {
+  font-size: var(--text-xs);
+  color: var(--color-text-tertiary);
+  line-height: 1.2;
+}
 
-.shell__nav-end {
+// ─── Navigation ─────────────────────────────────────────────
+
+.shell__nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 0 var(--space-3);
+  flex: 1;
+}
+
+.shell__nav-item {
   display: flex;
   align-items: center;
-  gap: var(--space-4);
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  transition: color var(--transition-fast), background-color var(--transition-fast);
+
+  &:hover {
+    color: var(--color-text-primary);
+    background-color: var(--color-bg-elevated);
+  }
+
+  &--active {
+    color: var(--color-text-primary);
+    background-color: var(--color-bg-elevated);
+
+    .shell__nav-icon {
+      color: var(--color-primary);
+    }
+  }
+}
+
+.shell__nav-icon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+// ─── Sidebar Footer ─────────────────────────────────────────
+
+.shell__sidebar-footer {
+  margin-top: auto;
+  padding: var(--space-4) var(--space-3);
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  flex-shrink: 0;
 }
 
 // ─── User Info ──────────────────────────────────────────────
@@ -80,6 +129,7 @@
   display: flex;
   align-items: center;
   gap: var(--space-3);
+  padding: var(--space-2);
 }
 
 .shell__user-avatar {
@@ -96,10 +146,15 @@
   flex-shrink: 0;
 }
 
+.shell__user-info {
+  flex: 1;
+  min-width: 0;
+}
+
 .shell__user-email {
-  font-size: var(--text-sm);
+  display: block;
+  font-size: var(--text-xs);
   color: var(--color-text-secondary);
-  max-width: 200px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -108,44 +163,37 @@
 // ─── Sign Out ───────────────────────────────────────────────
 
 .shell__signout {
-  padding: var(--space-2) var(--space-4);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
   background-color: transparent;
-  border: 1px solid var(--color-border-strong);
+  border: none;
   border-radius: var(--radius-md);
-  color: var(--color-text-secondary);
+  color: var(--color-text-tertiary);
   font-size: var(--text-sm);
   font-weight: var(--font-medium);
   cursor: pointer;
-  transition: all var(--transition-fast);
+  text-align: left;
+  transition: color var(--transition-fast), background-color var(--transition-fast);
 
   &:hover {
+    color: var(--color-text-secondary);
     background-color: var(--color-bg-elevated);
-    border-color: var(--color-border);
-    color: var(--color-text-primary);
   }
+}
+
+.shell__signout-icon {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
 }
 
 // ─── Main Content Area ──────────────────────────────────────
 
 .shell__main {
   flex: 1;
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-}
-
-// ─── Responsive ─────────────────────────────────────────────
-
-@media (max-width: 640px) {
-  .shell__nav-inner {
-    padding: 0 var(--space-4);
-  }
-
-  .shell__user-email {
-    display: none;
-  }
-
-  .shell__signout {
-    padding: var(--space-2) var(--space-3);
-  }
+  min-width: 0;
+  overflow-y: auto;
 }

@@ -33,6 +33,11 @@ export const routes: Routes = [
           ),
         title: 'Dashboard — FinPlan',
       },
+      {
+        path: 'goals',
+        loadChildren: () =>
+          import('./features/goals/goals.routes').then((m) => m.goalRoutes),
+      },
     ],
   },
 

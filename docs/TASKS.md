@@ -189,7 +189,7 @@ Create the reusable visual and structural foundation of the product.
 
 ---
 
-## [ ] Phase 3 — Goal Setup
+## [x] Phase 3 — Goal Setup
 
 ### Goal
 
@@ -206,9 +206,9 @@ Allow the user to define and manage the house target.
 
 ### Deliverables
 
-- user can define target amount
-- goal persists correctly
-- summary displays reliably
+- user can define target amount ✓
+- goal persists correctly ✓
+- summary displays reliably ✓ (target, 0% progress, remaining amount)
 
 ### Tests
 
@@ -218,7 +218,14 @@ Allow the user to define and manage the house target.
 
 ### Notes
 
-- keep goal flow simple and high-confidence
+- Goal stored in Firestore at `goals/{uid}` (document keyed by user UID)
+- GoalFacade: reactive signal state — undefined (loading) / null (no goal) / Goal (set)
+- goal.helpers.ts: calcRemaining + calcProgressPercent pure functions — 11 tests
+- GoalService: getGoal$ (docData stream mapped to Goal | null) + setGoal (setDoc merge) — 7 tests
+- GoalPageComponent: create/edit/summary states, NonNullableFormBuilder, CurrencyPipe
+- Shell nav updated with Dashboard + Goal links (RouterLinkActive)
+- Total tests after phase: 38 passing
+- Phase completed: 2026-03-25
 
 ---
 

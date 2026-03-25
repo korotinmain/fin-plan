@@ -1,0 +1,316 @@
+// ============================================================
+// goal-page.component.scss
+// ============================================================
+
+.goal-page {
+  flex: 1;
+}
+
+// ─── Page Header ─────────────────────────────────────────────
+
+.goal-page__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: var(--space-6);
+}
+
+.goal-page__title {
+  font-size: var(--text-2xl);
+  font-weight: var(--font-bold);
+  color: var(--color-text-primary);
+  letter-spacing: -0.02em;
+}
+
+.goal-page__subtitle {
+  font-size: var(--text-sm);
+  color: var(--color-text-tertiary);
+  margin-top: var(--space-1);
+}
+
+.goal-page__edit-btn {
+  flex-shrink: 0;
+  margin-top: var(--space-1);
+  padding: var(--space-2) var(--space-4);
+  background-color: transparent;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  color: var(--color-text-secondary);
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+
+  &:hover {
+    background-color: var(--color-bg-elevated);
+    color: var(--color-text-primary);
+  }
+}
+
+.goal-page__skeleton-wrap {
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+// ─── Form ────────────────────────────────────────────────────
+
+.goal-form {
+  max-width: 480px;
+}
+
+.goal-form__heading {
+  margin-bottom: var(--space-6);
+}
+
+.goal-form__title {
+  font-size: var(--text-lg);
+  font-weight: var(--font-semibold);
+  color: var(--color-text-primary);
+  letter-spacing: -0.01em;
+}
+
+.goal-form__desc {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  margin-top: var(--space-2);
+  line-height: 1.6;
+}
+
+.goal-form__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.goal-form__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.goal-form__label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  color: var(--color-text-secondary);
+}
+
+.goal-form__currency-tag {
+  font-size: 11px;
+  font-weight: var(--font-regular);
+  color: var(--color-text-tertiary);
+  background-color: var(--color-bg-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 1px 6px;
+}
+
+.goal-form__input-wrap {
+  position: relative;
+}
+
+.goal-form__prefix {
+  position: absolute;
+  left: var(--space-4);
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-text-tertiary);
+  font-size: var(--text-base);
+  font-weight: var(--font-medium);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.goal-form__input {
+  width: 100%;
+  padding: var(--space-3) var(--space-4) var(--space-3) calc(var(--space-4) + 16px);
+  background-color: var(--color-bg-elevated);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  color: var(--color-text-primary);
+  font-size: var(--text-md);
+  font-family: var(--font-sans);
+  transition: border-color var(--transition-fast);
+
+  &:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px var(--color-primary-muted);
+  }
+
+  // Remove native number spinner arrows
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  &[type='number'] {
+    -moz-appearance: textfield;
+  }
+}
+
+.goal-form__error {
+  font-size: var(--text-xs);
+  color: var(--color-danger);
+}
+
+.goal-form__save-error {
+  font-size: var(--text-sm);
+  color: var(--color-danger);
+  background-color: var(--color-danger-muted);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+}
+
+.goal-form__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.goal-form__submit {
+  padding: var(--space-3) var(--space-6);
+  background-color: var(--color-primary);
+  border: none;
+  border-radius: var(--radius-md);
+  color: #fff;
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+
+  &:hover:not(:disabled) {
+    background-color: var(--color-primary-hover);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.goal-form__cancel {
+  padding: var(--space-3) var(--space-4);
+  background-color: transparent;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  color: var(--color-text-secondary);
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+
+  &:hover:not(:disabled) {
+    background-color: var(--color-bg-elevated);
+    color: var(--color-text-primary);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+// ─── Summary ─────────────────────────────────────────────────
+
+.goal-summary {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  max-width: 560px;
+}
+
+.goal-summary__meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.goal-summary__label {
+  font-size: 11px;
+  font-weight: var(--font-medium);
+  color: var(--color-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+
+.goal-summary__currency-tag {
+  font-size: 11px;
+  color: var(--color-text-tertiary);
+  background-color: var(--color-bg-overlay);
+  border-radius: var(--radius-sm);
+  padding: 1px 6px;
+}
+
+.goal-summary__amount {
+  font-size: var(--text-4xl);
+  font-weight: var(--font-bold);
+  color: var(--color-text-primary);
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+
+.goal-summary__progress-track {
+  height: 4px;
+  background-color: var(--color-bg-overlay);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.goal-summary__progress-fill {
+  height: 100%;
+  background-color: var(--color-primary);
+  border-radius: var(--radius-full);
+  transition: width var(--transition-slow);
+}
+
+.goal-summary__progress-labels {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-top: var(--space-2);
+}
+
+.goal-summary__progress-pct {
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+  color: var(--color-text-primary);
+}
+
+.goal-summary__progress-note {
+  font-size: var(--text-xs);
+  color: var(--color-text-tertiary);
+  text-align: right;
+}
+
+.goal-summary__stats {
+  display: flex;
+  gap: var(--space-8);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-border);
+}
+
+.goal-summary__stat {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.goal-summary__stat-label {
+  font-size: 11px;
+  font-weight: var(--font-medium);
+  color: var(--color-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.goal-summary__stat-value {
+  font-size: var(--text-xl);
+  font-weight: var(--font-semibold);
+  color: var(--color-text-primary);
+  letter-spacing: -0.02em;
+}

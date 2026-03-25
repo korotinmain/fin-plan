@@ -191,6 +191,44 @@ Do not create headings that are stylistically loud but structurally weak.
 
 ---
 
+## Shell Layout Rules
+
+The application shell defines the structural container for all authenticated screens.
+
+### Layout model
+- **No top header.** The application must not use a horizontal top navigation bar.
+- **Left sidebar navigation only.** All navigation is contained in a fixed-width left sidebar.
+- The sidebar is the sole persistent application chrome once authenticated.
+- The main content area occupies all remaining horizontal space to the right of the sidebar.
+
+### Sidebar structure
+- App branding (name + subtitle) appears at the top of the sidebar.
+- Navigation items are listed below branding, vertically stacked.
+- Active route must be visually distinct — use an accent background or left indicator.
+- A subtle metadata line (e.g. last updated timestamp) may appear at the bottom of the sidebar.
+- The sidebar must feel calm, structured, and secondary to the content — it must not compete for attention.
+
+### Sidebar visual rules
+- Use a dark or deeply tinted sidebar background that separates from the content area.
+- Icon + label pairs for each nav item; icons must be consistent in size and weight.
+- Nav items must have clear hover and active states.
+- The sidebar width must be fixed and consistent across all screens.
+- No collapsible/hamburger sidebar behavior is required at this stage.
+
+### Content area
+- Content area has its own background, separate from the sidebar.
+- Each page manages its own internal padding and layout.
+- The content area must never include a redundant page-level top bar or secondary nav strip.
+
+### Reject
+- any top horizontal nav bar or header bar
+- dual navigation (sidebar + top bar simultaneously)
+- collapsing or overlay sidebars at desktop width
+- sidebars that visually overpower the content area
+- content area headers that duplicate sidebar navigation context
+
+---
+
 ## Dashboard Design Rules
 
 The dashboard is the most important screen in the app.
@@ -580,6 +618,8 @@ This is the most important product surface.
 ## Hard Design Rejections
 
 Reject any generated UI that includes:
+- top horizontal header or navigation bar
+- dual navigation (sidebar + top bar)
 - generic template dashboard layout
 - equal emphasis on all cards
 - too many widgets above the fold
@@ -608,7 +648,7 @@ Not just “modern”.
 Not just “clean”.
 
 It must look like:
-- a real product
+- a real SaaS product
 - with strong hierarchy
 - strong judgment
 - and consistent design discipline
