@@ -25,10 +25,7 @@ describe('GoalService', () => {
     mocks.mockDoc.mockReturnValue({});
 
     TestBed.configureTestingModule({
-      providers: [
-        GoalService,
-        { provide: Firestore, useValue: {} },
-      ],
+      providers: [GoalService, { provide: Firestore, useValue: {} }],
     });
 
     service = TestBed.inject(GoalService);
@@ -54,12 +51,10 @@ describe('GoalService', () => {
     });
 
     it('returns a Goal when the document has a targetAmount', async () => {
-      mocks.mockDocData.mockReturnValue(
-        of({ targetAmount: 250_000, currency: 'USD' }),
-      );
+      mocks.mockDocData.mockReturnValue(of({ targetAmount: 250_000, currency: 'USD' }));
 
       const result = await firstValueFrom(service.getGoal$('uid-1'));
-      expect(result).toEqual({ targetAmount: 250_000 });
+      expect(result).toEqual({ targetAmount: 250_000, currency: 'USD' });
     });
   });
 
@@ -70,9 +65,7 @@ describe('GoalService', () => {
     });
 
     it('resolves without error', async () => {
-      await expect(
-        firstValueFrom(service.setGoal('uid-1', 250_000)),
-      ).resolves.toBeUndefined();
+      await expect(firstValueFrom(service.setGoal('uid-1', 250_000))).resolves.toBeUndefined();
     });
 
     it('calls Firestore setDoc with the correct data', async () => {

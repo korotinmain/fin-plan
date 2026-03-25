@@ -56,10 +56,10 @@
   align-items: center;
   gap: var(--space-2);
   padding: var(--space-2) var(--space-4);
-  background: linear-gradient(180deg, #5d45f3, #5538e0);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: linear-gradient(180deg, var(--color-btn-primary-from), var(--color-btn-primary-to));
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
-  color: #fff;
+  color: var(--color-text-primary);
   font-size: var(--text-sm);
   font-weight: var(--font-medium);
   box-shadow: 0 12px 30px rgba(79, 126, 247, 0.18);
@@ -144,7 +144,7 @@
 }
 
 .goal-hero__metric--remaining .goal-hero__metric-value {
-  color: #ffb2a2;
+  color: var(--color-danger-light);
 }
 
 .goal-hero__progress-block {
@@ -178,7 +178,7 @@
 .goal-hero__progress-fill {
   height: 100%;
   border-radius: inherit;
-  background: linear-gradient(90deg, #0fd19a, #18c389);
+  background: linear-gradient(90deg, var(--color-accent-emerald), var(--color-accent-emerald-dark));
   transition: width var(--transition-slow);
 }
 
@@ -298,7 +298,7 @@
 .goal-dialog__backdrop {
   position: absolute;
   inset: 0;
-  background: rgba(6, 9, 18, 0.68);
+  background: var(--color-backdrop);
   backdrop-filter: blur(10px);
 }
 
@@ -440,10 +440,10 @@
   gap: var(--space-2);
   min-width: 170px;
   padding: var(--space-3) var(--space-6);
-  background: linear-gradient(180deg, #5d45f3, #5538e0);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: linear-gradient(180deg, var(--color-btn-primary-from), var(--color-btn-primary-to));
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
-  color: #fff;
+  color: var(--color-text-primary);
   font-size: var(--text-sm);
   font-weight: var(--font-medium);
   cursor: pointer;

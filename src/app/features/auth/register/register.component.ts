@@ -1,8 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import {
   AbstractControl,
-  FormBuilder,
-  FormGroup,
+  NonNullableFormBuilder,
   ReactiveFormsModule,
   ValidationErrors,
   ValidatorFn,
@@ -29,9 +28,9 @@ const passwordsMatchValidator: ValidatorFn = (group: AbstractControl): Validatio
 export class RegisterComponent {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
-  private readonly fb = inject(FormBuilder);
+  private readonly fb = inject(NonNullableFormBuilder);
 
-  readonly form: FormGroup = this.fb.group(
+  readonly form = this.fb.group(
     {
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(8)]],
@@ -71,10 +70,7 @@ export class RegisterComponent {
     this.isLoading.set(true);
     this.errorMessage.set(null);
 
-    const { email, password } = this.form.getRawValue() as {
-      email: string;
-      password: string;
-    };
+    const { email, password } = this.form.getRawValue();
 
     this.authService
       .registerWithEmailPassword(email, password)

@@ -10,6 +10,7 @@ import { I18nService } from '../../../core/services/i18n.service';
 import { CurrencyFacade } from '../../currency/currency.facade';
 import { calcProgressPercent, calcRemaining } from '../goal.helpers';
 import { GoalFacade } from '../goal.facade';
+import { getChartTheme } from '../../../shared/helpers/chart-theme';
 
 type GoalMilestone = {
   percent: number;
@@ -39,6 +40,7 @@ export class GoalPageComponent {
   private readonly currencyFacade = inject(CurrencyFacade);
   private readonly fb = inject(NonNullableFormBuilder);
   private readonly i18n = inject(I18nService);
+  private readonly theme = getChartTheme();
 
   protected readonly isLoading = this.facade.isLoading;
   protected readonly hasGoal = this.facade.hasGoal;
@@ -119,10 +121,10 @@ export class GoalPageComponent {
     datasets: [
       {
         data: this.growthSeries(),
-        borderColor: '#6863f4',
-        backgroundColor: 'rgba(104, 99, 244, 0.18)',
-        pointBackgroundColor: '#6863f4',
-        pointBorderColor: '#6863f4',
+        borderColor: this.theme.violet,
+        backgroundColor: this.theme.violetFill,
+        pointBackgroundColor: this.theme.violet,
+        pointBorderColor: this.theme.violet,
         pointRadius: 3,
         pointHoverRadius: 4,
         borderWidth: 2,
@@ -142,30 +144,30 @@ export class GoalPageComponent {
       },
       tooltip: {
         enabled: true,
-        backgroundColor: '#181b22',
-        borderColor: 'rgba(255, 255, 255, 0.08)',
+        backgroundColor: this.theme.surface,
+        borderColor: this.theme.border,
         borderWidth: 1,
         displayColors: false,
-        titleColor: '#f1f3f8',
-        bodyColor: '#f1f3f8',
+        titleColor: this.theme.textPrimary,
+        bodyColor: this.theme.textPrimary,
       },
     },
     scales: {
       x: {
         grid: {
-          color: 'rgba(255,255,255,0.04)',
+          color: this.theme.chartGrid,
         },
         ticks: {
-          color: '#8b92a5',
+          color: this.theme.textSecondary,
         },
       },
       y: {
         beginAtZero: true,
         grid: {
-          color: 'rgba(255,255,255,0.04)',
+          color: this.theme.chartGrid,
         },
         ticks: {
-          color: '#8b92a5',
+          color: this.theme.textSecondary,
         },
       },
     },

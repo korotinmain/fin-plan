@@ -21,6 +21,17 @@ import { I18nService } from '../../../core/services/i18n.service';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 import { convertAmount } from '../currency.helpers';
 import { CurrencyFacade } from '../currency.facade';
+import {
+  currencySymbol,
+  formatConverterAmount,
+  formatConverterInputAmount,
+  formatConverterRate,
+  formatHoldingAmount,
+  getAlternativeCurrency,
+  holdingFormKey,
+  holdingInputStep,
+} from '../currency-formatting.helpers';
+import { getChartTheme } from '../../../shared/helpers/chart-theme';
 
 type ConverterFormValue = {
   amount: number;
@@ -53,6 +64,11 @@ export class CurrencyPageComponent {
   private readonly fb = inject(NonNullableFormBuilder);
   private readonly authService = inject(AuthService);
   private readonly i18n = inject(I18nService);
+  private readonly theme = getChartTheme();
+
+  private get locale(): string {
+    return this.i18n.locale() === 'uk' ? 'uk-UA' : 'en-US';
+  }
 
   protected readonly isLoading = this.facade.isLoading;
   protected readonly holdings = this.facade.holdings;
@@ -136,7 +152,7 @@ export class CurrencyPageComponent {
         datasets: [
           {
             data: [1],
-            backgroundColor: ['#2b3142'],
+            backgroundColor: [this.theme.chartEmpty],
             borderWidth: 0,
             hoverOffset: 0,
           },
@@ -149,7 +165,7 @@ export class CurrencyPageComponent {
       datasets: [
         {
           data: shares,
-          backgroundColor: ['#6863f4', '#15d69a', '#4f7ef7'],
+          backgroundColor: [this.theme.violet, this.theme.emerald, this.theme.primary],
           borderWidth: 0,
           spacing: 2,
           hoverOffset: 2,
@@ -169,14 +185,18 @@ export class CurrencyPageComponent {
       },
       tooltip: {
         enabled: true,
-        backgroundColor: '#181b22',
-        borderColor: 'rgba(255, 255, 255, 0.08)',
+        backgroundColor: this.theme.surface,
+        borderColor: this.theme.border,
         borderWidth: 1,
-        titleColor: '#f1f3f8',
-        bodyColor: '#f1f3f8',
+        titleColor: this.theme.textPrimary,
+        bodyColor: this.theme.textPrimary,
         displayColors: false,
         callbacks: {
-          label: (context) => `${context.label}: ${context.parsed.toFixed(1)}%`,
+          label: (context) =>
+            this.i18n.translate('currency.chartTooltipLabel', {
+              label: context.label,
+              value: this.formatChartSharePercent(context.parsed),
+            }),
         },
       },
     },
@@ -245,17 +265,25 @@ export class CurrencyPageComponent {
   }
 
   protected holdingInputStep(code: CurrencyCode): number {
-    return code === 'UAH' ? 100 : 10;
+    return holdingInputStep(code);
   }
 
   protected holdingFormKey(code: CurrencyCode): HoldingKey {
-    return code.toLowerCase() as HoldingKey;
+    return holdingFormKey(code);
+  }
+
+  protected cashSharePercent(code: CurrencyCode): number {
+    const total = this.holdingAmount(code);
+    return total > 0 ? (this.holdingChannelAmount(code, 'cash') / total) * 100 : 0;
+  }
+
+  protected cardSharePercent(code: CurrencyCode): number {
+    const total = this.holdingAmount(code);
+    return total > 0 ? (this.holdingChannelAmount(code, 'card') / total) * 100 : 0;
   }
 
   protected formatHoldingAmount(code: CurrencyCode, amount: number): string {
-    const symbol = this.converterSymbol(code);
-    const maximumFractionDigits = Number.isInteger(amount) || amount >= 1000 ? 0 : 2;
-    return `${symbol}${this.formatNumber(amount, 0, maximumFractionDigits)}`;
+    return formatHoldingAmount(code, amount, this.locale);
   }
 
   protected swapConverterCurrencies(): void {
@@ -264,20 +292,27 @@ export class CurrencyPageComponent {
   }
 
   protected converterSymbol(code: CurrencyCode): string {
-    return this.meta.find((item) => item.code === code)?.symbol ?? '';
+    return currencySymbol(code);
   }
 
   protected formatConverterInputAmount(amount: number): string {
-    return this.formatNumber(amount, 0, 4);
+    return formatConverterInputAmount(amount, this.locale);
   }
 
   protected formatConverterAmount(amount: number, code: CurrencyCode): string {
-    const decimals = Number.isInteger(amount) ? 0 : code === 'UAH' ? 2 : 2;
-    return this.formatNumber(amount, decimals, decimals);
+    return formatConverterAmount(amount, code, this.locale);
   }
 
   protected formatConverterRate(amount: number, code: CurrencyCode): string {
-    return this.formatNumber(amount, 0, code === 'UAH' ? 2 : 4);
+    return formatConverterRate(amount, code, this.locale);
+  }
+
+  protected formatChartSharePercent(value: number): string {
+    return new Intl.NumberFormat(this.locale, {
+      style: 'percent',
+      minimumFractionDigits: 1,
+      maximumFractionDigits: 1,
+    }).format(value / 100);
   }
 
   protected fetchLiveRates(): void {
@@ -338,18 +373,6 @@ export class CurrencyPageComponent {
   }
 
   private getAlternativeCurrency(excluded: CurrencyCode): CurrencyCode {
-    return this.meta.find((item) => item.code !== excluded)?.code ?? excluded;
-  }
-
-  private formatNumber(
-    amount: number,
-    minimumFractionDigits: number,
-    maximumFractionDigits: number,
-  ): string {
-    const locale = this.i18n.locale() === 'uk' ? 'uk-UA' : 'en-US';
-    return new Intl.NumberFormat(locale, {
-      minimumFractionDigits,
-      maximumFractionDigits,
-    }).format(amount);
+    return getAlternativeCurrency(excluded);
   }
 }

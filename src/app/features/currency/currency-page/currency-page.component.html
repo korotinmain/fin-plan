@@ -154,21 +154,11 @@
                     <div class="holding-card__mix-track" aria-hidden="true">
                       <div
                         class="holding-card__mix-segment holding-card__mix-segment--cash"
-                        [style.width.%]="
-                          holdingAmount(item.code) > 0
-                            ? (holdingChannelAmount(item.code, 'cash') / holdingAmount(item.code)) *
-                              100
-                            : 0
-                        "
+                        [style.width.%]="cashSharePercent(item.code)"
                       ></div>
                       <div
                         class="holding-card__mix-segment holding-card__mix-segment--card"
-                        [style.width.%]="
-                          holdingAmount(item.code) > 0
-                            ? (holdingChannelAmount(item.code, 'card') / holdingAmount(item.code)) *
-                              100
-                            : 0
-                        "
+                        [style.width.%]="cardSharePercent(item.code)"
                       ></div>
                     </div>
                     <div class="holding-card__mix-labels">
@@ -183,13 +173,7 @@
                     <div class="holding-card__detail-head">
                       <span class="holding-card__detail-label">{{ 'currency.cash' | t }}</span>
                       <span class="holding-card__detail-share"
-                        >{{
-                          holdingAmount(item.code) > 0
-                            ? ((holdingChannelAmount(item.code, 'cash') /
-                                holdingAmount(item.code)) *
-                                100 | number: '1.0-0')
-                            : 0
-                        }}%</span
+                        >{{ cashSharePercent(item.code) | number: '1.0-0' }}%</span
                       >
                     </div>
                     <span class="holding-card__detail-value">
@@ -200,13 +184,7 @@
                     <div class="holding-card__detail-head">
                       <span class="holding-card__detail-label">{{ 'currency.card' | t }}</span>
                       <span class="holding-card__detail-share"
-                        >{{
-                          holdingAmount(item.code) > 0
-                            ? ((holdingChannelAmount(item.code, 'card') /
-                                holdingAmount(item.code)) *
-                                100 | number: '1.0-0')
-                            : 0
-                        }}%</span
+                        >{{ cardSharePercent(item.code) | number: '1.0-0' }}%</span
                       >
                     </div>
                     <span class="holding-card__detail-value">

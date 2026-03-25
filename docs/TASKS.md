@@ -265,6 +265,16 @@ Introduce a currency tracker with holdings, manual rates, and portfolio conversi
 - Holdings editing uses a modal dialog to avoid layout jumps in the main page flow.
 - Portfolio distribution now uses a chart package instead of a CSS-only custom visualization.
 - Currency page spacing and card heights were normalized to match the product design system.
+- **[Updated 2026-03-25]** `CurrencyHoldings` model refactored from flat totals to nested `{cash, card}` per currency (`CurrencyHoldingBalance`).
+- Holdings dialog replaced with a 6-field grouped form (cash + card per each of UAH/USD/EUR) with live total preview per currency.
+- Firestore service updated with backward-compatible read normalization: reads legacy flat `uah/usd/eur` fields and maps to `{cash, card}`; writes both new nested structure and flat aggregate totals (dual-write for continuity).
+- `CurrencyFacade.totalFor(code)` method added; `updateHoldings` now accepts the full nested `CurrencyHoldings` object.
+- `calcHoldingTotal(balance)` added to helpers; `calcPortfolioTotals`, `calcPortfolioShare` updated to work with nested model.
+- Goal page reworked to be USD-first: `targetAmount` stored and displayed in USD; `savedAmountUsd` is derived directly from `totals().totalUsd` on the currency page — no manual entry needed.
+- **Premium UI redesign** of holding cards: currency identity row (badge + name + code), share pill, hero section with total + cash/card composition rail, percentage detail tiles.
+- **Premium UI redesign** of portfolio total block: eyebrow label + wallet icon, large hero amount at `clamp(2.5rem, 4vw, 4rem)`, frosted-glass FX chip tiles for USD/EUR with coloured left-border accents, ambient violet radial glow.
+- All i18n keys for cash/card/total/dialog subtitle updated in both EN and UK locales.
+- Tests fully updated for new model; build and all tests passing.
 
 ---
 
@@ -307,6 +317,8 @@ Roll out bilingual UI support and remove visible CTA inconsistency across the pr
 - Tests added: currency.helpers.spec.ts + currency.service.spec.ts
 - Validation: `npm run build` ✓, `npx ng test --watch=false` ✓ (84 tests passing)
 - Phase completed: 2026-03-25
+- **[Updated 2026-03-25]** Bilingual string coverage (EN + UK) added for currency cash/card/total labels, dialog subtitle, and goal-page USD-related copy.
+- Locale switch (sidebar), Firestore persistence of locale preference, and local fallback still in progress.
 
 ---
 

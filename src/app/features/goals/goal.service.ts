@@ -1,13 +1,9 @@
 import { inject, Injectable, Injector, runInInjectionContext } from '@angular/core';
-import {
-  doc,
-  docData,
-  Firestore,
-  setDoc,
-} from '@angular/fire/firestore';
+import { doc, docData, Firestore, setDoc } from '@angular/fire/firestore';
 import { from, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Goal } from '../../core/models/goal.model';
+import { FIRESTORE_PATHS } from '../../core/constants/firestore.constants';
 
 @Injectable({ providedIn: 'root' })
 export class GoalService {
@@ -23,11 +19,17 @@ export class GoalService {
    * triggers AngularFire's "outside injection context" warning.
    */
   getGoal$(uid: string): Observable<Goal | null> {
-    const ref = doc(this.firestore, `goals/${uid}`);
+    const ref = doc(this.firestore, FIRESTORE_PATHS.goals(uid));
     return runInInjectionContext(this.injector, () =>
-      (docData(ref) as Observable<{ targetAmount?: number } | undefined>).pipe(
+      (
+        docData(ref) as Observable<
+          { targetAmount?: number; currency?: string; updatedAt?: string } | undefined
+        >
+      ).pipe(
         map((data) =>
-          data?.targetAmount != null ? { targetAmount: data.targetAmount } : null,
+          data?.targetAmount != null
+            ? { targetAmount: data.targetAmount, currency: 'USD' as const }
+            : null,
         ),
       ),
     );
@@ -37,9 +39,7 @@ export class GoalService {
    * Creates or updates the user's goal (upsert via merge).
    */
   setGoal(uid: string, targetAmount: number): Observable<void> {
-    const ref = doc(this.firestore, `goals/${uid}`);
-    return from(
-      setDoc(ref, { targetAmount, currency: 'USD' }, { merge: true }),
-    );
+    const ref = doc(this.firestore, FIRESTORE_PATHS.goals(uid));
+    return from(setDoc(ref, { targetAmount, currency: 'USD' }, { merge: true }));
   }
 }

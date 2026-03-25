@@ -23,12 +23,31 @@
 
   --color-danger: #ef4444;
   --color-danger-muted: rgba(239, 68, 68, 0.12);
+  --color-danger-light: #ffb2a2;
+
+  // ---- Button ----
+  --color-btn-primary-from: #5d45f3;
+  --color-btn-primary-to: #5538e0;
+
+  // ---- Accents (extended) ----
+  --color-accent-emerald-dark: #18c389;
+
+  // ---- Chart ----
+  --color-chart-empty: #2b3142;
+  --color-chart-grid: rgba(255, 255, 255, 0.04);
+  --color-chart-violet-fill: rgba(104, 99, 244, 0.18);
 
   // ---- Backgrounds ----
   --color-bg-base: #0f1117;
   --color-bg-surface: #181b22;
   --color-bg-elevated: #1e2130;
   --color-bg-overlay: #252a3a;
+  --color-bg-deep: rgba(12, 20, 35, 0.8);
+
+  // ---- Glass / Surface ----
+  --color-surface-1: rgba(255, 255, 255, 0.03);
+  --color-surface-2: rgba(255, 255, 255, 0.05);
+  --color-backdrop: rgba(3, 6, 14, 0.72);
 
   // ---- Borders ----
   --color-border: rgba(255, 255, 255, 0.08);
