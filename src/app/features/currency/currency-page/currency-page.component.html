@@ -116,29 +116,102 @@
         <section class="currency-cards" [attr.aria-label]="'currency.aria.holdings' | t">
           @for (item of meta; track item.code) {
             <app-card>
-              <div class="holding-card">
+              <div
+                class="holding-card"
+                [class]="'holding-card holding-card--' + item.code.toLowerCase()"
+              >
                 <div class="holding-card__top">
-                  <app-badge
-                    [label]="item.code"
-                    [variant]="
-                      item.code === 'USD' ? 'success' : item.code === 'EUR' ? 'info' : 'neutral'
-                    "
-                  />
-                  <span class="holding-card__share">{{
+                  <div class="holding-card__identity">
+                    <app-badge
+                      [label]="item.code"
+                      [variant]="
+                        item.code === 'USD' ? 'success' : item.code === 'EUR' ? 'info' : 'neutral'
+                      "
+                    />
+                    <div class="holding-card__identity-copy">
+                      <span class="holding-card__currency-name">{{ item.label }}</span>
+                      <span class="holding-card__currency-code">{{ item.code }}</span>
+                    </div>
+                  </div>
+
+                  <span class="holding-card__share-pill">{{
                     'currency.shareOfTotal' | t: { value: (shareFor(item.code) | number: '1.1-1') }
                   }}</span>
                 </div>
 
-                <div class="holding-card__amount-wrap">
-                  <div class="holding-card__amount">
-                    @if (item.code === 'UAH') {
-                      {{ item.symbol }}{{ holdingAmount(item.code) | number: '1.0-0' }}
-                    } @else {
-                      {{ holdingAmount(item.code) | currency: item.code : 'symbol' : '1.0-0' }}
-                    }
+                <div class="holding-card__hero">
+                  <div class="holding-card__amount-wrap">
+                    <span class="holding-card__label">{{ 'currency.total' | t }}</span>
+                    <div class="holding-card__amount">
+                      {{ formatHoldingAmount(item.code, holdingAmount(item.code)) }}
+                    </div>
+                    <div class="holding-card__approx">
+                      ≈ {{ valueInUah(item.code) | number: '1.0-0' }} UAH
+                    </div>
                   </div>
-                  <div class="holding-card__approx">
-                    ≈ {{ valueInUah(item.code) | number: '1.0-0' }} UAH
+
+                  <div class="holding-card__mix">
+                    <div class="holding-card__mix-track" aria-hidden="true">
+                      <div
+                        class="holding-card__mix-segment holding-card__mix-segment--cash"
+                        [style.width.%]="
+                          holdingAmount(item.code) > 0
+                            ? (holdingChannelAmount(item.code, 'cash') / holdingAmount(item.code)) *
+                              100
+                            : 0
+                        "
+                      ></div>
+                      <div
+                        class="holding-card__mix-segment holding-card__mix-segment--card"
+                        [style.width.%]="
+                          holdingAmount(item.code) > 0
+                            ? (holdingChannelAmount(item.code, 'card') / holdingAmount(item.code)) *
+                              100
+                            : 0
+                        "
+                      ></div>
+                    </div>
+                    <div class="holding-card__mix-labels">
+                      <span>{{ 'currency.cash' | t }}</span>
+                      <span>{{ 'currency.card' | t }}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="holding-card__breakdown">
+                  <div class="holding-card__detail">
+                    <div class="holding-card__detail-head">
+                      <span class="holding-card__detail-label">{{ 'currency.cash' | t }}</span>
+                      <span class="holding-card__detail-share"
+                        >{{
+                          holdingAmount(item.code) > 0
+                            ? ((holdingChannelAmount(item.code, 'cash') /
+                                holdingAmount(item.code)) *
+                                100 | number: '1.0-0')
+                            : 0
+                        }}%</span
+                      >
+                    </div>
+                    <span class="holding-card__detail-value">
+                      {{ formatHoldingAmount(item.code, holdingChannelAmount(item.code, 'cash')) }}
+                    </span>
+                  </div>
+                  <div class="holding-card__detail">
+                    <div class="holding-card__detail-head">
+                      <span class="holding-card__detail-label">{{ 'currency.card' | t }}</span>
+                      <span class="holding-card__detail-share"
+                        >{{
+                          holdingAmount(item.code) > 0
+                            ? ((holdingChannelAmount(item.code, 'card') /
+                                holdingAmount(item.code)) *
+                                100 | number: '1.0-0')
+                            : 0
+                        }}%</span
+                      >
+                    </div>
+                    <span class="holding-card__detail-value">
+                      {{ formatHoldingAmount(item.code, holdingChannelAmount(item.code, 'card')) }}
+                    </span>
                   </div>
                 </div>
 
@@ -158,16 +231,53 @@
 
         <app-card>
           <div class="portfolio-total">
-            <div>
-              <span class="portfolio-total__label">{{ 'currency.totalValue' | t }}</span>
-              <div class="portfolio-total__amount">
-                {{ totals().totalUah | number: '1.0-0' }} UAH
+            <div class="portfolio-total__main">
+              <div class="portfolio-total__eyebrow">
+                <span class="portfolio-total__icon" aria-hidden="true">
+                  <svg viewBox="0 0 16 16" fill="none" width="14" height="14">
+                    <rect
+                      x="1"
+                      y="5"
+                      width="14"
+                      height="9"
+                      rx="2"
+                      stroke="currentColor"
+                      stroke-width="1.3"
+                    />
+                    <path
+                      d="M5 5V4a3 3 0 0 1 6 0v1"
+                      stroke="currentColor"
+                      stroke-width="1.3"
+                      stroke-linecap="round"
+                    />
+                    <circle cx="8" cy="9.5" r="1.5" fill="currentColor" />
+                  </svg>
+                </span>
+                <span class="portfolio-total__label">{{ 'currency.totalValue' | t }}</span>
+              </div>
+              <div class="portfolio-total__amount-row">
+                <span class="portfolio-total__amount">{{
+                  totals().totalUah | number: '1.0-0'
+                }}</span>
+                <span class="portfolio-total__currency-tag">UAH</span>
               </div>
             </div>
 
             <div class="portfolio-total__side">
-              <span>≈ {{ totals().totalUsd | currency: 'USD' : 'symbol' : '1.0-2' }}</span>
-              <span>≈ {{ totals().totalEur | currency: 'EUR' : 'symbol' : '1.0-2' }}</span>
+              <div class="portfolio-total__fx-tile portfolio-total__fx-tile--usd">
+                <span class="portfolio-total__fx-code">USD</span>
+                <span class="portfolio-total__fx-approx">≈</span>
+                <span class="portfolio-total__fx-value">{{
+                  totals().totalUsd | currency: 'USD' : 'symbol' : '1.0-2'
+                }}</span>
+              </div>
+              <div class="portfolio-total__fx-tile portfolio-total__fx-tile--eur">
+                <span class="portfolio-total__fx-code">EUR</span>
+                <span class="portfolio-total__fx-approx">≈</span>
+                <span class="portfolio-total__fx-value">{{
+                  totals().totalEur | currency: 'EUR' : 'symbol' : '1.0-2'
+                }}</span>
+              </div>
             </div>
           </div>
         </app-card>
@@ -276,10 +386,12 @@
 
               <div class="converter-card__result">
                 <span class="converter-card__result-meta">
-                  {{ formatConverterInputAmount(converterState().amount) }} {{ converterState().from }} =
+                  {{ formatConverterInputAmount(converterState().amount) }}
+                  {{ converterState().from }} =
                 </span>
                 <span class="converter-card__result-value">
-                  {{ converterSymbol(converterState().to) }}{{ formatConverterAmount(converterResult(), converterState().to) }}
+                  {{ converterSymbol(converterState().to)
+                  }}{{ formatConverterAmount(converterResult(), converterState().to) }}
                 </span>
                 <span class="converter-card__result-rate">
                   {{
@@ -322,6 +434,7 @@
               <h2 class="editor-card__title" id="holdings-dialog-title">
                 {{ 'currency.dialog.title' | t }}
               </h2>
+              <p class="editor-card__subtitle">{{ 'currency.dialog.subtitle' | t }}</p>
             </div>
 
             <button
@@ -343,36 +456,58 @@
           </div>
 
           <div class="holdings-dialog__fields">
-            <label class="editor-field">
-              <span class="editor-field__label">{{ 'currency.dialog.uah' | t }}</span>
-              <input
-                class="editor-field__input"
-                formControlName="uah"
-                type="number"
-                min="0"
-                step="100"
-              />
-            </label>
-            <label class="editor-field">
-              <span class="editor-field__label">{{ 'currency.dialog.usd' | t }}</span>
-              <input
-                class="editor-field__input"
-                formControlName="usd"
-                type="number"
-                min="0"
-                step="10"
-              />
-            </label>
-            <label class="editor-field">
-              <span class="editor-field__label">{{ 'currency.dialog.eur' | t }}</span>
-              <input
-                class="editor-field__input"
-                formControlName="eur"
-                type="number"
-                min="0"
-                step="10"
-              />
-            </label>
+            @for (item of meta; track item.code) {
+              <section
+                class="holdings-dialog__currency"
+                [class]="
+                  'holdings-dialog__currency holdings-dialog__currency--' + item.code.toLowerCase()
+                "
+                [formGroupName]="holdingFormKey(item.code)"
+              >
+                <div class="holdings-dialog__currency-head">
+                  <div>
+                    <div class="holdings-dialog__currency-topline">
+                      <span class="holdings-dialog__currency-code">{{ item.code }}</span>
+                      <span class="holdings-dialog__currency-name">{{ item.label }}</span>
+                    </div>
+                    <div class="holdings-dialog__currency-total">
+                      <span>{{ 'currency.total' | t }}</span>
+                      <strong>{{
+                        formatHoldingAmount(item.code, editedHoldingTotal(item.code))
+                      }}</strong>
+                    </div>
+                  </div>
+
+                  <span class="holdings-dialog__currency-approx">
+                    ≈ {{ editedValueInUah(item.code) | number: '1.0-0' }} UAH
+                  </span>
+                </div>
+
+                <div class="holdings-dialog__channel-grid">
+                  <label class="editor-field">
+                    <span class="editor-field__label">{{ 'currency.cash' | t }}</span>
+                    <input
+                      class="editor-field__input holdings-dialog__input"
+                      formControlName="cash"
+                      type="number"
+                      min="0"
+                      [step]="holdingInputStep(item.code)"
+                    />
+                  </label>
+
+                  <label class="editor-field">
+                    <span class="editor-field__label">{{ 'currency.card' | t }}</span>
+                    <input
+                      class="editor-field__input holdings-dialog__input"
+                      formControlName="card"
+                      type="number"
+                      min="0"
+                      [step]="holdingInputStep(item.code)"
+                    />
+                  </label>
+                </div>
+              </section>
+            }
           </div>
 
           @if (holdingsError()) {

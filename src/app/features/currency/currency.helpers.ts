@@ -1,6 +1,7 @@
 import {
   CurrencyCode,
   CurrencyData,
+  CurrencyHoldingBalance,
   CurrencyHoldings,
   ExchangeRates,
 } from '../../core/models/currency.model';
@@ -8,6 +9,10 @@ import {
 function roundCurrency(amount: number, digits = 2): number {
   const factor = 10 ** digits;
   return Math.round(amount * factor) / factor;
+}
+
+export function calcHoldingTotal(balance: CurrencyHoldingBalance): number {
+  return roundCurrency(balance.cash + balance.card, 2);
 }
 
 export function convertAmount(
@@ -66,16 +71,12 @@ export function calcPortfolioTotals(data: CurrencyData): {
   totalUsd: number;
   totalEur: number;
 } {
-  const holdings: CurrencyHoldings = {
-    uah: data.uah,
-    usd: data.usd,
-    eur: data.eur,
-  };
+  const holdings = data.holdings;
 
   const totalUah = roundCurrency(
-    calcHoldingValueInUah('UAH', holdings.uah, data) +
-      calcHoldingValueInUah('USD', holdings.usd, data) +
-      calcHoldingValueInUah('EUR', holdings.eur, data),
+    calcHoldingValueInUah('UAH', calcHoldingTotal(holdings.uah), data) +
+      calcHoldingValueInUah('USD', calcHoldingTotal(holdings.usd), data) +
+      calcHoldingValueInUah('EUR', calcHoldingTotal(holdings.eur), data),
     0,
   );
 
@@ -91,10 +92,12 @@ export function calcPortfolioShare(
   holdings: CurrencyHoldings,
   rates: ExchangeRates,
 ): number {
-  const total = calcPortfolioTotals({ ...holdings, ...rates }).totalUah;
+  const total = calcPortfolioTotals({ holdings, ...rates }).totalUah;
   if (total <= 0) return 0;
 
-  const amount = code === 'UAH' ? holdings.uah : code === 'USD' ? holdings.usd : holdings.eur;
+  const amount = calcHoldingTotal(
+    code === 'UAH' ? holdings.uah : code === 'USD' ? holdings.usd : holdings.eur,
+  );
 
   return roundCurrency((calcHoldingValueInUah(code, amount, rates) / total) * 100, 1);
 }

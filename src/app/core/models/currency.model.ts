@@ -2,10 +2,15 @@
  * Per-currency holdings stored in Firestore at currency/{uid}.
  * Amounts are in each currency's native units.
  */
+export interface CurrencyHoldingBalance {
+  cash: number;
+  card: number;
+}
+
 export interface CurrencyHoldings {
-  uah: number;
-  usd: number;
-  eur: number;
+  uah: CurrencyHoldingBalance;
+  usd: CurrencyHoldingBalance;
+  eur: CurrencyHoldingBalance;
 }
 
 /**
@@ -24,12 +29,23 @@ export interface ExchangeRates {
 /**
  * Combined document stored at currency/{uid}.
  */
-export interface CurrencyData extends CurrencyHoldings, ExchangeRates {}
+export interface CurrencyData extends ExchangeRates {
+  holdings: CurrencyHoldings;
+}
+
+export const EMPTY_CURRENCY_HOLDING_BALANCE: CurrencyHoldingBalance = {
+  cash: 0,
+  card: 0,
+};
+
+export const EMPTY_CURRENCY_HOLDINGS: CurrencyHoldings = {
+  uah: { ...EMPTY_CURRENCY_HOLDING_BALANCE },
+  usd: { ...EMPTY_CURRENCY_HOLDING_BALANCE },
+  eur: { ...EMPTY_CURRENCY_HOLDING_BALANCE },
+};
 
 export const EMPTY_CURRENCY_DATA: CurrencyData = {
-  uah: 0,
-  usd: 0,
-  eur: 0,
+  holdings: EMPTY_CURRENCY_HOLDINGS,
   usdToUah: 0,
   eurToUah: 0,
   eurToUsd: 0,

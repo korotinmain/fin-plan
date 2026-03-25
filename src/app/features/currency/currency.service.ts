@@ -6,9 +6,44 @@ import { map } from 'rxjs/operators';
 import {
   CurrencyData,
   CurrencyHoldings,
+  EMPTY_CURRENCY_HOLDINGS,
   EMPTY_CURRENCY_DATA,
   ExchangeRates,
 } from '../../core/models/currency.model';
+
+type LegacyCurrencyData = Partial<
+  ExchangeRates & {
+    uah: number;
+    usd: number;
+    eur: number;
+    holdings: Partial<CurrencyHoldings>;
+  }
+>;
+
+function normalizeHoldingBalance(
+  value: Partial<CurrencyHoldings['uah']> | undefined,
+  fallbackTotal = 0,
+): CurrencyHoldings['uah'] {
+  const cash = value?.cash ?? fallbackTotal;
+  const card = value?.card ?? 0;
+
+  return {
+    cash,
+    card,
+  };
+}
+
+function buildLegacyHoldingTotals(holdings: CurrencyHoldings): {
+  uah: number;
+  usd: number;
+  eur: number;
+} {
+  return {
+    uah: holdings.uah.cash + holdings.uah.card,
+    usd: holdings.usd.cash + holdings.usd.card,
+    eur: holdings.eur.cash + holdings.eur.card,
+  };
+}
 
 interface OpenExchangeRatesResponse {
   base_code: string;
@@ -24,11 +59,13 @@ export class CurrencyService {
   getCurrencyData$(uid: string): Observable<CurrencyData> {
     const ref = doc(this.firestore, `currency/${uid}`);
     return runInInjectionContext(this.injector, () =>
-      (docData(ref) as Observable<Partial<CurrencyData> | undefined>).pipe(
+      (docData(ref) as Observable<LegacyCurrencyData | undefined>).pipe(
         map((data) => ({
-          uah: data?.uah ?? 0,
-          usd: data?.usd ?? 0,
-          eur: data?.eur ?? 0,
+          holdings: {
+            uah: normalizeHoldingBalance(data?.holdings?.uah, data?.uah ?? 0),
+            usd: normalizeHoldingBalance(data?.holdings?.usd, data?.usd ?? 0),
+            eur: normalizeHoldingBalance(data?.holdings?.eur, data?.eur ?? 0),
+          },
           usdToUah: data?.usdToUah ?? 0,
           eurToUah: data?.eurToUah ?? 0,
           eurToUsd: data?.eurToUsd ?? 0,
@@ -39,12 +76,33 @@ export class CurrencyService {
 
   setCurrencyData(uid: string, payload: CurrencyData): Observable<void> {
     const ref = doc(this.firestore, `currency/${uid}`);
-    return from(setDoc(ref, payload, { merge: true }));
+    return from(
+      setDoc(
+        ref,
+        {
+          holdings: payload.holdings,
+          ...buildLegacyHoldingTotals(payload.holdings),
+          usdToUah: payload.usdToUah,
+          eurToUah: payload.eurToUah,
+          eurToUsd: payload.eurToUsd,
+        },
+        { merge: true },
+      ),
+    );
   }
 
-  updateHoldings(uid: string, holdings: Partial<CurrencyHoldings>): Observable<void> {
+  updateHoldings(uid: string, holdings: CurrencyHoldings): Observable<void> {
     const ref = doc(this.firestore, `currency/${uid}`);
-    return from(setDoc(ref, holdings, { merge: true }));
+    return from(
+      setDoc(
+        ref,
+        {
+          holdings,
+          ...buildLegacyHoldingTotals(holdings),
+        },
+        { merge: true },
+      ),
+    );
   }
 
   updateRates(uid: string, rates: Partial<ExchangeRates>): Observable<void> {

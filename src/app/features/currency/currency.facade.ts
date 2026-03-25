@@ -6,12 +6,14 @@ import {
   CURRENCY_META,
   CurrencyCode,
   CurrencyHoldings,
+  EMPTY_CURRENCY_HOLDINGS,
   EMPTY_CURRENCY_DATA,
   ExchangeRates,
 } from '../../core/models/currency.model';
 import { AuthService } from '../../core/services/auth.service';
 import {
   buildPortfolioSegments,
+  calcHoldingTotal,
   calcHoldingValueInUah,
   calcPortfolioShare,
   calcPortfolioTotals,
@@ -41,11 +43,7 @@ export class CurrencyFacade {
 
   readonly holdings = computed<CurrencyHoldings>(() => {
     const data = this.currencyData() ?? EMPTY_CURRENCY_DATA;
-    return {
-      uah: data.uah,
-      usd: data.usd,
-      eur: data.eur,
-    };
+    return data.holdings ?? EMPTY_CURRENCY_HOLDINGS;
   });
 
   readonly rates = computed<ExchangeRates>(() => {
@@ -69,13 +67,20 @@ export class CurrencyFacade {
 
   valueInUah(code: CurrencyCode): number {
     const holdings = this.holdings();
-    const amount = code === 'UAH' ? holdings.uah : code === 'USD' ? holdings.usd : holdings.eur;
+    const amount = calcHoldingTotal(
+      code === 'UAH' ? holdings.uah : code === 'USD' ? holdings.usd : holdings.eur,
+    );
     return calcHoldingValueInUah(code, amount, this.rates());
   }
 
-  updateHoldings(
-    payload: Partial<CurrencyHoldings>,
-  ): ReturnType<CurrencyService['updateHoldings']> {
+  totalFor(code: CurrencyCode): number {
+    const holdings = this.holdings();
+    return calcHoldingTotal(
+      code === 'UAH' ? holdings.uah : code === 'USD' ? holdings.usd : holdings.eur,
+    );
+  }
+
+  updateHoldings(payload: CurrencyHoldings): ReturnType<CurrencyService['updateHoldings']> {
     const uid = this.uid();
     if (uid === null) throw new Error('Not authenticated');
     return this.currencyService.updateHoldings(uid, payload);

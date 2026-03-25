@@ -2,7 +2,11 @@ import { TestBed } from '@angular/core/testing';
 import { Firestore } from '@angular/fire/firestore';
 import { firstValueFrom, isObservable, of } from 'rxjs';
 import { CurrencyService } from './currency.service';
-import { CurrencyData, EMPTY_CURRENCY_DATA } from '../../core/models/currency.model';
+import {
+  CurrencyData,
+  EMPTY_CURRENCY_DATA,
+  EMPTY_CURRENCY_HOLDINGS,
+} from '../../core/models/currency.model';
 
 const mocks = vi.hoisted(() => ({
   mockDoc: vi.fn(),
@@ -19,9 +23,11 @@ vi.mock('@angular/fire/firestore', () => ({
 }));
 
 const FULL_DATA: CurrencyData = {
-  uah: 45_000,
-  usd: 3_500,
-  eur: 800,
+  holdings: {
+    uah: { cash: 30_000, card: 15_000 },
+    usd: { cash: 2_000, card: 1_500 },
+    eur: { cash: 500, card: 300 },
+  },
   usdToUah: 41.5,
   eurToUah: 44.2,
   eurToUsd: 1.0651,
@@ -57,7 +63,13 @@ describe('CurrencyService', () => {
       mocks.mockDocData.mockReturnValue(of({ usd: 100 }));
 
       const result = await firstValueFrom(service.getCurrencyData$('uid-1'));
-      expect(result).toEqual({ ...EMPTY_CURRENCY_DATA, usd: 100 });
+      expect(result).toEqual({
+        ...EMPTY_CURRENCY_DATA,
+        holdings: {
+          ...EMPTY_CURRENCY_HOLDINGS,
+          usd: { cash: 100, card: 0 },
+        },
+      });
     });
 
     it('returns full data when all fields are present', async () => {
@@ -75,14 +87,37 @@ describe('CurrencyService', () => {
 
   describe('updateHoldings', () => {
     it('returns an Observable', () => {
-      expect(isObservable(service.updateHoldings('uid-1', { usd: 200 }))).toBe(true);
+      expect(
+        isObservable(
+          service.updateHoldings('uid-1', {
+            uah: { cash: 0, card: 0 },
+            usd: { cash: 200, card: 0 },
+            eur: { cash: 0, card: 0 },
+          }),
+        ),
+      ).toBe(true);
     });
 
     it('writes holdings with merge enabled', async () => {
-      await firstValueFrom(service.updateHoldings('uid-1', { eur: 250 }));
+      await firstValueFrom(
+        service.updateHoldings('uid-1', {
+          uah: { cash: 0, card: 0 },
+          usd: { cash: 0, card: 0 },
+          eur: { cash: 250, card: 50 },
+        }),
+      );
       expect(mocks.mockSetDoc).toHaveBeenCalledWith(
         expect.anything(),
-        { eur: 250 },
+        {
+          holdings: {
+            uah: { cash: 0, card: 0 },
+            usd: { cash: 0, card: 0 },
+            eur: { cash: 250, card: 50 },
+          },
+          uah: 0,
+          usd: 0,
+          eur: 300,
+        },
         { merge: true },
       );
     });

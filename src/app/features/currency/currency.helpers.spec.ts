@@ -1,4 +1,5 @@
 import {
+  calcHoldingTotal,
   buildPortfolioSegments,
   calcHoldingValueInEur,
   calcHoldingValueInUah,
@@ -16,9 +17,11 @@ const rates: ExchangeRates = {
 };
 
 const data: CurrencyData = {
-  uah: 45_000,
-  usd: 3_500,
-  eur: 800,
+  holdings: {
+    uah: { cash: 30_000, card: 15_000 },
+    usd: { cash: 2_000, card: 1_500 },
+    eur: { cash: 500, card: 300 },
+  },
   ...rates,
 };
 
@@ -45,6 +48,10 @@ describe('convertAmount', () => {
 });
 
 describe('holding value helpers', () => {
+  it('calculates a combined holding total', () => {
+    expect(calcHoldingTotal({ cash: 500, card: 250.5 })).toBe(750.5);
+  });
+
   it('converts USD holdings to UAH', () => {
     expect(calcHoldingValueInUah('USD', 3_500, rates)).toBe(145_250);
   });
@@ -70,21 +77,31 @@ describe('calcPortfolioTotals', () => {
 
 describe('calcPortfolioShare', () => {
   it('returns the UAH share of the portfolio', () => {
-    expect(calcPortfolioShare('UAH', data, rates)).toBe(19.9);
+    expect(calcPortfolioShare('UAH', data.holdings, rates)).toBe(19.9);
   });
 
   it('returns the USD share of the portfolio', () => {
-    expect(calcPortfolioShare('USD', data, rates)).toBe(64.4);
+    expect(calcPortfolioShare('USD', data.holdings, rates)).toBe(64.4);
   });
 
   it('returns 0 when the portfolio is empty', () => {
-    expect(calcPortfolioShare('EUR', { uah: 0, usd: 0, eur: 0 }, rates)).toBe(0);
+    expect(
+      calcPortfolioShare(
+        'EUR',
+        {
+          uah: { cash: 0, card: 0 },
+          usd: { cash: 0, card: 0 },
+          eur: { cash: 0, card: 0 },
+        },
+        rates,
+      ),
+    ).toBe(0);
   });
 });
 
 describe('buildPortfolioSegments', () => {
   it('returns ordered segment data for the chart', () => {
-    expect(buildPortfolioSegments(data, rates)).toEqual([
+    expect(buildPortfolioSegments(data.holdings, rates)).toEqual([
       { code: 'UAH', share: 19.9 },
       { code: 'USD', share: 64.4 },
       { code: 'EUR', share: 15.7 },

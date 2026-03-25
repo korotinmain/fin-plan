@@ -1,7 +1,11 @@
 <div class="goal-page">
   <div class="page">
     <div class="goal-page__header">
-      <div>
+      <div class="goal-page__heading">
+        <span class="goal-page__eyebrow">
+          <span class="goal-page__eyebrow-dot"></span>
+          {{ 'goal.title' | t }}
+        </span>
         <h1 class="goal-page__title">{{ 'goal.title' | t }}</h1>
         <p class="goal-page__subtitle">{{ 'goal.subtitle' | t }}</p>
       </div>
@@ -26,149 +30,284 @@
       }
     </div>
 
-    @if (isLoading()) {
-      <div class="goal-page__skeleton-wrap">
-        <app-skeleton height="200px" />
-      </div>
-    } @else if (isEditing() || !hasGoal()) {
-      <app-card>
-        <div class="goal-form">
-          <div class="goal-form__heading">
-            <h2 class="goal-form__title">
+    <ng-template #goalEditor>
+      <div class="goal-editor">
+        <div class="goal-editor__heading">
+          <div>
+            <h2 class="goal-editor__title">
               {{ hasGoal() ? ('goal.updateTitle' | t) : ('goal.setTitle' | t) }}
             </h2>
-            <p class="goal-form__desc">
-              {{ 'goal.description' | t }}
-            </p>
+            <p class="goal-editor__desc">{{ 'goal.description' | t }}</p>
           </div>
-
-          <form [formGroup]="form" (ngSubmit)="save()" class="goal-form__body">
-            <div class="goal-form__field">
-              <label class="goal-form__label" for="targetAmount">
-                {{ 'goal.targetAmount' | t }}
-                <span class="goal-form__currency-tag">USD</span>
-              </label>
-              <div class="goal-form__input-wrap">
-                <span class="goal-form__prefix" aria-hidden="true">$</span>
-                <input
-                  id="targetAmount"
-                  class="goal-form__input"
-                  formControlName="targetAmount"
-                  type="number"
-                  placeholder="250000"
-                  min="1"
-                  step="1000"
-                  autocomplete="off"
+          @if (hasGoal()) {
+            <button
+              class="goal-dialog__close"
+              type="button"
+              [attr.aria-label]="'goal.close' | t"
+              (click)="cancel()"
+            >
+              <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path
+                  d="M4 4l8 8M12 4 4 12"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
                 />
-              </div>
-              @if (form.controls.targetAmount.invalid && form.controls.targetAmount.dirty) {
-                <p class="goal-form__error" role="alert">{{ 'goal.amountError' | t }}</p>
-              }
-            </div>
+              </svg>
+            </button>
+          }
+        </div>
 
-            @if (saveError()) {
-              <p class="goal-form__save-error" role="alert">{{ saveError() | t }}</p>
+        <form [formGroup]="form" (ngSubmit)="save()" class="goal-editor__body">
+          <div class="goal-editor__field">
+            <label class="goal-editor__label" for="targetAmount">
+              {{ 'goal.targetAmount' | t }}
+              <span class="goal-editor__currency-tag">USD</span>
+            </label>
+            <input
+              id="targetAmount"
+              class="goal-editor__input"
+              formControlName="targetAmount"
+              type="number"
+              placeholder="85000"
+              min="1"
+              step="100"
+              autocomplete="off"
+            />
+            <p class="goal-editor__hint">{{ 'goal.targetAmountHint' | t }}</p>
+            @if (
+              form.controls.targetAmount.invalid &&
+              (form.controls.targetAmount.dirty || form.controls.targetAmount.touched)
+            ) {
+              <p class="goal-editor__error" role="alert">{{ 'goal.amountError' | t }}</p>
             }
+          </div>
 
-            <div class="goal-form__actions">
-              <button
-                class="goal-form__submit"
-                type="submit"
-                [disabled]="isSaving() || form.invalid"
+          <div class="goal-editor__field">
+            <label class="goal-editor__label" for="savedAmount">
+              {{ 'goal.savedAmount' | t }}
+              <span class="goal-editor__currency-tag">USD</span>
+            </label>
+            <input
+              id="savedAmount"
+              class="goal-editor__input goal-editor__input--readonly"
+              type="text"
+              [value]="savedAmountUsd() | currency: 'USD' : 'symbol' : '1.0-2'"
+              readonly
+            />
+            <p class="goal-editor__hint">{{ 'goal.savedAmountHint' | t }}</p>
+          </div>
+
+          @if (saveError()) {
+            <p class="goal-editor__save-error" role="alert">{{ saveError() | t }}</p>
+          }
+
+          <div class="goal-editor__actions">
+            <button
+              class="goal-editor__submit"
+              type="submit"
+              [disabled]="isSaving() || form.invalid"
+            >
+              <svg
+                class="goal-page__action-icon"
+                viewBox="0 0 16 16"
+                fill="none"
+                aria-hidden="true"
               >
-                <svg
-                  class="goal-page__action-icon"
-                  viewBox="0 0 16 16"
-                  fill="none"
-                  aria-hidden="true"
-                >
-                  <path
-                    d="M3 2.5h8.5L13 4v9.5H3z"
-                    stroke="currentColor"
-                    stroke-width="1.3"
-                    stroke-linejoin="round"
-                  />
-                  <path
-                    d="M5 2.5v3h5v-3M5.5 11h5"
-                    stroke="currentColor"
-                    stroke-width="1.3"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-                </svg>
-                {{
-                  isSaving()
-                    ? ('goal.saving' | t)
-                    : hasGoal()
-                      ? ('goal.updateCta' | t)
-                      : ('goal.saveCta' | t)
-                }}
+                <path
+                  d="M3 2.5h8.5L13 4v9.5H3z"
+                  stroke="currentColor"
+                  stroke-width="1.3"
+                  stroke-linejoin="round"
+                />
+                <path
+                  d="M5 2.5v3h5v-3M5.5 11h5"
+                  stroke="currentColor"
+                  stroke-width="1.3"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+              {{
+                isSaving()
+                  ? ('goal.saving' | t)
+                  : hasGoal()
+                    ? ('goal.updateCta' | t)
+                    : ('goal.saveCta' | t)
+              }}
+            </button>
+            @if (hasGoal()) {
+              <button
+                class="goal-editor__cancel"
+                type="button"
+                [disabled]="isSaving()"
+                (click)="cancel()"
+              >
+                {{ 'goal.cancel' | t }}
               </button>
-              @if (hasGoal()) {
-                <button
-                  class="goal-form__cancel"
-                  type="button"
-                  [disabled]="isSaving()"
-                  (click)="cancel()"
+            }
+          </div>
+        </form>
+      </div>
+    </ng-template>
+
+    @if (isLoading()) {
+      <div class="goal-page__skeleton-wrap">
+        <app-skeleton height="520px" />
+      </div>
+    } @else if (!hasGoal()) {
+      <section class="goal-page__setup">
+        <app-card variant="elevated">
+          <ng-container *ngTemplateOutlet="goalEditor"></ng-container>
+        </app-card>
+      </section>
+    } @else {
+      <div class="goal-dashboard" [class.goal-dashboard--editing]="isEditing()">
+        <app-card variant="flat" padding="none">
+          <section class="goal-hero">
+            <div class="goal-hero__metrics">
+              <div class="goal-hero__metric">
+                <span class="goal-hero__metric-label">{{ 'goal.totalTarget' | t }}</span>
+                <span class="goal-hero__metric-value">
+                  {{ targetAmountUsd() | currency: 'USD' : 'symbol' : '1.0-0' }}
+                </span>
+              </div>
+              <div class="goal-hero__metric goal-hero__metric--saved">
+                <span class="goal-hero__metric-label">{{ 'goal.alreadySaved' | t }}</span>
+                <span class="goal-hero__metric-value">
+                  {{ savedAmountUsd() | currency: 'USD' : 'symbol' : '1.0-2' }}
+                </span>
+              </div>
+              <div class="goal-hero__metric goal-hero__metric--remaining">
+                <span class="goal-hero__metric-label">{{ 'goal.remaining' | t }}</span>
+                <span class="goal-hero__metric-value">
+                  {{ remainingAmountUsd() | currency: 'USD' : 'symbol' : '1.0-2' }}
+                </span>
+              </div>
+            </div>
+
+            <div class="goal-hero__progress-block">
+              <div class="goal-hero__progress-header">
+                <span class="goal-hero__progress-label">{{ 'goal.progress' | t }}</span>
+                <span class="goal-hero__progress-value">{{ progressPercent() }}%</span>
+              </div>
+
+              <div class="goal-hero__progress-track" aria-hidden="true">
+                <div class="goal-hero__progress-fill" [style.width.%]="progressPercent()"></div>
+              </div>
+
+              <div class="goal-hero__progress-scale">
+                @for (marker of progressScaleMarkers; track marker) {
+                  <span>{{ marker }}%</span>
+                }
+              </div>
+            </div>
+          </section>
+        </app-card>
+
+        <section class="goal-stats">
+          <app-card>
+            <div class="goal-stat-card">
+              <span class="goal-stat-card__label">{{ 'goal.progressRate' | t }}</span>
+              <strong class="goal-stat-card__value">{{ progressPercent() }}%</strong>
+              <span class="goal-stat-card__note">
+                {{ 'goal.progressSaved' | t: { value: progressPercent() } }}
+              </span>
+            </div>
+          </app-card>
+
+          <app-card>
+            <div class="goal-stat-card">
+              <span class="goal-stat-card__label">{{ 'goal.estimate' | t }}</span>
+              <strong class="goal-stat-card__value">
+                @if (estimatedMonths() === 0) {
+                  {{ 'goal.estimateDone' | t }}
+                } @else {
+                  ~{{ estimatedMonths() }} {{ 'goal.months' | t }}
+                }
+              </strong>
+              <span class="goal-stat-card__note">
+                {{
+                  'goal.estimatePace'
+                    | t: { amount: (monthlyPaceUsd() | currency: 'USD' : 'symbol' : '1.0-2') }
+                }}
+              </span>
+            </div>
+          </app-card>
+
+          <app-card>
+            <div class="goal-stat-card">
+              <span class="goal-stat-card__label">{{ 'goal.gapToFill' | t }}</span>
+              <strong class="goal-stat-card__value">
+                {{ remainingAmountUsd() | currency: 'USD' : 'symbol' : '1.0-2' }}
+              </strong>
+              <span class="goal-stat-card__note">{{ 'goal.stillNeeded' | t }}</span>
+            </div>
+          </app-card>
+        </section>
+
+        <app-card>
+          <section class="goal-chart-card">
+            <div class="goal-chart-card__header">
+              <div>
+                <h2 class="goal-chart-card__title">{{ 'goal.chartTitle' | t }}</h2>
+                <p class="goal-chart-card__subtitle">{{ 'goal.chartSubtitle' | t }}</p>
+              </div>
+            </div>
+
+            <div class="goal-chart-card__body">
+              <canvas
+                baseChart
+                [data]="progressChartData()"
+                [options]="progressChartOptions"
+                [type]="'line'"
+                role="img"
+                [attr.aria-label]="'goal.chartTitle' | t"
+              ></canvas>
+            </div>
+          </section>
+        </app-card>
+
+        <app-card>
+          <section class="goal-milestones">
+            <div class="goal-milestones__header">
+              <h2 class="goal-milestones__title">{{ 'goal.milestones' | t }}</h2>
+            </div>
+
+            <div class="goal-milestones__list">
+              @for (milestone of milestones(); track milestone.percent) {
+                <div
+                  class="goal-milestones__item"
+                  [class.goal-milestones__item--reached]="milestone.reached"
+                  [class.goal-milestones__item--current]="milestone.current"
                 >
-                  <svg
-                    class="goal-page__action-icon"
-                    viewBox="0 0 16 16"
-                    fill="none"
-                    aria-hidden="true"
-                  >
-                    <path
-                      d="M4 4l8 8M12 4 4 12"
-                      stroke="currentColor"
-                      stroke-width="1.5"
-                      stroke-linecap="round"
-                    />
-                  </svg>
-                  {{ 'goal.cancel' | t }}
-                </button>
+                  <div class="goal-milestones__item-main">
+                    <span class="goal-milestones__dot"></span>
+                    <span>{{ milestone.labelKey | t }}</span>
+                  </div>
+                  <span class="goal-milestones__amount">
+                    {{ milestone.amount | currency: 'USD' : 'symbol' : '1.0-0' }}
+                  </span>
+                </div>
               }
             </div>
-          </form>
-        </div>
-      </app-card>
-    } @else {
-      <app-card>
-        <div class="goal-summary">
-          <div class="goal-summary__meta">
-            <span class="goal-summary__label">{{ 'goal.target' | t }}</span>
-            <span class="goal-summary__currency-tag">USD</span>
-          </div>
+          </section>
+        </app-card>
 
-          <div class="goal-summary__amount">
-            {{ targetAmount() | currency: 'USD' : 'symbol' : '1.0-0' }}
-          </div>
-
-          <div class="goal-summary__progress">
-            <div class="goal-summary__progress-track">
-              <div class="goal-summary__progress-fill" [style.width.%]="0"></div>
-            </div>
-            <div class="goal-summary__progress-labels">
-              <span class="goal-summary__progress-pct">{{ 'goal.progressSaved' | t }}</span>
-              <span class="goal-summary__progress-note">
-                {{ 'goal.progressNote' | t }}
-              </span>
+        @if (isEditing()) {
+          <div
+            class="goal-dialog"
+            role="dialog"
+            aria-modal="true"
+            [attr.aria-label]="'goal.updateTitle' | t"
+          >
+            <div class="goal-dialog__backdrop" (click)="cancel()"></div>
+            <div class="goal-dialog__panel">
+              <ng-container *ngTemplateOutlet="goalEditor"></ng-container>
             </div>
           </div>
-
-          <div class="goal-summary__stats">
-            <div class="goal-summary__stat">
-              <span class="goal-summary__stat-label">{{ 'goal.totalSaved' | t }}</span>
-              <span class="goal-summary__stat-value">—</span>
-            </div>
-            <div class="goal-summary__stat">
-              <span class="goal-summary__stat-label">{{ 'goal.remaining' | t }}</span>
-              <span class="goal-summary__stat-value">
-                {{ targetAmount() | currency: 'USD' : 'symbol' : '1.0-0' }}
-              </span>
-            </div>
-          </div>
-        </div>
-      </app-card>
+        }
+      </div>
     }
   </div>
 </div>

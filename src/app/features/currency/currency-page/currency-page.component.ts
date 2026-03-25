@@ -28,6 +28,9 @@ type ConverterFormValue = {
   to: CurrencyCode;
 };
 
+type HoldingChannel = 'cash' | 'card';
+type HoldingKey = 'uah' | 'usd' | 'eur';
+
 @Component({
   selector: 'app-currency-page',
   imports: [
@@ -68,9 +71,18 @@ export class CurrencyPageComponent {
   protected readonly hasAutoFetchedRates = signal(false);
 
   protected readonly holdingsForm = this.fb.group({
-    uah: [0, [Validators.required, Validators.min(0)]],
-    usd: [0, [Validators.required, Validators.min(0)]],
-    eur: [0, [Validators.required, Validators.min(0)]],
+    uah: this.fb.group({
+      cash: [0, [Validators.required, Validators.min(0)]],
+      card: [0, [Validators.required, Validators.min(0)]],
+    }),
+    usd: this.fb.group({
+      cash: [0, [Validators.required, Validators.min(0)]],
+      card: [0, [Validators.required, Validators.min(0)]],
+    }),
+    eur: this.fb.group({
+      cash: [0, [Validators.required, Validators.min(0)]],
+      card: [0, [Validators.required, Validators.min(0)]],
+    }),
   });
 
   protected readonly converterForm = this.fb.group({
@@ -171,25 +183,21 @@ export class CurrencyPageComponent {
   };
 
   constructor() {
-    this.converterForm.controls.from.valueChanges
-      .pipe(takeUntilDestroyed())
-      .subscribe((from) => {
-        if (from === null) {
-          return;
-        }
+    this.converterForm.controls.from.valueChanges.pipe(takeUntilDestroyed()).subscribe((from) => {
+      if (from === null) {
+        return;
+      }
 
-        this.syncConverterCurrencies('from', from as CurrencyCode);
-      });
+      this.syncConverterCurrencies('from', from as CurrencyCode);
+    });
 
-    this.converterForm.controls.to.valueChanges
-      .pipe(takeUntilDestroyed())
-      .subscribe((to) => {
-        if (to === null) {
-          return;
-        }
+    this.converterForm.controls.to.valueChanges.pipe(takeUntilDestroyed()).subscribe((to) => {
+      if (to === null) {
+        return;
+      }
 
-        this.syncConverterCurrencies('to', to as CurrencyCode);
-      });
+      this.syncConverterCurrencies('to', to as CurrencyCode);
+    });
 
     effect(() => {
       const user = this.authService.currentUser();
@@ -209,12 +217,45 @@ export class CurrencyPageComponent {
   }
 
   protected holdingAmount(code: CurrencyCode): number {
-    const holdings = this.holdings();
-    return code === 'UAH' ? holdings.uah : code === 'USD' ? holdings.usd : holdings.eur;
+    return this.facade.totalFor(code);
+  }
+
+  protected holdingChannelAmount(code: CurrencyCode, channel: HoldingChannel): number {
+    const balance = this.holdings()[this.holdingFormKey(code)];
+    return balance[channel];
+  }
+
+  protected editedHoldingAmount(code: CurrencyCode, channel: HoldingChannel): number {
+    const balance = (this.holdingsForm.getRawValue() as CurrencyHoldings)[
+      this.holdingFormKey(code)
+    ];
+    return balance[channel];
+  }
+
+  protected editedHoldingTotal(code: CurrencyCode): number {
+    return this.editedHoldingAmount(code, 'cash') + this.editedHoldingAmount(code, 'card');
   }
 
   protected valueInUah(code: CurrencyCode): number {
     return this.facade.valueInUah(code);
+  }
+
+  protected editedValueInUah(code: CurrencyCode): number {
+    return convertAmount(this.editedHoldingTotal(code), code, 'UAH', this.rates());
+  }
+
+  protected holdingInputStep(code: CurrencyCode): number {
+    return code === 'UAH' ? 100 : 10;
+  }
+
+  protected holdingFormKey(code: CurrencyCode): HoldingKey {
+    return code.toLowerCase() as HoldingKey;
+  }
+
+  protected formatHoldingAmount(code: CurrencyCode, amount: number): string {
+    const symbol = this.converterSymbol(code);
+    const maximumFractionDigits = Number.isInteger(amount) || amount >= 1000 ? 0 : 2;
+    return `${symbol}${this.formatNumber(amount, 0, maximumFractionDigits)}`;
   }
 
   protected swapConverterCurrencies(): void {
@@ -300,7 +341,11 @@ export class CurrencyPageComponent {
     return this.meta.find((item) => item.code !== excluded)?.code ?? excluded;
   }
 
-  private formatNumber(amount: number, minimumFractionDigits: number, maximumFractionDigits: number): string {
+  private formatNumber(
+    amount: number,
+    minimumFractionDigits: number,
+    maximumFractionDigits: number,
+  ): string {
     const locale = this.i18n.locale() === 'uk' ? 'uk-UA' : 'en-US';
     return new Intl.NumberFormat(locale, {
       minimumFractionDigits,
