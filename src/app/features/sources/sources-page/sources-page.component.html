@@ -5,18 +5,6 @@
       <h1 class="sources-page__title">{{ 'sources.title' | t }}</h1>
       <p class="sources-page__subtitle">{{ 'sources.subtitle' | t }}</p>
     </div>
-
-    <button class="sources-page__cta" type="button" (click)="openEditor()">
-      <svg class="sources-page__cta-icon" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-        <path
-          d="M8 2.25v11.5M2.25 8h11.5"
-          stroke="currentColor"
-          stroke-width="1.5"
-          stroke-linecap="round"
-        />
-      </svg>
-      {{ 'sources.editBalances' | t }}
-    </button>
   </header>
 
   @if (isLoading()) {
@@ -118,63 +106,5 @@
         </div>
       </app-card>
     </section>
-  }
-
-  @if (isEditing()) {
-    <div
-      class="sources-dialog"
-      role="dialog"
-      aria-modal="true"
-      [attr.aria-label]="'sources.editBalances' | t"
-    >
-      <div class="sources-dialog__backdrop" (click)="cancelEditing()"></div>
-
-      <app-card class="sources-dialog__panel" padding="compact">
-        <form class="sources-editor" [formGroup]="form" (ngSubmit)="saveAll()">
-          <div class="sources-editor__head">
-            <div>
-              <h2>{{ 'sources.editBalances' | t }}</h2>
-              <p>{{ 'sources.editSubtitle' | t }}</p>
-            </div>
-            <button class="sources-editor__close" type="button" (click)="cancelEditing()">×</button>
-          </div>
-
-          <div class="sources-editor__grid">
-            @for (meta of sourceMeta; track meta.id) {
-              <label class="sources-editor__field">
-                <span>{{ meta.label }}</span>
-                <input
-                  [formControlName]="meta.id"
-                  type="number"
-                  min="0"
-                  [step]="meta.currency === 'USD' ? 10 : 100"
-                />
-              </label>
-            }
-          </div>
-
-          @if (saveError()) {
-            <p class="sources-editor__error">{{ saveError()! | t }}</p>
-          }
-
-          <div class="sources-editor__actions">
-            <button
-              class="sources-editor__btn sources-editor__btn--secondary"
-              type="button"
-              (click)="cancelEditing()"
-            >
-              {{ 'sources.cancel' | t }}
-            </button>
-            <button
-              class="sources-editor__btn sources-editor__btn--primary"
-              type="submit"
-              [disabled]="isSaving() || form.invalid"
-            >
-              {{ isSaving() ? ('sources.saving' | t) : ('sources.save' | t) }}
-            </button>
-          </div>
-        </form>
-      </app-card>
-    </div>
   }
 </div>

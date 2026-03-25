@@ -6,7 +6,6 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { DecimalPipe } from '@angular/common';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NonNullableFormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -50,6 +49,7 @@ type ActivityEntry = {
   effectVariant: 'danger' | 'success' | 'neutral';
   footnote: string;
   sortKey: number;
+  operationType: 'income' | 'transfer' | 'expected';
 };
 
 type ActivityMonthOption = {
@@ -59,14 +59,7 @@ type ActivityMonthOption = {
 
 @Component({
   selector: 'app-operations-page',
-  imports: [
-    ReactiveFormsModule,
-    MatFormFieldModule,
-    MatSelectModule,
-    DecimalPipe,
-    CardComponent,
-    TranslatePipe,
-  ],
+  imports: [ReactiveFormsModule, MatFormFieldModule, MatSelectModule, CardComponent, TranslatePipe],
   templateUrl: './operations-page.component.html',
   styleUrl: './operations-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -80,15 +73,16 @@ export class OperationsPageComponent {
   private readonly fb = inject(NonNullableFormBuilder);
 
   protected readonly sourceMeta = SOURCE_META;
-  protected readonly operationTypes: OperationType[] = ['exchange', 'income', 'transfer'];
+  protected readonly operationTypes: OperationType[] = ['income', 'transfer'];
   protected readonly isLoading = this.operationFacade.isLoading;
   protected readonly isDialogOpen = signal(false);
   protected readonly isSaving = signal(false);
   protected readonly saveError = signal<string | null>(null);
   protected readonly selectedMonth = signal('all');
+  protected readonly selectedType = signal<'all' | 'income' | 'transfer'>('all');
 
   protected readonly form = this.fb.group({
-    type: ['exchange' as OperationType],
+    type: ['income' as OperationType],
     occurredAt: [todayIsoDate()],
     fromSource: ['cardUah' as SourceId],
     toSource: ['cashUsd' as SourceId],
@@ -102,7 +96,7 @@ export class OperationsPageComponent {
     this.form.valueChanges.pipe(
       startWith(this.form.getRawValue()),
       map((value) => ({
-        type: (value.type ?? 'exchange') as OperationType,
+        type: (value.type ?? 'income') as OperationType,
         occurredAt: value.occurredAt ?? todayIsoDate(),
         fromSource: (value.fromSource ?? 'cardUah') as SourceId,
         toSource: (value.toSource ?? 'cashUsd') as SourceId,
@@ -128,17 +122,11 @@ export class OperationsPageComponent {
       return SOURCE_META;
     }
 
+    // transfer (withdrawal): same currency, different source
     const fromCurrency = sourceCurrencyFor(state.fromSource);
-
-    return SOURCE_META.filter((item) => {
-      if (item.id === state.fromSource) {
-        return false;
-      }
-
-      return state.type === 'exchange'
-        ? item.currency !== fromCurrency
-        : item.currency === fromCurrency;
-    });
+    return SOURCE_META.filter(
+      (item) => item.id !== state.fromSource && item.currency === fromCurrency,
+    );
   });
 
   protected readonly activityEntries = computed(() => {
@@ -155,6 +143,7 @@ export class OperationsPageComponent {
       effectVariant: 'success' as const,
       footnote: `${entry.originalAmount.toLocaleString(this.localeCode())} ${entry.originalCurrency} ${this.i18n.translate('operations.activity.expectedFundFootnote')}`,
       sortKey: -index - 1,
+      operationType: 'expected' as const,
     }));
 
     return [...entries, ...expectedFundEntries].sort((left, right) => right.sortKey - left.sortKey);
@@ -190,33 +179,19 @@ export class OperationsPageComponent {
 
   protected readonly filteredActivityEntries = computed(() => {
     const selectedMonth = this.selectedMonth();
+    const selectedType = this.selectedType();
 
-    if (selectedMonth === 'all') {
-      return this.activityEntries();
-    }
-
-    return this.activityEntries().filter((entry) => entry.monthKey === selectedMonth);
+    return this.activityEntries().filter((entry) => {
+      const monthMatch = selectedMonth === 'all' || entry.monthKey === selectedMonth;
+      const typeMatch =
+        selectedType === 'all' ||
+        entry.operationType === selectedType ||
+        (selectedType === 'income' && entry.operationType === 'expected');
+      return monthMatch && typeMatch;
+    });
   });
 
   protected readonly hasAnyActivityEntries = computed(() => this.activityEntries().length > 0);
-
-  protected readonly selectedExchangeRate = computed(() => {
-    const state = this.formState();
-
-    if (state.type !== 'exchange') {
-      return null;
-    }
-
-    const fromCurrency = sourceCurrencyFor(state.fromSource);
-    const toCurrency = sourceCurrencyFor(state.toSource);
-
-    if (fromCurrency === toCurrency) {
-      return null;
-    }
-
-    const usdToUah = this.currencyFacade.rates().usdToUah;
-    return Number.isFinite(usdToUah) && usdToUah > 0 ? usdToUah : null;
-  });
 
   constructor() {
     effect(() => {
@@ -236,7 +211,7 @@ export class OperationsPageComponent {
   protected openDialog(): void {
     this.saveError.set(null);
     this.form.reset({
-      type: 'exchange',
+      type: 'income',
       occurredAt: todayIsoDate(),
       fromSource: 'cardUah',
       toSource: 'cashUsd',
@@ -292,6 +267,10 @@ export class OperationsPageComponent {
 
   protected setSelectedMonth(value: string): void {
     this.selectedMonth.set(value);
+  }
+
+  protected setSelectedType(value: string): void {
+    this.selectedType.set(value as 'all' | 'income' | 'transfer');
   }
 
   private buildDraft(): OperationDraft {
@@ -350,6 +329,7 @@ export class OperationsPageComponent {
             ? entry.note
             : this.i18n.translate('operations.activity.incomeFootnote'),
         sortKey,
+        operationType: 'income',
       };
     }
 
@@ -367,13 +347,14 @@ export class OperationsPageComponent {
         monthKey: entry.occurredAt.slice(0, 7),
         fromLabel: `${formatter.format(entry.fromAmount)} ${sourceCurrencyFor(entry.fromSource)}`,
         toLabel: sourceLabelFor(entry.toSource),
-        effectLabel: this.i18n.translate('operations.activity.zeroLoss'),
-        effectVariant: 'neutral',
+        effectLabel: `-${formatter.format(entry.fromAmount)} ${sourceCurrencyFor(entry.fromSource)}`,
+        effectVariant: 'danger',
         footnote:
           entry.note.trim() !== ''
             ? entry.note
             : this.i18n.translate('operations.activity.transferFootnote'),
         sortKey,
+        operationType: 'transfer',
       };
     }
 
@@ -420,6 +401,7 @@ export class OperationsPageComponent {
       effectVariant: 'neutral',
       footnote: entry.note,
       sortKey,
+      operationType: 'income',
     };
   }
 

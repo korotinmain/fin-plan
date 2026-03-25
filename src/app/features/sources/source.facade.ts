@@ -1,38 +1,28 @@
 import { computed, inject, Injectable } from '@angular/core';
-import { toObservable, toSignal } from '@angular/core/rxjs-interop';
-import { of, switchMap } from 'rxjs';
-import { catchError } from 'rxjs/operators';
 import {
   EMPTY_SOURCE_BALANCE,
   SOURCE_META,
   SourceBalance,
   SourceId,
 } from '../../core/models/source.model';
-import { AuthService } from '../../core/services/auth.service';
-import { SourceService } from './source.service';
+import { OperationFacade } from '../operations/operation.facade';
+import { calcBalancesFromOperations } from '../operations/operation.helpers';
 import { calcUahTotal, calcUsdTotal } from './source.helpers';
 
 @Injectable({ providedIn: 'root' })
 export class SourceFacade {
-  private readonly authService = inject(AuthService);
-  private readonly sourceService = inject(SourceService);
-
-  private readonly uid = computed(() => this.authService.currentUser()?.uid ?? null);
+  private readonly operationFacade = inject(OperationFacade);
 
   /**
-   * Signal for the live source balances document.
-   * undefined → loading (auth/Firestore not yet resolved)
-   * SourceBalance → resolved (may be all zeros if no document exists)
+   * Source balances derived from the full operation history.
+   * undefined → operations still loading
+   * SourceBalance → computed from all recorded operations
    */
-  readonly balances = toSignal(
-    toObservable(this.uid).pipe(
-      switchMap((uid) =>
-        uid !== null
-          ? this.sourceService.getBalances$(uid).pipe(catchError(() => of(EMPTY_SOURCE_BALANCE)))
-          : of(EMPTY_SOURCE_BALANCE),
-      ),
-    ),
-  );
+  readonly balances = computed<SourceBalance | undefined>(() => {
+    const operations = this.operationFacade.operations();
+    if (operations === undefined) return undefined;
+    return calcBalancesFromOperations(operations);
+  });
 
   readonly isLoading = computed(() => this.balances() === undefined);
 
@@ -45,25 +35,7 @@ export class SourceFacade {
   /** Static source metadata (labels, currencies) */
   readonly sourceMeta = SOURCE_META;
 
-  /**
-   * Returns the current balance for a given source.
-   */
   balanceFor(id: SourceId): number {
     return (this.balances() ?? EMPTY_SOURCE_BALANCE)[id];
-  }
-
-  /**
-   * Saves an update to a single source balance.
-   */
-  update(id: SourceId, amount: number): ReturnType<SourceService['updateSource']> {
-    const uid = this.uid();
-    if (uid === null) throw new Error('Not authenticated');
-    return this.sourceService.updateSource(uid, { [id]: amount } as Partial<SourceBalance>);
-  }
-
-  saveAll(balances: SourceBalance): ReturnType<SourceService['setBalances']> {
-    const uid = this.uid();
-    if (uid === null) throw new Error('Not authenticated');
-    return this.sourceService.setBalances(uid, balances);
   }
 }

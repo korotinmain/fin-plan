@@ -12,6 +12,7 @@ import { CurrencyFacade } from '../../currency/currency.facade';
 import { calcProgressPercent, calcRemaining } from '../goal.helpers';
 import { GoalFacade } from '../goal.facade';
 import { SourceFacade } from '../../sources/source.facade';
+import { ExpectedFundsFacade } from '../../expected-funds/expected-funds.facade';
 import { calcTotalSavingsUsd } from '../../sources/source.helpers';
 import { getChartTheme } from '../../../shared/helpers/chart-theme';
 
@@ -42,13 +43,17 @@ export class GoalPageComponent {
   private readonly facade = inject(GoalFacade);
   private readonly currencyFacade = inject(CurrencyFacade);
   private readonly sourceFacade = inject(SourceFacade);
+  private readonly expectedFundsFacade = inject(ExpectedFundsFacade);
   private readonly fb = inject(NonNullableFormBuilder);
   private readonly i18n = inject(I18nService);
   private readonly theme = getChartTheme();
 
   protected readonly isLoading = computed(
     () =>
-      this.facade.isLoading() || this.currencyFacade.isLoading() || this.sourceFacade.isLoading(),
+      this.facade.isLoading() ||
+      this.currencyFacade.isLoading() ||
+      this.sourceFacade.isLoading() ||
+      this.expectedFundsFacade.isLoading(),
   );
   protected readonly hasGoal = this.facade.hasGoal;
   protected readonly targetAmount = this.facade.targetAmount;
@@ -71,8 +76,9 @@ export class GoalPageComponent {
   protected readonly currentSavingsUsd = computed(() =>
     calcTotalSavingsUsd(this.sourceBalances(), this.currencyFacade.rates().usdToUah),
   );
+  protected readonly expectedFundsUsd = computed(() => this.expectedFundsFacade.totalUsd());
   protected readonly totalContributedUsd = computed(
-    () => this.currentSavingsUsd() + this.alreadyPaidAmount(),
+    () => this.currentSavingsUsd() + this.alreadyPaidAmount() + this.expectedFundsUsd(),
   );
 
   protected readonly remainingAmountUsd = computed(() =>

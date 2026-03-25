@@ -199,13 +199,19 @@
               <div class="goal-hero__metric goal-hero__metric--saved">
                 <span class="goal-hero__metric-label">{{ 'goal.alreadySaved' | t }}</span>
                 <span class="goal-hero__metric-value">
-                  {{ currentSavingsUsd() | currency: 'USD' : 'symbol' : '1.0-2' }}
+                  {{ currentSavingsUsd() | currency: 'USD' : 'symbol' : '1.0-0' }}
+                </span>
+              </div>
+              <div class="goal-hero__metric goal-hero__metric--saved">
+                <span class="goal-hero__metric-label">{{ 'goal.expectedFunds' | t }}</span>
+                <span class="goal-hero__metric-value">
+                  {{ expectedFundsUsd() | currency: 'USD' : 'symbol' : '1.0-0' }}
                 </span>
               </div>
               <div class="goal-hero__metric goal-hero__metric--remaining">
                 <span class="goal-hero__metric-label">{{ 'goal.remaining' | t }}</span>
                 <span class="goal-hero__metric-value">
-                  {{ remainingAmountUsd() | currency: 'USD' : 'symbol' : '1.0-2' }}
+                  {{ remainingAmountUsd() | currency: 'USD' : 'symbol' : '1.0-0' }}
                 </span>
               </div>
             </div>

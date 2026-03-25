@@ -104,11 +104,12 @@
   padding: var(--space-6);
   border-radius: var(--radius-lg);
   background:
-    linear-gradient(135deg, rgba(82, 52, 224, 0.98), rgba(92, 44, 197, 0.94)),
-    radial-gradient(circle at top right, rgba(255, 255, 255, 0.16), transparent 38%);
+    radial-gradient(ellipse at top right, rgba(104, 99, 244, 0.22), transparent 55%),
+    radial-gradient(ellipse at bottom left, rgba(21, 214, 154, 0.07), transparent 45%),
+    var(--color-bg-elevated);
   box-shadow:
-    0 24px 80px rgba(54, 34, 142, 0.34),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+    inset 0 0 0 1px rgba(255, 255, 255, 0.07),
+    0 24px 80px rgba(0, 0, 0, 0.28);
 }
 
 .goal-hero__metrics {
@@ -127,12 +128,12 @@
 .goal-hero__metric-label,
 .goal-hero__progress-label,
 .goal-hero__progress-scale {
-  color: rgba(241, 243, 248, 0.72);
+  color: var(--color-text-secondary);
   font-size: var(--text-sm);
 }
 
 .goal-hero__metric-value {
-  color: #fff;
+  color: var(--color-text-primary);
   font-size: clamp(1.85rem, 3vw, 2.5rem);
   font-weight: var(--font-bold);
   line-height: 1;
@@ -144,7 +145,7 @@
 }
 
 .goal-hero__metric--remaining .goal-hero__metric-value {
-  color: var(--color-danger-light);
+  color: var(--color-accent-amber);
 }
 
 .goal-hero__progress-block {
@@ -163,7 +164,7 @@
 }
 
 .goal-hero__progress-value {
-  color: #fff;
+  color: var(--color-text-primary);
   font-size: var(--text-sm);
   font-weight: var(--font-semibold);
 }
@@ -171,7 +172,7 @@
 .goal-hero__progress-track {
   height: 10px;
   border-radius: var(--radius-full);
-  background-color: rgba(14, 19, 34, 0.22);
+  background-color: rgba(255, 255, 255, 0.06);
   overflow: hidden;
 }
 

@@ -39,13 +39,12 @@ export class OperationFacade {
       throw new Error('Not authenticated');
     }
 
-    const { record, nextBalances } = buildOperationMutation(draft, balances, rates);
+    const { record } = buildOperationMutation(draft, balances, rates);
 
     return this.operationService.recordOperation(
       uid,
       this.operations() ?? [],
       record,
-      nextBalances,
     );
   }
 }

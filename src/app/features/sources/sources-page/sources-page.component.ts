@@ -1,6 +1,5 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { CurrencyPipe, DecimalPipe } from '@angular/common';
-import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ChartData, ChartOptions } from 'chart.js';
 import { BaseChartDirective } from 'ng2-charts';
 import { CardComponent } from '../../../shared/ui/card/card.component';
@@ -9,12 +8,7 @@ import { BadgeComponent } from '../../../shared/ui/badge/badge.component';
 import { SourceFacade } from '../source.facade';
 import { CurrencyFacade } from '../../currency/currency.facade';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
-import {
-  EMPTY_SOURCE_BALANCE,
-  SourceBalance,
-  SourceId,
-  SOURCE_META,
-} from '../../../core/models/source.model';
+import { EMPTY_SOURCE_BALANCE, SourceId, SOURCE_META } from '../../../core/models/source.model';
 import { calcTotalSavingsUsd, convertUahToUsd } from '../source.helpers';
 import { getChartTheme } from '../../../shared/helpers/chart-theme';
 
@@ -30,7 +24,6 @@ type SourceCardViewModel = {
 @Component({
   selector: 'app-sources-page',
   imports: [
-    ReactiveFormsModule,
     CurrencyPipe,
     DecimalPipe,
     BaseChartDirective,
@@ -46,23 +39,11 @@ type SourceCardViewModel = {
 export class SourcesPageComponent {
   private readonly facade = inject(SourceFacade);
   private readonly currencyFacade = inject(CurrencyFacade);
-  private readonly fb = inject(NonNullableFormBuilder);
   private readonly theme = getChartTheme();
 
   protected readonly isLoading = this.facade.isLoading;
   protected readonly balances = computed(() => this.facade.balances() ?? EMPTY_SOURCE_BALANCE);
   protected readonly sourceMeta = SOURCE_META;
-
-  protected readonly isEditing = signal(false);
-  protected readonly isSaving = signal(false);
-  protected readonly saveError = signal<string | null>(null);
-
-  protected readonly form = this.fb.group({
-    cashUsd: [0, [Validators.required, Validators.min(0)]],
-    cardUsd: [0, [Validators.required, Validators.min(0)]],
-    cardUah: [0, [Validators.required, Validators.min(0)]],
-    cashUah: [0, [Validators.required, Validators.min(0)]],
-  });
 
   protected readonly ownSavingsUsd = computed(() =>
     calcTotalSavingsUsd(this.balances(), this.currencyFacade.rates().usdToUah),
@@ -127,35 +108,6 @@ export class SourcesPageComponent {
       },
     },
   };
-
-  protected openEditor(): void {
-    this.form.setValue(this.balances());
-    this.isEditing.set(true);
-    this.saveError.set(null);
-  }
-
-  protected cancelEditing(): void {
-    this.isEditing.set(false);
-    this.saveError.set(null);
-  }
-
-  protected saveAll(): void {
-    if (this.form.invalid) return;
-
-    this.isSaving.set(true);
-    this.saveError.set(null);
-
-    this.facade.saveAll(this.form.getRawValue() as SourceBalance).subscribe({
-      next: () => {
-        this.isSaving.set(false);
-        this.isEditing.set(false);
-      },
-      error: () => {
-        this.isSaving.set(false);
-        this.saveError.set('sources.saveError');
-      },
-    });
-  }
 
   protected balanceLabel(card: SourceCardViewModel): string {
     return card.currency === 'USD'

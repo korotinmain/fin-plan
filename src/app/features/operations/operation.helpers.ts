@@ -27,6 +27,35 @@ export function sourceCurrencyFor(id: SourceId): SourceCurrency {
   return SOURCE_CURRENCIES[id];
 }
 
+export function calcBalancesFromOperations(operations: OperationRecord[]): SourceBalance {
+  const balances: SourceBalance = { cashUsd: 0, cardUsd: 0, cardUah: 0, cashUah: 0 };
+
+  for (const op of operations) {
+    if (op.type === 'income' && op.toSource !== null && op.toAmount !== null) {
+      balances[op.toSource] = Math.round((balances[op.toSource] + op.toAmount) * 100) / 100;
+    } else if (
+      op.type === 'transfer' &&
+      op.fromSource !== null &&
+      op.toSource !== null &&
+      op.fromAmount !== null
+    ) {
+      balances[op.fromSource] = Math.round((balances[op.fromSource] - op.fromAmount) * 100) / 100;
+      balances[op.toSource] = Math.round((balances[op.toSource] + op.fromAmount) * 100) / 100;
+    } else if (
+      op.type === 'exchange' &&
+      op.fromSource !== null &&
+      op.toSource !== null &&
+      op.fromAmount !== null &&
+      op.toAmount !== null
+    ) {
+      balances[op.fromSource] = Math.round((balances[op.fromSource] - op.fromAmount) * 100) / 100;
+      balances[op.toSource] = Math.round((balances[op.toSource] + op.toAmount) * 100) / 100;
+    }
+  }
+
+  return balances;
+}
+
 export function sortOperationsDescending(items: OperationRecord[]): OperationRecord[] {
   return [...items].sort((left, right) => {
     const leftTime = Date.parse(`${left.occurredAt}T00:00:00`);
