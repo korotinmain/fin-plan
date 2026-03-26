@@ -46,6 +46,7 @@
     );
     filter: blur(88px);
     pointer-events: none;
+    animation: glow-pulse 9s 1.5s ease-in-out infinite;
   }
 
   // Secondary violet glow (lower right)
@@ -78,6 +79,7 @@
   &__content {
     position: relative;
     z-index: 1;
+    animation: fade-up 0.65s cubic-bezier(0.16, 1, 0.3, 1) both;
   }
 
   &__brand {
@@ -136,6 +138,7 @@
   &__mockup {
     position: relative;
     z-index: 1;
+    animation: fade-up 0.65s 0.12s cubic-bezier(0.16, 1, 0.3, 1) both;
   }
 }
 
@@ -193,6 +196,18 @@
   font-size: var(--text-sm);
   color: var(--color-text-secondary);
   line-height: 1.45;
+
+  &:nth-child(1) {
+    animation: fade-up 0.5s 0.38s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  &:nth-child(2) {
+    animation: fade-up 0.5s 0.48s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  &:nth-child(3) {
+    animation: fade-up 0.5s 0.58s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
 }
 
 .auth-left__feature-icon {
@@ -219,6 +234,7 @@
     0 28px 56px rgba(0, 0, 0, 0.48),
     0 1px 0 rgba(255, 255, 255, 0.07) inset,
     0 0 0 1px rgba(255, 255, 255, 0.03) inset;
+  animation: float-y 7s 1s ease-in-out infinite;
 
   &__top {
     display: flex;
@@ -301,6 +317,7 @@
 .auth-form-wrap {
   width: 100%;
   max-width: 400px;
+  animation: fade-up 0.55s 0.08s cubic-bezier(0.16, 1, 0.3, 1) both;
 
   @media (max-width: #{v.$bp-sm}) {
     max-width: 100%;
@@ -486,6 +503,42 @@
   }
 }
 
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes float-y {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-9px);
+  }
+}
+
+@keyframes glow-pulse {
+  0%,
+  100% {
+    opacity: 0.8;
+    transform: translate(-50%, -50%) scale(1);
+  }
+
+  50% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.1);
+  }
+}
+
 // ─── Divider ──────────────────────────────────────────────────────────────────
 .auth-divider {
   display: flex;
@@ -647,5 +700,16 @@
   svg {
     flex-shrink: 0;
     opacity: 0.55;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-left__glow,
+  .mockup-card,
+  .auth-left__content,
+  .auth-left__mockup,
+  .auth-form-wrap,
+  .auth-left__feature {
+    animation: none;
   }
 }

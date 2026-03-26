@@ -64,6 +64,28 @@
             </div>
           </div>
 
+          @if (totalIncomeUsd() > 0 || totalWithdrawUsd() > 0) {
+            <div class="activity-summary">
+              <div class="activity-summary__stat activity-summary__stat--income">
+                <span class="activity-summary__label">{{
+                  'operations.summary.totalIncome' | t
+                }}</span>
+                <strong class="activity-summary__value"
+                  >+{{ totalIncomeUsd() | currency: 'USD' : 'symbol' : '1.0-0' }}</strong
+                >
+              </div>
+              <div class="activity-summary__sep"></div>
+              <div class="activity-summary__stat activity-summary__stat--withdraw">
+                <span class="activity-summary__label">{{
+                  'operations.summary.totalWithdraw' | t
+                }}</span>
+                <strong class="activity-summary__value">{{
+                  totalWithdrawUsd() | currency: 'USD' : 'symbol' : '1.0-0'
+                }}</strong>
+              </div>
+            </div>
+          }
+
           @if (filteredActivityEntries().length > 0) {
             <div class="activity-list">
               @for (entry of filteredActivityEntries(); track entry.id) {

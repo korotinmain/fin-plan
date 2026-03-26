@@ -1,28 +1,38 @@
 import { computed, inject, Injectable } from '@angular/core';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
+import { Observable, of, switchMap, throwError } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import {
   EMPTY_SOURCE_BALANCE,
   SOURCE_META,
   SourceBalance,
   SourceId,
 } from '../../core/models/source.model';
-import { OperationFacade } from '../operations/operation.facade';
-import { calcBalancesFromOperations } from '../operations/operation.helpers';
+import { AuthService } from '../../core/services/auth.service';
 import { calcUahTotal, calcUsdTotal } from './source.helpers';
+import { SourceService } from './source.service';
 
 @Injectable({ providedIn: 'root' })
 export class SourceFacade {
-  private readonly operationFacade = inject(OperationFacade);
+  private readonly authService = inject(AuthService);
+  private readonly sourceService = inject(SourceService);
+
+  private readonly uid = computed(() => this.authService.currentUser()?.uid ?? null);
 
   /**
-   * Source balances derived from the full operation history.
-   * undefined → operations still loading
-   * SourceBalance → computed from all recorded operations
+   * Source balances loaded from Firestore.
+   * undefined → first snapshot not yet received (loading)
+   * SourceBalance → persisted snapshot from Firestore
    */
-  readonly balances = computed<SourceBalance | undefined>(() => {
-    const operations = this.operationFacade.operations();
-    if (operations === undefined) return undefined;
-    return calcBalancesFromOperations(operations);
-  });
+  readonly balances = toSignal(
+    toObservable(this.uid).pipe(
+      switchMap((uid) =>
+        uid !== null
+          ? this.sourceService.getBalances$(uid).pipe(catchError(() => of(EMPTY_SOURCE_BALANCE)))
+          : of(EMPTY_SOURCE_BALANCE),
+      ),
+    ),
+  );
 
   readonly isLoading = computed(() => this.balances() === undefined);
 
@@ -37,5 +47,11 @@ export class SourceFacade {
 
   balanceFor(id: SourceId): number {
     return (this.balances() ?? EMPTY_SOURCE_BALANCE)[id];
+  }
+
+  saveBalances(balances: SourceBalance): Observable<void> {
+    const uid = this.uid();
+    if (uid === null) return throwError(() => new Error('Not authenticated'));
+    return this.sourceService.saveBalances(uid, balances);
   }
 }

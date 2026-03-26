@@ -221,6 +221,10 @@
   letter-spacing: -0.03em;
 }
 
+.goal-stat-card__value--success {
+  color: var(--color-accent-emerald);
+}
+
 .goal-stat-card__note {
   color: var(--color-text-tertiary);
   font-size: var(--text-sm);

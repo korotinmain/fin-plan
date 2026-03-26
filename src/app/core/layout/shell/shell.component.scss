@@ -93,12 +93,17 @@
     color var(--transition-fast),
     background-color var(--transition-fast),
     border-color var(--transition-fast),
-    box-shadow var(--transition-fast);
+    box-shadow var(--transition-fast),
+    transform var(--transition-fast);
   border: 1px solid transparent;
 
   &:hover {
     color: var(--color-text-primary);
     background-color: rgba(97, 72, 193, 0.14);
+  }
+
+  &:active {
+    transform: scale(0.97);
   }
 
   &--active {

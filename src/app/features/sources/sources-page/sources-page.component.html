@@ -5,6 +5,18 @@
       <h1 class="sources-page__title">{{ 'sources.title' | t }}</h1>
       <p class="sources-page__subtitle">{{ 'sources.subtitle' | t }}</p>
     </div>
+    <button type="button" class="sources-page__cta" (click)="openEditor()" [disabled]="isLoading()">
+      <svg class="sources-page__cta-icon" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+        <path
+          d="M11.5 2.5a1.414 1.414 0 0 1 2 2L5 13H3v-2L11.5 2.5Z"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </svg>
+      {{ 'sources.editBalances' | t }}
+    </button>
   </header>
 
   @if (isLoading()) {
@@ -106,5 +118,76 @@
         </div>
       </app-card>
     </section>
+  }
+
+  @if (isEditing()) {
+    <div class="sources-dialog" role="dialog" aria-modal="true" aria-labelledby="editor-title">
+      <div class="sources-dialog__backdrop" (click)="closeEditor()"></div>
+      <div class="sources-dialog__panel">
+        <app-card>
+          <div class="sources-editor">
+            <div class="sources-editor__head">
+              <div>
+                <h2 id="editor-title">{{ 'sources.editBalances' | t }}</h2>
+                <p>{{ 'sources.editSubtitle' | t }}</p>
+              </div>
+              <button
+                type="button"
+                class="sources-editor__close"
+                (click)="closeEditor()"
+                aria-label="Close"
+              >
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                  <path
+                    d="M1 1l12 12M13 1L1 13"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                  />
+                </svg>
+              </button>
+            </div>
+
+            <form [formGroup]="form" (ngSubmit)="saveBalances()">
+              <div class="sources-editor__grid">
+                @for (meta of sourceMeta; track meta.id) {
+                  <div class="sources-editor__field">
+                    <span>{{ meta.label }}</span>
+                    <input
+                      type="number"
+                      [formControlName]="meta.id"
+                      min="0"
+                      [step]="meta.currency === 'USD' ? 0.01 : 1"
+                    />
+                  </div>
+                }
+              </div>
+
+              @if (saveError()) {
+                <p class="sources-editor__error">{{ saveError()! | t }}</p>
+              }
+
+              <div class="sources-editor__actions">
+                <button
+                  type="button"
+                  class="sources-editor__btn--secondary"
+                  (click)="closeEditor()"
+                  [disabled]="isSaving()"
+                >
+                  {{ 'sources.cancel' | t }}
+                </button>
+                <button
+                  type="submit"
+                  class="sources-editor__btn--primary"
+                  [disabled]="isSaving() || form.invalid"
+                >
+                  {{ isSaving() ? ('sources.saving' | t) : ('sources.save' | t) }}
+                </button>
+              </div>
+            </form>
+          </div>
+        </app-card>
+      </div>
+    </div>
   }
 </div>

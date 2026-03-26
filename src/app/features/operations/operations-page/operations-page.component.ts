@@ -11,6 +11,7 @@ import { NonNullableFormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { map, startWith, take } from 'rxjs';
+import { CurrencyPipe } from '@angular/common';
 import { CardComponent } from '../../../shared/ui/card/card.component';
 import { TranslatePipe } from '../../../shared/pipes/translate.pipe';
 import { CurrencyFacade } from '../../currency/currency.facade';
@@ -50,6 +51,7 @@ interface ActivityEntry {
   footnote: string;
   sortKey: number;
   operationType: 'income' | 'transfer' | 'exchange' | 'expected';
+  amountUsd: number;
 }
 
 interface ActivityMonthOption {
@@ -59,7 +61,14 @@ interface ActivityMonthOption {
 
 @Component({
   selector: 'app-operations-page',
-  imports: [ReactiveFormsModule, MatFormFieldModule, MatSelectModule, CardComponent, TranslatePipe],
+  imports: [
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatSelectModule,
+    CurrencyPipe,
+    CardComponent,
+    TranslatePipe,
+  ],
   templateUrl: './operations-page.component.html',
   styleUrl: './operations-page.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -148,6 +157,7 @@ export class OperationsPageComponent {
       footnote: `${entry.originalAmount.toLocaleString(this.localeCode())} ${entry.originalCurrency} ${this.i18n.translate('operations.activity.expectedFundFootnote')}`,
       sortKey: -index - 1,
       operationType: 'expected' as const,
+      amountUsd: 0,
     }));
 
     return [...entries, ...expectedFundEntries].sort((left, right) => right.sortKey - left.sortKey);
@@ -196,6 +206,25 @@ export class OperationsPageComponent {
   });
 
   protected readonly hasAnyActivityEntries = computed(() => this.activityEntries().length > 0);
+
+  protected readonly monthFilteredEntries = computed(() => {
+    const selectedMonth = this.selectedMonth();
+    return this.activityEntries().filter(
+      (e) => selectedMonth === 'all' || e.monthKey === selectedMonth,
+    );
+  });
+
+  protected readonly totalIncomeUsd = computed(() =>
+    this.monthFilteredEntries()
+      .filter((e) => e.operationType === 'income')
+      .reduce((acc, e) => acc + e.amountUsd, 0),
+  );
+
+  protected readonly totalWithdrawUsd = computed(() =>
+    this.monthFilteredEntries()
+      .filter((e) => e.operationType === 'transfer')
+      .reduce((acc, e) => acc + e.amountUsd, 0),
+  );
 
   constructor() {
     effect(() => {
@@ -383,6 +412,10 @@ export class OperationsPageComponent {
             : this.i18n.translate('operations.activity.incomeFootnote'),
         sortKey,
         operationType: 'income',
+        amountUsd:
+          sourceCurrencyFor(entry.toSource) === 'USD'
+            ? entry.toAmount
+            : entry.toAmount / this.currencyFacade.rates().usdToUah,
       };
     }
 
@@ -408,6 +441,10 @@ export class OperationsPageComponent {
             : this.i18n.translate('operations.activity.transferFootnote'),
         sortKey,
         operationType: 'transfer',
+        amountUsd:
+          sourceCurrencyFor(entry.fromSource) === 'USD'
+            ? entry.fromAmount
+            : entry.fromAmount / this.currencyFacade.rates().usdToUah,
       };
     }
 
@@ -440,6 +477,7 @@ export class OperationsPageComponent {
             : entry.note,
         sortKey,
         operationType: 'exchange',
+        amountUsd: 0,
       };
     }
 
@@ -456,6 +494,7 @@ export class OperationsPageComponent {
       footnote: entry.note,
       sortKey,
       operationType: 'exchange',
+      amountUsd: 0,
     };
   }
 

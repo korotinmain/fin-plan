@@ -117,6 +117,8 @@ const TRANSLATIONS: Record<AppLocale, Record<string, string>> = {
     'goal.cancel': 'Cancel',
     'goal.target': 'Target',
     'goal.totalTarget': 'Total Target',
+    'goal.totalSaved': 'Total Saved',
+    'goal.totalSavedHint': 'Savings + already paid + expected funds',
     'goal.alreadySaved': 'Current Savings',
     'goal.expectedFunds': 'Expected Funds',
     'goal.remaining': 'Remaining',
@@ -343,6 +345,8 @@ const TRANSLATIONS: Record<AppLocale, Record<string, string>> = {
     'operations.errors.insufficientFunds': 'The source does not have enough balance for this move.',
     'operations.errors.marketRateUnavailable': 'Update market rates before recording an exchange.',
     'operations.errors.saveFailed': 'Could not save the operation. Please try again.',
+    'operations.summary.totalIncome': 'Total income',
+    'operations.summary.totalWithdraw': 'Total withdrawn',
   },
   uk: {
     'shell.brand.subtitle': 'Заощадження на дім',
@@ -450,6 +454,8 @@ const TRANSLATIONS: Record<AppLocale, Record<string, string>> = {
     'goal.cancel': 'Скасувати',
     'goal.target': 'Ціль',
     'goal.totalTarget': 'Загальна ціль',
+    'goal.totalSaved': 'Усього накопичено',
+    'goal.totalSavedHint': 'Заощадження + сплачено + очікувані кошти',
     'goal.alreadySaved': 'Поточні заощадження',
     'goal.expectedFunds': 'Очікувані кошти',
     'goal.remaining': 'Залишилось',
@@ -675,6 +681,8 @@ const TRANSLATIONS: Record<AppLocale, Record<string, string>> = {
     'operations.errors.insufficientFunds': 'У джерелі недостатньо коштів для цієї операції.',
     'operations.errors.marketRateUnavailable': 'Оновіть ринкові курси перед записом обміну.',
     'operations.errors.saveFailed': 'Не вдалося зберегти операцію. Спробуйте ще раз.',
+    'operations.summary.totalIncome': 'Загальний дохід',
+    'operations.summary.totalWithdraw': 'Загальні виведення',
   },
 };
 

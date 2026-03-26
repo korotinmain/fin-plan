@@ -248,20 +248,11 @@
 
           <app-card>
             <div class="goal-stat-card">
-              <span class="goal-stat-card__label">{{ 'goal.estimate' | t }}</span>
-              <strong class="goal-stat-card__value">
-                @if (estimatedMonths() === 0) {
-                  {{ 'goal.estimateDone' | t }}
-                } @else {
-                  ~{{ estimatedMonths() }} {{ 'goal.months' | t }}
-                }
+              <span class="goal-stat-card__label">{{ 'goal.totalSaved' | t }}</span>
+              <strong class="goal-stat-card__value goal-stat-card__value--success">
+                {{ totalContributedUsd() | currency: 'USD' : 'symbol' : '1.0-0' }}
               </strong>
-              <span class="goal-stat-card__note">
-                {{
-                  'goal.estimatePace'
-                    | t: { amount: (monthlyPaceUsd() | currency: 'USD' : 'symbol' : '1.0-2') }
-                }}
-              </span>
+              <span class="goal-stat-card__note">{{ 'goal.totalSavedHint' | t }}</span>
             </div>
           </app-card>
 
