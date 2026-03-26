@@ -136,6 +136,17 @@
     z-index: 1;
     animation: fade-up 0.65s 0.12s cubic-bezier(0.16, 1, 0.3, 1) both;
   }
+
+  &__preview-img {
+    display: block;
+    width: 100%;
+    max-width: 440px;
+    border-radius: var(--radius-xl);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow:
+      0 32px 80px rgba(0, 0, 0, 0.55),
+      0 1px 0 rgba(255, 255, 255, 0.06) inset;
+  }
 }
 
 // ─── Stats strip ──────────────────────────────────────────────────────────────

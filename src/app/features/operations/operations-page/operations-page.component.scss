@@ -649,3 +649,36 @@
     overflow: auto;
   }
 }
+
+@media (max-width: 767px) {
+  .activity-item {
+    grid-template-columns: 40px 1fr;
+  }
+
+  .activity-item__badge {
+    grid-row: span 2;
+    align-self: start;
+  }
+
+  .activity-item__right {
+    grid-column: 2;
+    flex-direction: row;
+    align-items: center;
+    gap: var(--space-3);
+  }
+
+  .activity-item__actions {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .activity-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .activity-summary__sep {
+    width: 100%;
+    height: 1px;
+    margin: 0;
+  }
+}

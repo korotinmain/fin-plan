@@ -24,6 +24,12 @@
   max-width: 800px;
 }
 
+@media (max-width: 860px) {
+  .page {
+    padding: var(--space-6) var(--space-5);
+  }
+}
+
 @media (max-width: 640px) {
   .page {
     padding: var(--space-5) var(--space-4);

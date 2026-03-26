@@ -380,7 +380,107 @@
   flex: 1;
   min-width: 0;
   overflow-y: auto;
+  overflow-x: hidden;
   background:
     radial-gradient(circle at 38% -8%, rgba(124, 63, 255, 0.24), transparent 30%),
     linear-gradient(180deg, #090b15 0%, #070a12 100%);
+}
+
+// ─── Tablet: Collapsed sidebar (icons only) ──────────────────
+
+@media (max-width: 1023px) {
+  .shell__sidebar {
+    width: 64px;
+  }
+
+  .shell__brand {
+    padding: var(--space-4) 0;
+    justify-content: center;
+  }
+
+  .shell__brand-text {
+    display: none;
+  }
+
+  .shell__nav {
+    padding: var(--space-2);
+    gap: var(--space-1);
+  }
+
+  .shell__nav-item {
+    justify-content: center;
+    padding: var(--space-2) 0;
+    font-size: 0;
+  }
+
+  .shell__sidebar-footer {
+    display: none;
+  }
+}
+
+// ─── Mobile: Fixed bottom navigation ─────────────────────────
+
+@media (max-width: 767px) {
+  .shell__sidebar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: 64px;
+    flex-direction: row;
+    border-right: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.07);
+    z-index: 100;
+    overflow: visible;
+    padding: 0;
+  }
+
+  .shell__brand,
+  .shell__sidebar-footer {
+    display: none;
+  }
+
+  .shell__nav {
+    flex-direction: row;
+    padding: 0;
+    gap: 0;
+    justify-content: space-around;
+    align-items: stretch;
+    flex: 1;
+  }
+
+  .shell__nav-item {
+    flex-direction: column;
+    gap: 4px;
+    min-height: unset;
+    flex: 1;
+    border-radius: 0;
+    font-size: 10px;
+    line-height: 1.2;
+    padding: 8px 4px;
+    border: 1px solid transparent;
+    box-shadow: none;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    background: transparent;
+    color: var(--color-text-secondary);
+  }
+
+  .shell__nav-item--active {
+    background: transparent;
+    border-color: transparent;
+    box-shadow: none;
+    color: var(--color-primary);
+  }
+
+  .shell__nav-icon {
+    width: 20px;
+    height: 20px;
+  }
+
+  .shell__main {
+    padding-bottom: 64px;
+  }
 }
