@@ -43,9 +43,15 @@
     <app-card>
       <div class="expected-funds-summary__card">
         <span class="expected-funds-summary__label">{{ 'expectedFunds.coverage' | t }}</span>
-        <strong class="expected-funds-summary__value expected-funds-summary__value--warning">
-          {{ supportCoveragePercent() }}%
-        </strong>
+        @if (supportCoveragePercent() !== null) {
+          <strong class="expected-funds-summary__value expected-funds-summary__value--warning">
+            {{ supportCoveragePercent() }}%
+          </strong>
+        } @else {
+          <span class="expected-funds-summary__value expected-funds-summary__value--muted">
+            {{ 'expectedFunds.coverageNoGoal' | t }}
+          </span>
+        }
         <span class="expected-funds-summary__hint">{{ 'expectedFunds.coverageHint' | t }}</span>
       </div>
     </app-card>

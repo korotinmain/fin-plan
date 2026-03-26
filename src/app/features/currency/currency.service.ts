@@ -3,12 +3,7 @@ import { inject, Injectable, Injector, runInInjectionContext } from '@angular/co
 import { doc, docData, Firestore, setDoc } from '@angular/fire/firestore';
 import { from, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import {
-  CurrencyData,
-  CurrencyHoldings,
-  EMPTY_CURRENCY_DATA,
-  ExchangeRates,
-} from '../../core/models/currency.model';
+import { CurrencyData, CurrencyHoldings, ExchangeRates } from '../../core/models/currency.model';
 import { FIRESTORE_PATHS } from '../../core/constants/firestore.constants';
 import {
   buildLegacyHoldingTotals,

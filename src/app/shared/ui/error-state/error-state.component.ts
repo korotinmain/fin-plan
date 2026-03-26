@@ -1,9 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  input,
-  output,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 
 @Component({
   selector: 'app-error-state',
@@ -13,8 +8,8 @@ import {
 })
 export class ErrorStateComponent {
   readonly message = input.required<string>();
-  readonly retryLabel = input<string>('Try again');
-  readonly showRetry = input<boolean>(true);
+  readonly retryLabel = input('Try again');
+  readonly showRetry = input(true);
 
-  readonly retry = output<void>();
+  readonly retry = output();
 }

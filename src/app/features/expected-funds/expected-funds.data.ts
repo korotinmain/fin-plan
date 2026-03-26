@@ -22,5 +22,3 @@ export interface ExpectedFundsDocument {
 export const EMPTY_EXPECTED_FUNDS_DOCUMENT: ExpectedFundsDocument = {
   items: [],
 };
-
-export const DEFAULT_HOUSE_TARGET_USD = 161_700;

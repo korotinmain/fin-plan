@@ -1,9 +1,4 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  input,
-  output,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 
 @Component({
   selector: 'app-empty-state',
@@ -13,8 +8,8 @@ import {
 })
 export class EmptyStateComponent {
   readonly title = input.required<string>();
-  readonly subtitle = input<string>('');
-  readonly actionLabel = input<string>('');
+  readonly subtitle = input('');
+  readonly actionLabel = input('');
 
-  readonly action = output<void>();
+  readonly action = output();
 }

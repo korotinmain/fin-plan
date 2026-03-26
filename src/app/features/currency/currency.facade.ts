@@ -6,7 +6,6 @@ import {
   CURRENCY_META,
   CurrencyCode,
   CurrencyHoldings,
-  EMPTY_CURRENCY_HOLDINGS,
   EMPTY_CURRENCY_DATA,
   ExchangeRates,
 } from '../../core/models/currency.model';
@@ -43,7 +42,7 @@ export class CurrencyFacade {
 
   readonly holdings = computed<CurrencyHoldings>(() => {
     const data = this.currencyData() ?? EMPTY_CURRENCY_DATA;
-    return data.holdings ?? EMPTY_CURRENCY_HOLDINGS;
+    return data.holdings;
   });
 
   readonly rates = computed<ExchangeRates>(() => {

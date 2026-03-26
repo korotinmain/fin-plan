@@ -16,13 +16,13 @@ import { ExpectedFundsFacade } from '../../expected-funds/expected-funds.facade'
 import { calcTotalSavingsUsd } from '../../sources/source.helpers';
 import { getChartTheme } from '../../../shared/helpers/chart-theme';
 
-type GoalMilestone = {
+interface GoalMilestone {
   percent: number;
   labelKey: string;
   amount: number;
   reached: boolean;
   current: boolean;
-};
+}
 
 @Component({
   selector: 'app-goal-page',
@@ -202,7 +202,7 @@ export class GoalPageComponent {
 
     return milestonePercents.map((percent) => ({
       percent,
-      labelKey: `goal.milestone${percent}`,
+      labelKey: `goal.milestone${String(percent)}`,
       amount: Math.round((target * percent) / 100),
       reached: progress >= percent,
       current: progress < 100 && currentPercent === percent,

@@ -11,12 +11,12 @@ describe('BadgeComponent', () => {
       fixture.componentRef.setInput('variant', variant);
     }
     fixture.detectChanges();
-    return fixture.nativeElement.querySelector('span') as HTMLElement;
+    return (fixture.nativeElement as HTMLElement).querySelector('span') as HTMLElement;
   }
 
   it('renders the label text', () => {
     const el = createBadge('Active');
-    expect(el.textContent?.trim()).toBe('Active');
+    expect(el.textContent.trim()).toBe('Active');
   });
 
   it('applies neutral variant class by default', () => {

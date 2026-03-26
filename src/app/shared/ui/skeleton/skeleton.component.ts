@@ -17,7 +17,7 @@ export type SkeletonVariant = 'rect' | 'text' | 'circle';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SkeletonComponent {
-  readonly width = input<string>('100%');
-  readonly height = input<string>('16px');
+  readonly width = input('100%');
+  readonly height = input('16px');
   readonly variant = input<SkeletonVariant>('rect');
 }

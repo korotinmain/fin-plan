@@ -33,7 +33,7 @@ export class GoalService {
         >
       ).pipe(
         map((data) =>
-          data?.targetAmount != null
+          data?.targetAmount !== undefined
             ? {
                 targetAmount: data.targetAmount,
                 alreadyPaidAmount: data.alreadyPaidAmount ?? 0,

@@ -26,7 +26,7 @@ import { SourceFacade } from '../../sources/source.facade';
 import { sourceCurrencyFor, sourceLabelFor } from '../operation.helpers';
 import { ExpectedFundsFacade } from '../../expected-funds/expected-funds.facade';
 
-type OperationFormValue = {
+interface OperationFormValue {
   type: OperationType;
   occurredAt: string;
   fromSource: SourceId;
@@ -35,9 +35,9 @@ type OperationFormValue = {
   toAmount: number;
   counterparty: string;
   note: string;
-};
+}
 
-type ActivityEntry = {
+interface ActivityEntry {
   id: string;
   title: string;
   subtitle: string;
@@ -49,13 +49,13 @@ type ActivityEntry = {
   effectVariant: 'danger' | 'success' | 'neutral';
   footnote: string;
   sortKey: number;
-  operationType: 'income' | 'transfer' | 'expected';
-};
+  operationType: 'income' | 'transfer' | 'exchange' | 'expected';
+}
 
-type ActivityMonthOption = {
+interface ActivityMonthOption {
   value: string;
   label: string;
-};
+}
 
 @Component({
   selector: 'app-operations-page',
@@ -79,7 +79,7 @@ export class OperationsPageComponent {
   protected readonly isSaving = signal(false);
   protected readonly saveError = signal<string | null>(null);
   protected readonly selectedMonth = signal('all');
-  protected readonly selectedType = signal<'all' | 'income' | 'transfer'>('all');
+  protected readonly selectedType = signal<'all' | 'income' | 'transfer' | 'exchange'>('all');
   protected readonly editingId = signal<string | null>(null);
   protected readonly deleteConfirmId = signal<string | null>(null);
   protected readonly isDeleting = signal(false);
@@ -104,8 +104,8 @@ export class OperationsPageComponent {
         occurredAt: value.occurredAt ?? todayIsoDate(),
         fromSource: (value.fromSource ?? 'cardUah') as SourceId,
         toSource: (value.toSource ?? 'cashUsd') as SourceId,
-        fromAmount: Number(value.fromAmount ?? 0),
-        toAmount: Number(value.toAmount ?? 0),
+        fromAmount: value.fromAmount ?? 0,
+        toAmount: value.toAmount ?? 0,
         counterparty: value.counterparty ?? '',
         note: value.note ?? '',
       })),
@@ -237,8 +237,8 @@ export class OperationsPageComponent {
     this.form.reset({
       type: record.type,
       occurredAt: record.occurredAt,
-      fromSource: (record.fromSource ?? 'cardUah') as SourceId,
-      toSource: (record.toSource ?? 'cashUsd') as SourceId,
+      fromSource: record.fromSource ?? 'cardUah',
+      toSource: record.toSource ?? 'cashUsd',
       fromAmount: record.fromAmount ?? 0,
       toAmount: record.toAmount ?? 0,
       counterparty: record.counterparty ?? '',
@@ -323,7 +323,7 @@ export class OperationsPageComponent {
   }
 
   protected setSelectedType(value: string): void {
-    this.selectedType.set(value as 'all' | 'income' | 'transfer');
+    this.selectedType.set(value as 'all' | 'income' | 'transfer' | 'exchange');
   }
 
   private buildDraft(): OperationDraft {
@@ -439,7 +439,7 @@ export class OperationsPageComponent {
               })
             : entry.note,
         sortKey,
-        operationType: 'income',
+        operationType: 'exchange',
       };
     }
 
@@ -455,7 +455,7 @@ export class OperationsPageComponent {
       effectVariant: 'neutral',
       footnote: entry.note,
       sortKey,
-      operationType: 'income',
+      operationType: 'exchange',
     };
   }
 

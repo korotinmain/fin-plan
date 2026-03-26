@@ -35,12 +35,6 @@ import {
 } from '../currency-formatting.helpers';
 import { getChartTheme } from '../../../shared/helpers/chart-theme';
 
-type ConverterFormValue = {
-  amount: number;
-  from: CurrencyCode;
-  to: CurrencyCode;
-};
-
 type HoldingChannel = 'cash' | 'card';
 type HoldingKey = 'uah' | 'usd' | 'eur';
 
@@ -115,7 +109,7 @@ export class CurrencyPageComponent {
     this.converterForm.valueChanges.pipe(
       startWith(this.converterForm.getRawValue()),
       map((value) => ({
-        amount: Number(value.amount ?? 0),
+        amount: value.amount ?? 0,
         from: (value.from ?? 'USD') as CurrencyCode,
         to: (value.to ?? 'UAH') as CurrencyCode,
       })),
@@ -208,18 +202,10 @@ export class CurrencyPageComponent {
 
   constructor() {
     this.converterForm.controls.from.valueChanges.pipe(takeUntilDestroyed()).subscribe((from) => {
-      if (from === null) {
-        return;
-      }
-
       this.syncConverterCurrencies('from', from as CurrencyCode);
     });
 
     this.converterForm.controls.to.valueChanges.pipe(takeUntilDestroyed()).subscribe((to) => {
-      if (to === null) {
-        return;
-      }
-
       this.syncConverterCurrencies('to', to as CurrencyCode);
     });
 
@@ -232,7 +218,9 @@ export class CurrencyPageComponent {
       }
 
       this.hasAutoFetchedRates.set(true);
-      queueMicrotask(() => this.fetchLiveRates());
+      queueMicrotask(() => {
+        this.fetchLiveRates();
+      });
     });
   }
 

@@ -2,7 +2,6 @@ import { computed, inject, Injectable } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { of, switchMap } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import { Goal } from '../../core/models/goal.model';
 import { AuthService } from '../../core/services/auth.service';
 import { GoalService } from './goal.service';
 
@@ -22,19 +21,22 @@ export class GoalFacade {
   readonly goal = toSignal(
     toObservable(this.uid).pipe(
       switchMap((uid) =>
-        uid ? this.goalService.getGoal$(uid).pipe(catchError(() => of(null))) : of(null),
+        uid !== null ? this.goalService.getGoal$(uid).pipe(catchError(() => of(null))) : of(null),
       ),
     ),
   );
 
   readonly isLoading = computed(() => this.goal() === undefined);
-  readonly hasGoal = computed(() => this.goal() != null);
+  readonly hasGoal = computed(() => {
+    const goal = this.goal();
+    return goal !== null && goal !== undefined;
+  });
   readonly targetAmount = computed(() => this.goal()?.targetAmount ?? 0);
   readonly alreadyPaidAmount = computed(() => this.goal()?.alreadyPaidAmount ?? 0);
 
   save(targetAmount: number, alreadyPaidAmount: number): ReturnType<GoalService['setGoal']> {
     const uid = this.uid();
-    if (!uid) throw new Error('Not authenticated');
+    if (uid === null) throw new Error('Not authenticated');
     return this.goalService.setGoal(uid, targetAmount, alreadyPaidAmount);
   }
 }

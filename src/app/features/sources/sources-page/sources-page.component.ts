@@ -12,14 +12,14 @@ import { EMPTY_SOURCE_BALANCE, SourceId, SOURCE_META } from '../../../core/model
 import { calcTotalSavingsUsd, convertUahToUsd } from '../source.helpers';
 import { getChartTheme } from '../../../shared/helpers/chart-theme';
 
-type SourceCardViewModel = {
+interface SourceCardViewModel {
   id: SourceId;
   label: string;
   currency: 'USD' | 'UAH';
   amount: number;
   normalizedUsd: number;
   share: number;
-};
+}
 
 @Component({
   selector: 'app-sources-page',

@@ -2,6 +2,7 @@
   <!-- ── Left decorative panel ─────────────────────────────────────────────── -->
   <aside class="auth-left" aria-hidden="true">
     <div class="auth-left__glow"></div>
+    <div class="auth-left__glow-secondary"></div>
     <div class="auth-left__grid"></div>
 
     <div class="auth-left__content">
@@ -25,50 +26,20 @@
         <p>{{ 'auth.login.panelText' | t }}</p>
       </div>
 
-      <ul class="auth-left__features">
-        <li>
-          <span class="feature-check">
-            <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
-              <path
-                d="M1.5 5L4 7.5L8.5 2.5"
-                stroke="currentColor"
-                stroke-width="1.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-            </svg>
-          </span>
-          {{ 'auth.login.feature.progress' | t }}
-        </li>
-        <li>
-          <span class="feature-check">
-            <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
-              <path
-                d="M1.5 5L4 7.5L8.5 2.5"
-                stroke="currentColor"
-                stroke-width="1.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-            </svg>
-          </span>
-          {{ 'auth.login.feature.forecast' | t }}
-        </li>
-        <li>
-          <span class="feature-check">
-            <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
-              <path
-                d="M1.5 5L4 7.5L8.5 2.5"
-                stroke="currentColor"
-                stroke-width="1.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-            </svg>
-          </span>
-          {{ 'auth.login.feature.security' | t }}
-        </li>
-      </ul>
+      <div class="auth-left__stats">
+        <div class="auth-left__stat">
+          <span class="auth-left__stat-value">€42,580</span>
+          <span class="auth-left__stat-label">Saved toward goal</span>
+        </div>
+        <div class="auth-left__stat">
+          <span class="auth-left__stat-value">71%</span>
+          <span class="auth-left__stat-label">Goal readiness</span>
+        </div>
+        <div class="auth-left__stat">
+          <span class="auth-left__stat-value">3</span>
+          <span class="auth-left__stat-label">Currencies tracked</span>
+        </div>
+      </div>
     </div>
 
     <div class="auth-left__mockup">
@@ -109,6 +80,7 @@
       </div>
 
       <div class="auth-header">
+        <p class="auth-header__eyebrow">FinPlan</p>
         <h1>{{ 'auth.login.title' | t }}</h1>
         <p>{{ 'auth.login.subtitle' | t }}</p>
       </div>

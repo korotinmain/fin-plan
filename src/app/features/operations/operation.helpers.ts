@@ -293,5 +293,5 @@ function createOperationId(): string {
     return crypto.randomUUID();
   }
 
-  return `op-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+  return `op-${Date.now().toString()}-${Math.random().toString(36).slice(2, 10)}`;
 }

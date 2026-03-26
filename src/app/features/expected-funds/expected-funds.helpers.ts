@@ -35,7 +35,7 @@ export function createExpectedFundId(): string {
     return crypto.randomUUID();
   }
 
-  return `fund-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+  return `fund-${Date.now().toString()}-${Math.random().toString(36).slice(2, 10)}`;
 }
 
 function roundAmount(value: number): number {

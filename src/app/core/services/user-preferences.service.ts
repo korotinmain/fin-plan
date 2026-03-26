@@ -3,6 +3,7 @@ import { doc, docData, Firestore, setDoc } from '@angular/fire/firestore';
 import { from, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { DEFAULT_UI_PREFERENCES, UiPreferences } from '../models/ui-preferences.model';
+import { FIRESTORE_PATHS } from '../constants/firestore.constants';
 
 @Injectable({ providedIn: 'root' })
 export class UserPreferencesService {
@@ -10,7 +11,7 @@ export class UserPreferencesService {
   private readonly injector = inject(Injector);
 
   getUiPreferences$(uid: string): Observable<UiPreferences> {
-    const ref = doc(this.firestore, `users/${uid}/preferences/ui`);
+    const ref = doc(this.firestore, FIRESTORE_PATHS.userPreferences(uid));
 
     return runInInjectionContext(this.injector, () =>
       (docData(ref) as Observable<Partial<UiPreferences> | undefined>).pipe(
@@ -22,7 +23,7 @@ export class UserPreferencesService {
   }
 
   updateUiPreferences(uid: string, payload: Partial<UiPreferences>): Observable<void> {
-    const ref = doc(this.firestore, `users/${uid}/preferences/ui`);
+    const ref = doc(this.firestore, FIRESTORE_PATHS.userPreferences(uid));
     return from(setDoc(ref, payload, { merge: true }));
   }
 }

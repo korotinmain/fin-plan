@@ -2,6 +2,7 @@
   <!-- ── Left decorative panel ─────────────────────────────────────────────── -->
   <aside class="auth-left" aria-hidden="true">
     <div class="auth-left__glow"></div>
+    <div class="auth-left__glow-secondary"></div>
     <div class="auth-left__grid"></div>
 
     <div class="auth-left__content">
@@ -25,51 +26,66 @@
         <p>{{ 'auth.register.panelText' | t }}</p>
       </div>
 
-      <ul class="auth-left__features">
-        <li>
-          <span class="feature-check">
-            <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
-              <path
-                d="M1.5 5L4 7.5L8.5 2.5"
-                stroke="currentColor"
-                stroke-width="1.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-            </svg>
-          </span>
-          {{ 'auth.register.feature.free' | t }}
-        </li>
-        <li>
-          <span class="feature-check">
-            <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
-              <path
-                d="M1.5 5L4 7.5L8.5 2.5"
-                stroke="currentColor"
-                stroke-width="1.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-            </svg>
-          </span>
-          {{ 'auth.register.feature.balances' | t }}
-        </li>
-        <li>
-          <span class="feature-check">
-            <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
-              <path
-                d="M1.5 5L4 7.5L8.5 2.5"
-                stroke="currentColor"
-                stroke-width="1.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-            </svg>
-          </span>
-          {{ 'auth.register.feature.fx' | t }}
-        </li>
-      </ul>
+      <div class="auth-left__stats">
+        <div class="auth-left__stat">
+          <span class="auth-left__stat-value">€161,700</span>
+          <span class="auth-left__stat-label">Typical goal target</span>
+        </div>
+        <div class="auth-left__stat">
+          <span class="auth-left__stat-value">3</span>
+          <span class="auth-left__stat-label">Currencies tracked</span>
+        </div>
+        <div class="auth-left__stat">
+          <span class="auth-left__stat-value">Live</span>
+          <span class="auth-left__stat-label">FX rates, daily</span>
+        </div>
+      </div>
     </div>
+
+    <ul class="auth-left__features" aria-hidden="true">
+      <li class="auth-left__feature">
+        <span class="auth-left__feature-icon">
+          <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+            <path
+              d="M2 5.5 4.2 7.5 8 3"
+              stroke="currentColor"
+              stroke-width="1.4"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </span>
+        {{ 'auth.register.feature.free' | t }}
+      </li>
+      <li class="auth-left__feature">
+        <span class="auth-left__feature-icon">
+          <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+            <path
+              d="M2 5.5 4.2 7.5 8 3"
+              stroke="currentColor"
+              stroke-width="1.4"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </span>
+        {{ 'auth.register.feature.balances' | t }}
+      </li>
+      <li class="auth-left__feature">
+        <span class="auth-left__feature-icon">
+          <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+            <path
+              d="M2 5.5 4.2 7.5 8 3"
+              stroke="currentColor"
+              stroke-width="1.4"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </span>
+        {{ 'auth.register.feature.fx' | t }}
+      </li>
+    </ul>
 
     <div class="auth-left__mockup">
       <div class="mockup-card">
@@ -109,6 +125,7 @@
       </div>
 
       <div class="auth-header">
+        <p class="auth-header__eyebrow">FinPlan</p>
         <h1>{{ 'auth.register.title' | t }}</h1>
         <p>{{ 'auth.register.subtitle' | t }}</p>
       </div>

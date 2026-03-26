@@ -14,7 +14,6 @@ import { SourceFacade } from '../../sources/source.facade';
 import { calcTotalSavingsUsd } from '../../sources/source.helpers';
 import { EMPTY_SOURCE_BALANCE } from '../../../core/models/source.model';
 import {
-  DEFAULT_HOUSE_TARGET_USD,
   ExpectedFundCurrency,
   ExpectedFundEntry,
   ExpectedFundRecord,
@@ -71,16 +70,19 @@ export class ExpectedFundsPageComponent {
     calcTotalSavingsUsd(this.sourceBalances(), this.currencyFacade.rates().usdToUah),
   );
 
-  protected readonly targetAmountUsd = computed(() =>
-    this.goalFacade.targetAmount() > 0 ? this.goalFacade.targetAmount() : DEFAULT_HOUSE_TARGET_USD,
-  );
+  protected readonly targetAmountUsd = computed(() => {
+    const target = this.goalFacade.targetAmount();
+    return target > 0 ? target : null;
+  });
 
   protected readonly expectedTotalUsd = this.expectedFundsFacade.totalUsd;
 
   protected readonly confirmedAmountUsd = this.expectedFundsFacade.confirmedUsd;
 
-  protected readonly supportCoveragePercent = computed(() => {
-    const gapAfterOwnSavings = Math.max(this.targetAmountUsd() - this.ownSavingsUsd(), 1);
+  protected readonly supportCoveragePercent = computed<number | null>(() => {
+    const target = this.targetAmountUsd();
+    if (target === null) return null;
+    const gapAfterOwnSavings = Math.max(target - this.ownSavingsUsd(), 1);
     return Math.round((this.expectedTotalUsd() / gapAfterOwnSavings) * 100);
   });
 

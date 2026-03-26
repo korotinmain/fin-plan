@@ -7,6 +7,5 @@ export const FIRESTORE_PATHS = {
   expectedFunds: (uid: string) => `expectedFunds/${uid}`,
   goals: (uid: string) => `goals/${uid}`,
   operations: (uid: string) => `operations/${uid}`,
-  sources: (uid: string) => `sources/${uid}`,
-  userPreferences: (uid: string) => `users/${uid}/preferences/locale`,
+  userPreferences: (uid: string) => `users/${uid}/preferences/ui`,
 };

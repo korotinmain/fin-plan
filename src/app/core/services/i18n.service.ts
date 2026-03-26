@@ -231,6 +231,7 @@ const TRANSLATIONS: Record<AppLocale, Record<string, string>> = {
     'expectedFunds.confirmedHint': 'High-confidence support already agreed',
     'expectedFunds.coverage': 'Support coverage',
     'expectedFunds.coverageHint': 'Of the still-missing amount after own savings',
+    'expectedFunds.coverageNoGoal': 'Set a goal first',
     'expectedFunds.registryTitle': 'Support registry',
     'expectedFunds.registrySubtitle':
       'Each row should clearly explain who contributes, in what currency, and how it affects readiness.',
@@ -563,6 +564,7 @@ const TRANSLATIONS: Record<AppLocale, Record<string, string>> = {
     'expectedFunds.confirmedHint': 'Підтримка з високою ймовірністю, уже узгоджена',
     'expectedFunds.coverage': 'Покриття підтримкою',
     'expectedFunds.coverageHint': 'Від суми, якої ще бракує після власних заощаджень',
+    'expectedFunds.coverageNoGoal': 'Спочатку встановіть ціль',
     'expectedFunds.registryTitle': 'Реєстр підтримки',
     'expectedFunds.registrySubtitle':
       'Кожен рядок має чітко пояснювати, хто допомагає, у якій валюті й як це впливає на readiness.',
