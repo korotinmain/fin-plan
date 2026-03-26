@@ -35,4 +35,22 @@ export class OperationService {
       ),
     );
   }
+
+  updateOperation(
+    uid: string,
+    currentItems: OperationRecord[],
+    updatedRecord: OperationRecord,
+  ): Observable<void> {
+    const operationsRef = doc(this.firestore, FIRESTORE_PATHS.operations(uid));
+    const items = sortOperationsDescending(
+      currentItems.map((op) => (op.id === updatedRecord.id ? updatedRecord : op)),
+    );
+    return from(setDoc(operationsRef, { items }, { merge: true }));
+  }
+
+  deleteOperation(uid: string, currentItems: OperationRecord[], id: string): Observable<void> {
+    const operationsRef = doc(this.firestore, FIRESTORE_PATHS.operations(uid));
+    const items = currentItems.filter((op) => op.id !== id);
+    return from(setDoc(operationsRef, { items }, { merge: true }));
+  }
 }

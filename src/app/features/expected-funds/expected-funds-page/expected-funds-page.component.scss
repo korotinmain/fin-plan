@@ -217,11 +217,22 @@
   padding: var(--space-6);
 }
 
+@keyframes dialog-panel-in {
+  from {
+    opacity: 0;
+    scale: 0.96;
+  }
+  to {
+    opacity: 1;
+    scale: 1;
+  }
+}
+
 .expected-funds-dialog__backdrop {
   position: absolute;
   inset: 0;
-  background: var(--color-backdrop);
-  backdrop-filter: blur(12px);
+  background: rgba(3, 6, 14, 0.78);
+  backdrop-filter: blur(16px) saturate(180%);
 }
 
 .expected-funds-dialog__panel {
@@ -233,8 +244,12 @@
   padding: var(--space-6);
   border-radius: 24px;
   border: 1px solid rgba(255, 255, 255, 0.08);
-  background: linear-gradient(180deg, rgba(24, 27, 34, 0.98), rgba(17, 20, 30, 0.98));
-  box-shadow: 0 32px 100px rgba(0, 0, 0, 0.42);
+  background: linear-gradient(180deg, rgba(28, 31, 42, 0.99), rgba(16, 19, 30, 0.99));
+  box-shadow:
+    0 48px 140px rgba(0, 0, 0, 0.65),
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.07);
+  animation: dialog-panel-in 240ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 .expected-funds-editor {
@@ -286,10 +301,20 @@
   width: 38px;
   height: 38px;
   padding: 0;
-  font-size: 24px;
-  line-height: 1;
-  text-align: center;
   cursor: pointer;
+  transition:
+    background-color var(--transition-fast),
+    color var(--transition-fast);
+}
+
+.expected-funds-editor__close:hover {
+  background-color: rgba(255, 255, 255, 0.06);
+  color: var(--color-text-primary);
+}
+
+.expected-funds-editor__close svg {
+  width: var(--icon-md);
+  height: var(--icon-md);
 }
 
 .expected-funds-editor__grid {

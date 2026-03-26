@@ -80,6 +80,10 @@ export class OperationsPageComponent {
   protected readonly saveError = signal<string | null>(null);
   protected readonly selectedMonth = signal('all');
   protected readonly selectedType = signal<'all' | 'income' | 'transfer'>('all');
+  protected readonly editingId = signal<string | null>(null);
+  protected readonly deleteConfirmId = signal<string | null>(null);
+  protected readonly isDeleting = signal(false);
+  protected readonly isEditMode = computed(() => this.editingId() !== null);
 
   protected readonly form = this.fb.group({
     type: ['income' as OperationType],
@@ -209,6 +213,7 @@ export class OperationsPageComponent {
   }
 
   protected openDialog(): void {
+    this.editingId.set(null);
     this.saveError.set(null);
     this.form.reset({
       type: 'income',
@@ -223,10 +228,30 @@ export class OperationsPageComponent {
     this.isDialogOpen.set(true);
   }
 
+  protected openEditDialog(entryId: string): void {
+    const record = this.operations().find((op) => op.id === entryId);
+    if (!record) return;
+
+    this.editingId.set(entryId);
+    this.saveError.set(null);
+    this.form.reset({
+      type: record.type,
+      occurredAt: record.occurredAt,
+      fromSource: (record.fromSource ?? 'cardUah') as SourceId,
+      toSource: (record.toSource ?? 'cashUsd') as SourceId,
+      fromAmount: record.fromAmount ?? 0,
+      toAmount: record.toAmount ?? 0,
+      counterparty: record.counterparty ?? '',
+      note: record.note,
+    });
+    this.isDialogOpen.set(true);
+  }
+
   protected closeDialog(): void {
     this.isDialogOpen.set(false);
     this.isSaving.set(false);
     this.saveError.set(null);
+    this.editingId.set(null);
   }
 
   protected setType(type: OperationType): void {
@@ -247,16 +272,44 @@ export class OperationsPageComponent {
     this.isSaving.set(true);
     this.saveError.set(null);
 
+    const editId = this.editingId();
+    const action$ =
+      editId !== null
+        ? this.operationFacade.update(editId, draft, this.currencyFacade.rates())
+        : this.operationFacade.record(draft, this.sourceBalances(), this.currencyFacade.rates());
+
+    action$.pipe(take(1)).subscribe({
+      next: () => {
+        this.closeDialog();
+      },
+      error: (error: unknown) => {
+        this.isSaving.set(false);
+        this.saveError.set(this.resolveError(error));
+      },
+    });
+  }
+
+  protected requestDelete(id: string): void {
+    this.deleteConfirmId.set(id);
+  }
+
+  protected cancelDelete(): void {
+    this.deleteConfirmId.set(null);
+  }
+
+  protected confirmDelete(id: string): void {
+    this.isDeleting.set(true);
     this.operationFacade
-      .record(draft, this.sourceBalances(), this.currencyFacade.rates())
+      .delete(id)
       .pipe(take(1))
       .subscribe({
         next: () => {
-          this.closeDialog();
+          this.deleteConfirmId.set(null);
+          this.isDeleting.set(false);
         },
-        error: (error: unknown) => {
-          this.isSaving.set(false);
-          this.saveError.set(this.resolveError(error));
+        error: () => {
+          this.deleteConfirmId.set(null);
+          this.isDeleting.set(false);
         },
       });
   }
@@ -386,6 +439,7 @@ export class OperationsPageComponent {
               })
             : entry.note,
         sortKey,
+        operationType: 'income',
       };
     }
 

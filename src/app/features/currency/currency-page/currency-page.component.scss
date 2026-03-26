@@ -639,11 +639,22 @@
   padding: var(--space-6);
 }
 
+@keyframes dialog-panel-in {
+  from {
+    opacity: 0;
+    scale: 0.96;
+  }
+  to {
+    opacity: 1;
+    scale: 1;
+  }
+}
+
 .holdings-dialog__backdrop {
   position: absolute;
   inset: 0;
-  background: var(--color-backdrop);
-  backdrop-filter: blur(12px);
+  background: rgba(3, 6, 14, 0.78);
+  backdrop-filter: blur(16px) saturate(180%);
 }
 
 .holdings-dialog__panel {
@@ -653,10 +664,12 @@
   overflow: auto;
   padding: var(--space-6);
   border-radius: 24px;
-  background: linear-gradient(180deg, rgba(24, 27, 34, 0.98), rgba(20, 24, 38, 0.98));
+  background: linear-gradient(180deg, rgba(28, 31, 44, 0.99), rgba(18, 22, 36, 0.99));
   box-shadow:
-    0 24px 80px rgba(0, 0, 0, 0.45),
-    inset 0 0 0 1px var(--color-border);
+    0 48px 140px rgba(0, 0, 0, 0.65),
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.07);
+  animation: dialog-panel-in 240ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 .holdings-dialog__form {

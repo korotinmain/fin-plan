@@ -6,7 +6,7 @@ import { ExchangeRates } from '../../core/models/currency.model';
 import { OperationDraft, OperationRecord } from '../../core/models/operation.model';
 import { SourceBalance } from '../../core/models/source.model';
 import { AuthService } from '../../core/services/auth.service';
-import { buildOperationMutation } from './operation.helpers';
+import { buildOperationMutation, calcBalancesFromOperations } from './operation.helpers';
 import { OperationService } from './operation.service';
 
 @Injectable({ providedIn: 'root' })
@@ -41,10 +41,29 @@ export class OperationFacade {
 
     const { record } = buildOperationMutation(draft, balances, rates);
 
-    return this.operationService.recordOperation(
-      uid,
-      this.operations() ?? [],
-      record,
-    );
+    return this.operationService.recordOperation(uid, this.operations() ?? [], record);
+  }
+
+  update(
+    id: string,
+    draft: OperationDraft,
+    rates: ExchangeRates,
+  ): ReturnType<OperationService['updateOperation']> {
+    const uid = this.uid();
+    if (uid === null) throw new Error('Not authenticated');
+
+    // Compute balances without the existing record so validation is correct
+    const opsWithoutThis = (this.operations() ?? []).filter((op) => op.id !== id);
+    const balancesWithoutThis = calcBalancesFromOperations(opsWithoutThis);
+    const { record } = buildOperationMutation(draft, balancesWithoutThis, rates);
+    const updatedRecord: OperationRecord = { ...record, id };
+
+    return this.operationService.updateOperation(uid, this.operations() ?? [], updatedRecord);
+  }
+
+  delete(id: string): ReturnType<OperationService['deleteOperation']> {
+    const uid = this.uid();
+    if (uid === null) throw new Error('Not authenticated');
+    return this.operationService.deleteOperation(uid, this.operations() ?? [], id);
   }
 }

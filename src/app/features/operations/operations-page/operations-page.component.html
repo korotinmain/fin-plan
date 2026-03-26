@@ -68,40 +68,173 @@
             <div class="activity-list">
               @for (entry of filteredActivityEntries(); track entry.id) {
                 <article class="activity-item">
-                  <div class="activity-item__top">
-                    <div>
-                      <h3 class="activity-item__title">{{ entry.title }}</h3>
-                      <p class="activity-item__subtitle">{{ entry.subtitle }}</p>
-                    </div>
-
-                    <span class="activity-item__date">{{ entry.dateLabel }}</span>
-                  </div>
-
-                  <div class="activity-item__columns">
-                    <div class="activity-item__cell">
-                      <span class="activity-item__label">{{ 'operations.colFrom' | t }}</span>
-                      <span class="activity-item__value">{{ entry.fromLabel }}</span>
-                    </div>
-
-                    <div class="activity-item__cell">
-                      <span class="activity-item__label">{{ 'operations.colTo' | t }}</span>
-                      <span class="activity-item__value">{{ entry.toLabel }}</span>
-                    </div>
-
-                    <div class="activity-item__cell">
-                      <span class="activity-item__label">{{ 'operations.colEffect' | t }}</span>
-                      <span
-                        class="activity-item__value"
-                        [class]="
-                          'activity-item__value activity-item__value--' + effectBadgeVariant(entry)
-                        "
+                  <div
+                    [class]="'activity-item__badge activity-item__badge--' + entry.operationType"
+                  >
+                    @if (entry.operationType === 'transfer') {
+                      <svg
+                        viewBox="0 0 18 18"
+                        fill="none"
+                        class="activity-item__badge-icon"
+                        aria-hidden="true"
                       >
-                        {{ entry.effectLabel }}
-                      </span>
-                    </div>
+                        <path
+                          d="M9 13V5M5.5 8.5 9 5l3.5 3.5"
+                          stroke="currentColor"
+                          stroke-width="1.6"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        />
+                      </svg>
+                    } @else if (entry.operationType === 'expected') {
+                      <svg
+                        viewBox="0 0 18 18"
+                        fill="none"
+                        class="activity-item__badge-icon"
+                        aria-hidden="true"
+                      >
+                        <circle cx="9" cy="9" r="5.75" stroke="currentColor" stroke-width="1.6" />
+                        <path
+                          d="M9 6v3.5l2.5 1.5"
+                          stroke="currentColor"
+                          stroke-width="1.6"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        />
+                      </svg>
+                    } @else {
+                      <svg
+                        viewBox="0 0 18 18"
+                        fill="none"
+                        class="activity-item__badge-icon"
+                        aria-hidden="true"
+                      >
+                        <path
+                          d="M9 5v8M5.5 9.5 9 13l3.5-3.5"
+                          stroke="currentColor"
+                          stroke-width="1.6"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        />
+                      </svg>
+                    }
                   </div>
 
-                  <p class="activity-item__footnote">{{ entry.footnote }}</p>
+                  <div class="activity-item__body">
+                    <div class="activity-item__header-row">
+                      <span class="activity-item__title">{{ entry.title }}</span>
+                      @if (entry.subtitle) {
+                        <span class="activity-item__dot" aria-hidden="true">·</span>
+                        <span class="activity-item__subtitle">{{ entry.subtitle }}</span>
+                      }
+                    </div>
+                    <div class="activity-item__route">
+                      <span class="activity-item__route-node">{{ entry.fromLabel }}</span>
+                      <svg
+                        viewBox="0 0 20 6"
+                        fill="none"
+                        class="activity-item__route-arrow"
+                        aria-hidden="true"
+                      >
+                        <path
+                          d="M1 3h16M14 .75l4 2.25-4 2.25"
+                          stroke="currentColor"
+                          stroke-width="1.25"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        />
+                      </svg>
+                      <span class="activity-item__route-node">{{ entry.toLabel }}</span>
+                    </div>
+                    @if (entry.footnote) {
+                      <p class="activity-item__footnote">{{ entry.footnote }}</p>
+                    }
+                  </div>
+
+                  <div class="activity-item__right">
+                    <span
+                      [class]="
+                        'activity-item__effect activity-item__effect--' + effectBadgeVariant(entry)
+                      "
+                      >{{ entry.effectLabel }}</span
+                    >
+                    <span class="activity-item__date">{{ entry.dateLabel }}</span>
+
+                    @if (entry.operationType !== 'expected') {
+                      @if (deleteConfirmId() === entry.id) {
+                        <div class="activity-item__delete-confirm">
+                          <span class="activity-item__delete-question">{{
+                            'operations.deleteConfirm' | t
+                          }}</span>
+                          <div class="activity-item__delete-actions">
+                            <button
+                              class="activity-item__action-btn activity-item__action-btn--danger"
+                              type="button"
+                              [disabled]="isDeleting()"
+                              (click)="confirmDelete(entry.id)"
+                            >
+                              {{ 'operations.deleteYes' | t }}
+                            </button>
+                            <button
+                              class="activity-item__action-btn"
+                              type="button"
+                              (click)="cancelDelete()"
+                            >
+                              {{ 'operations.deleteNo' | t }}
+                            </button>
+                          </div>
+                        </div>
+                      } @else {
+                        <div class="activity-item__actions">
+                          <button
+                            class="activity-item__action-btn"
+                            type="button"
+                            [attr.aria-label]="'operations.editLabel' | t"
+                            (click)="openEditDialog(entry.id)"
+                          >
+                            <svg
+                              viewBox="0 0 16 16"
+                              fill="none"
+                              width="12"
+                              height="12"
+                              aria-hidden="true"
+                            >
+                              <path
+                                d="M11.5 2.5a1.414 1.414 0 0 1 2 2L5 13H3v-2L11.5 2.5Z"
+                                stroke="currentColor"
+                                stroke-width="1.4"
+                                stroke-linejoin="round"
+                              />
+                            </svg>
+                            {{ 'operations.editLabel' | t }}
+                          </button>
+                          <button
+                            class="activity-item__action-btn activity-item__action-btn--danger"
+                            type="button"
+                            [attr.aria-label]="'operations.deleteLabel' | t"
+                            (click)="requestDelete(entry.id)"
+                          >
+                            <svg
+                              viewBox="0 0 16 16"
+                              fill="none"
+                              width="12"
+                              height="12"
+                              aria-hidden="true"
+                            >
+                              <path
+                                d="M3 4h10M6 4V2.5h4V4M6.5 7v5M9.5 7v5M4 4l.7 8.5A1 1 0 0 0 5.7 13.5h4.6a1 1 0 0 0 1-.9L12 4"
+                                stroke="currentColor"
+                                stroke-width="1.4"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                              />
+                            </svg>
+                            {{ 'operations.deleteLabel' | t }}
+                          </button>
+                        </div>
+                      }
+                    }
+                  </div>
                 </article>
               }
             </div>
@@ -132,7 +265,13 @@
     >
       <div class="operations-dialog__head">
         <div>
-          <h2 class="operations-dialog__title">{{ 'operations.dialogTitle' | t }}</h2>
+          <h2 class="operations-dialog__title">
+            @if (isEditMode()) {
+              {{ 'operations.editDialogTitle' | t }}
+            } @else {
+              {{ 'operations.dialogTitle' | t }}
+            }
+          </h2>
           <p class="operations-dialog__subtitle">{{ 'operations.dialogSubtitle' | t }}</p>
         </div>
 
@@ -142,7 +281,14 @@
           (click)="closeDialog()"
           aria-label="Close"
         >
-          ×
+          <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path
+              d="M4 4l8 8M12 4 4 12"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+            />
+          </svg>
         </button>
       </div>
 
